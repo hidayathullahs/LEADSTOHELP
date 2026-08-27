@@ -419,3 +419,8 @@ def get_firestore_service() -> DualModeFirestoreService:
     if _service_instance is None:
         _service_instance = DualModeFirestoreService()
     return _service_instance
+
+def reset_firestore_service():
+    """Resets the singleton instance for deterministic test isolation"""
+    global _service_instance
+    _service_instance = None

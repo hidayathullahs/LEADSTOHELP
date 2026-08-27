@@ -18,7 +18,7 @@ class Settings(BaseSettings):
 
     # Firestore & Persistence
     FIRESTORE_DATABASE: str = "(default)"
-    FIRESTORE_MODE: str = "dual"  # "cloud", "local", or "dual"
+    FIRESTORE_MODE: str = "local"  # "cloud", "local", or "dual"
     GCS_BUCKET_INVOICES: str = "leadstohelp-invoices-dev"
 
     # Security & Auth

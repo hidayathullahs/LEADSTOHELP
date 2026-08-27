@@ -49,3 +49,8 @@ def get_audit_service() -> AuditService:
     if _audit_instance is None:
         _audit_instance = AuditService()
     return _audit_instance
+
+def reset_audit_service():
+    """Resets the audit service singleton instance for test isolation"""
+    global _audit_instance
+    _audit_instance = None
