@@ -35,6 +35,9 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
+  // System Telemetry & Health
+  getSystemStatus: () => request('/api/system/status'),
+  
   // Overview & Metrics
   getOverview: () => request('/api/overview'),
   

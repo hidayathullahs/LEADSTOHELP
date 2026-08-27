@@ -44,6 +44,10 @@ class Settings(BaseSettings):
             return ["*"]
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
 
+    @property
+    def is_production(self) -> bool:
+        return self.ENVIRONMENT.lower() == "production" or not self.DEBUG
+
 @lru_cache()
 def get_settings() -> Settings:
     return Settings()

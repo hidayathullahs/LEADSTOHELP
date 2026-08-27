@@ -14,16 +14,28 @@ class GeminiService:
         self.model_name = self.settings.GEMINI_MODEL
         self.api_key = self.settings.GEMINI_API_KEY or os.environ.get("GEMINI_API_KEY", "")
         self.client = None
+        self.is_live_available = False
         
         if self.api_key:
             try:
                 from google import genai
                 self.client = genai.Client(api_key=self.api_key)
+                self.is_live_available = True
                 print(f"[GENAI] Initialized Google Gen AI Client with model: {self.model_name}")
             except Exception as e:
-                print(f"[GENAI] Google Gen AI Client initialization failed: {e}. Using deterministic reasoning engine.")
+                print(f"[GENAI] Google Gen AI Client initialization failed: {e}. Using offline fallback engine.")
+                self.is_live_available = False
         else:
-            print(f"[GENAI] No GEMINI_API_KEY set. Utilizing robust local multi-agent reasoning engine.")
+            print(f"[GENAI] No GEMINI_API_KEY set. Utilizing offline fallback reasoning engine.")
+
+    def get_status(self) -> Dict[str, Any]:
+        """Returns non-secret configuration and operational status of the Gemini service"""
+        return {
+            "gemini_configured": bool(self.api_key),
+            "gemini_live_available": self.is_live_available and self.client is not None,
+            "gemini_model": self.model_name,
+            "ai_mode": "LIVE GEMINI" if (self.is_live_available and self.client) else "DEMO / OFFLINE (FALLBACK)"
+        }
 
     async def generate_reasoning(
         self,
@@ -33,7 +45,6 @@ class GeminiService:
         temperature: float = 0.2
     ) -> str:
         """Generates AI reasoning with contextual business data grounding"""
-        # Guard against prompt injection: treat context_data as untrusted factual payload
         grounded_context = f"\n[STRUCTURED BUSINESS DATA GROUNDING]:\n{json.dumps(context_data or {}, indent=2)}" if context_data else ""
         
         full_prompt = (
@@ -53,9 +64,9 @@ class GeminiService:
                 if response and response.text:
                     return response.text.strip()
             except Exception as e:
-                print(f"[GENAI ERROR] API call failed: {e}. Falling back to deterministic contextual reasoning.")
+                print(f"[GENAI ERROR] API call failed: {e}. Falling back to explicit offline fallback.")
 
-        # Context-aware fallback response generator
+        # Visibly distinguishable offline fallback generator
         return self._generate_grounded_fallback(system_instruction, user_prompt, context_data)
 
     async def extract_multimodal_invoice(
@@ -85,11 +96,13 @@ class GeminiService:
                     text = text.split("```json")[1].split("```")[0].strip()
                 elif "```" in text:
                     text = text.split("```")[1].split("```")[0].strip()
-                return json.loads(text)
+                extracted = json.loads(text)
+                extracted["ai_mode"] = "LIVE GEMINI 2.5 VISION"
+                return extracted
             except Exception as e:
-                print(f"[VISION ERROR] Gemini Vision extraction failed: {e}. Using deterministic OCR simulator.")
+                print(f"[VISION ERROR] Gemini Vision extraction failed: {e}. Using explicit offline extractor.")
 
-        # High-fidelity fallback for offline demo / testing
+        # Clearly marked offline fallback for local demo / testing
         return {
             "supplier_name": "Kaveri Organic Dairy Co-op",
             "supplier_gstin": "29AABCK8891D1ZQ",
@@ -110,7 +123,8 @@ class GeminiService:
             "tax_amount": 304.0,
             "total_amount": 6584.0,
             "extraction_confidence": 0.97,
-            "raw_ocr_summary": "Extracted via Gemini Vision OCR: Kaveri Dairy Tax Invoice INV-KAV-8842 matching PO-10022."
+            "ai_mode": "DEMO / OFFLINE (FALLBACK EXTRACTOR)",
+            "raw_ocr_summary": "[DEMO / OFFLINE FALLBACK] Kaveri Dairy Tax Invoice INV-KAV-8842 matching PO-10022."
         }
 
     def _generate_grounded_fallback(
@@ -119,11 +133,13 @@ class GeminiService:
         user_prompt: str,
         context_data: Optional[Dict[str, Any]]
     ) -> str:
-        """Produces contextual reasoning grounded in actual application data"""
+        """Produces contextual reasoning explicitly badged as offline fallback"""
+        disclaimer = "⚠️ **[DEMO / OFFLINE FALLBACK MODE — Live Gemini API key not configured or unreachable]**\n\n"
         prompt_lower = user_prompt.lower()
         
         if "coffee" in prompt_lower or "stockout" in prompt_lower or "run out" in prompt_lower:
             return (
+                f"{disclaimer}"
                 "🚨 **Stockout Analysis for SKU COFFEE-001 (Arabica Coffee Beans - AAA Grade)**:\n\n"
                 "• **Current Stock:** 36.0 kg\n"
                 "• **Average Run-Rate:** 13.0 kg/day (+32% weekend surge factor)\n"
@@ -139,6 +155,7 @@ class GeminiService:
             
         if "supplier" in prompt_lower or "metro" in prompt_lower or "malnad" in prompt_lower:
             return (
+                f"{disclaimer}"
                 "📊 **Supplier Network Intelligence**:\n\n"
                 "• **Metro Wholesale Hub:** Reliability **91/100** | On-Time: **96%** | Invoice Accuracy: **94%** | Lead Time: **2 Days**\n"
                 "• **Malnad Coffee Direct:** Reliability **94.5/100** | On-Time: **92%** | Price Stability: **95%** | Lead Time: **4 Days**\n"
@@ -147,6 +164,7 @@ class GeminiService:
             )
 
         return (
+            f"{disclaimer}"
             f"**Operational Intelligence Summary**:\n\n"
             f"Analyzing current supply chain parameters against live store telemetry. "
             f"All inventory thresholds, supplier SLAs, and purchase order statuses have been verified against the store operations ledger."

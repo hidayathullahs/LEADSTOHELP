@@ -49,18 +49,29 @@ def test_procurement_simulator_endpoint():
 
 def test_human_in_the_loop_approval_lifecycle():
     """Validates approval creation, review, and manager decision recording"""
-    # 1. Fetch pending approvals
-    list_resp = client.get("/api/approvals?status=PENDING", headers={"Authorization": "Bearer dev_jwt_secret_leadstohelp_change_in_production"})
+    # 1. Fetch approvals (or create one if queue is empty)
+    list_resp = client.get("/api/approvals", headers={"Authorization": "Bearer dev_jwt_secret_leadstohelp_change_in_production"})
     assert list_resp.status_code == 200
     approvals = list_resp.json()["approvals"]
-    assert len(approvals) >= 1
     
+    if not approvals:
+        # Create a proposal to populate queue
+        prop_res = client.post(
+            "/api/procurement/proposals",
+            json={"sku": "COFFEE-001", "scenario_id": "SCENARIO-B", "target_quantity": 100},
+            headers={"Authorization": "Bearer dev_jwt_secret_leadstohelp_change_in_production"}
+        )
+        assert prop_res.status_code == 200
+        list_resp = client.get("/api/approvals", headers={"Authorization": "Bearer dev_jwt_secret_leadstohelp_change_in_production"})
+        approvals = list_resp.json()["approvals"]
+
+    assert len(approvals) >= 1
     appr_id = approvals[0]["approval_id"]
     
     # 2. Approve action
     dec_resp = client.post(
         f"/api/approvals/{appr_id}/decision",
-        json={"decision": "APPROVED", "reason": "Authorized for weekend peak service."},
+        json={"decision": "APPROVED", "decision_reason": "Authorized for weekend peak service."},
         headers={"Authorization": "Bearer dev_jwt_secret_leadstohelp_change_in_production"}
     )
     assert dec_resp.status_code == 200

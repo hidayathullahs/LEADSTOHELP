@@ -22,18 +22,51 @@ class DualModeFirestoreService:
         # Load local state from seeded data file
         self._load_local_data()
         
-        # Try initializing live Firestore client if requested
-        if self.mode in ["cloud", "dual"]:
+        # In production mode with FIRESTORE_MODE=cloud, strictly require live Firestore
+        if self.mode == "cloud" or (self.settings.is_production and self.mode != "local"):
             try:
                 from google.cloud import firestore
                 self._firestore_client = firestore.Client(
                     project=self.settings.GOOGLE_CLOUD_PROJECT,
                     database=self.settings.FIRESTORE_DATABASE
                 )
+                self.mode = "cloud"
                 print(f"[PERSISTENCE] Connected to Google Cloud Firestore ({self.settings.GOOGLE_CLOUD_PROJECT})")
             except Exception as e:
-                print(f"[PERSISTENCE] Live Firestore unavailable ({e}). Using high-fidelity local state engine.")
+                error_msg = (
+                    f"CRITICAL: Failed to initialize Google Cloud Firestore in production mode: {e}. "
+                    f"Ensure Application Default Credentials (ADC) or GOOGLE_CLOUD_PROJECT is configured, "
+                    f"or explicitly set FIRESTORE_MODE=local for local testing."
+                )
+                print(f"[PERSISTENCE ERROR] {error_msg}")
+                if self.settings.is_production or self.mode == "cloud":
+                    raise RuntimeError(error_msg)
                 self.mode = "local"
+        elif self.mode == "dual":
+            # Development dual-mode: try cloud, gracefully fallback to local
+            try:
+                from google.cloud import firestore
+                self._firestore_client = firestore.Client(
+                    project=self.settings.GOOGLE_CLOUD_PROJECT,
+                    database=self.settings.FIRESTORE_DATABASE
+                )
+                self.mode = "cloud"
+                print(f"[PERSISTENCE] Connected to Google Cloud Firestore ({self.settings.GOOGLE_CLOUD_PROJECT})")
+            except Exception as e:
+                print(f"[PERSISTENCE] Live Firestore unavailable ({e}). Using local developer state engine.")
+                self.mode = "local"
+        else:
+            self.mode = "local"
+            print("[PERSISTENCE] Initialized in local JSON persistence mode.")
+
+    def get_status(self) -> Dict[str, Any]:
+        """Returns non-secret status of the persistence subsystem"""
+        return {
+            "mode": self.mode,
+            "connected": self._firestore_client is not None or self.mode == "local",
+            "is_cloud": self.mode == "cloud",
+            "project": self.settings.GOOGLE_CLOUD_PROJECT if self.mode == "cloud" else "local_store_db"
+        }
 
     def _load_local_data(self):
         """Loads data from seeded_store_data.json into in-memory store"""

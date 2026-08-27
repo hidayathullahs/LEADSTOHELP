@@ -22,24 +22,32 @@ def verify_token(
 ) -> AuthenticatedUser:
     """
     Validates Firebase ID token or Development JWT.
-    Extracts authenticated user identity and enforces store tenancy.
+    In Production (DEBUG=False or ENVIRONMENT=production):
+      - Strictly requires a valid Firebase ID token verified via firebase_admin.
+      - Rejects missing headers, dev tokens, and hardcoded identities with HTTP 401.
+    In Development (DEBUG=True):
+      - Permits development tokens and default test identities for local developer testing.
     """
     settings = get_settings()
+    is_prod = settings.is_production
     
+    # Extract clean store_id
+    effective_store_id = x_store_id if isinstance(x_store_id, str) and x_store_id else settings.STORE_ID
+
     # 1. Check for Bearer token
     if not authorization:
-        # In development mode, allow default authorized store manager
-        if settings.DEBUG:
+        if not is_prod and settings.DEBUG:
+            # Development-only default authorized store manager
             return AuthenticatedUser(
                 uid="user_arjun_rao_01",
                 email="arjun@deccanroast.in",
                 name="Arjun Rao (Operations Manager)",
                 role="STORE_MANAGER",
-                store_id=x_store_id or settings.STORE_ID
+                store_id=effective_store_id
             )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authorization header missing."
+            detail="Authorization header missing. A valid Firebase ID token is required in production."
         )
 
     token_type, _, token = authorization.partition(" ")
@@ -49,7 +57,27 @@ def verify_token(
             detail="Invalid authorization token format. Expected 'Bearer <token>'."
         )
 
-    # 2. Try Firebase Admin token verification if available
+    # 2. In production, dev tokens are strictly forbidden
+    if is_prod:
+        # Try real Firebase Admin token verification
+        try:
+            import firebase_admin
+            from firebase_admin import auth
+            decoded = auth.verify_id_token(token)
+            return AuthenticatedUser(
+                uid=decoded.get("uid", "user_authenticated"),
+                email=decoded.get("email", "manager@deccanroast.in"),
+                name=decoded.get("name", "Store Manager"),
+                role=decoded.get("role", "STORE_MANAGER"),
+                store_id=decoded.get("store_id", effective_store_id)
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Production Firebase ID token verification failed: {str(e)}"
+            )
+
+    # 3. Development mode verification
     try:
         import firebase_admin
         from firebase_admin import auth
@@ -59,21 +87,21 @@ def verify_token(
             email=decoded.get("email", "manager@deccanroast.in"),
             name=decoded.get("name", "Store Manager"),
             role=decoded.get("role", "STORE_MANAGER"),
-            store_id=decoded.get("store_id", settings.STORE_ID)
+            store_id=decoded.get("store_id", effective_store_id)
         )
     except Exception:
-        # Fallback for dev JWT / local testing tokens
-        if token == settings.JWT_SECRET_KEY or settings.DEBUG:
+        # Development fallback token check
+        if token == settings.JWT_SECRET_KEY or token == "dev_token_manager" or settings.DEBUG:
             return AuthenticatedUser(
                 uid="user_arjun_rao_01",
                 email="arjun@deccanroast.in",
                 name="Arjun Rao (Operations Manager)",
                 role="STORE_MANAGER",
-                store_id=x_store_id or settings.STORE_ID
+                store_id=effective_store_id
             )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token."
+            detail="Invalid or expired token in development mode."
         )
 
 def require_manager_role(user: AuthenticatedUser = Depends(verify_token)) -> AuthenticatedUser:

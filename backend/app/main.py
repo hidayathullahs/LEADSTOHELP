@@ -51,11 +51,55 @@ app.add_middleware(
 @app.get("/health", tags=["Health"])
 async def health_check():
     """Liveness probe returning operational state and version."""
+    from .services.gemini_service import get_gemini_service
+    from .services.firestore_service import get_firestore_service
+    
+    gemini_status = get_gemini_service().get_status()
+    firestore_status = get_firestore_service().get_status()
+    
     return {
         "status": "healthy",
         "service": "leadstohelp-ai",
         "version": settings.VERSION,
         "environment": settings.ENVIRONMENT,
+        "is_production": settings.is_production,
+        "gemini_mode": gemini_status.get("ai_mode"),
+        "firestore_mode": firestore_status.get("mode"),
+        "timestamp": current_utc_time()
+    }
+
+@app.get("/api/system/status", tags=["Health"])
+async def get_system_status():
+    """Returns non-secret operational telemetry for UI indicator and health monitoring."""
+    from .services.gemini_service import get_gemini_service
+    from .services.firestore_service import get_firestore_service
+    
+    gemini_status = get_gemini_service().get_status()
+    firestore_status = get_firestore_service().get_status()
+    
+    return {
+        "service": settings.PROJECT_NAME,
+        "version": settings.VERSION,
+        "environment": settings.ENVIRONMENT,
+        "debug_mode": settings.DEBUG,
+        "is_production": settings.is_production,
+        "gemini": {
+            "configured": gemini_status.get("gemini_configured", False),
+            "live_available": gemini_status.get("gemini_live_available", False),
+            "model": gemini_status.get("gemini_model", settings.GEMINI_MODEL),
+            "mode": gemini_status.get("ai_mode", "DEMO / OFFLINE (FALLBACK)")
+        },
+        "firestore": {
+            "mode": firestore_status.get("mode", "local"),
+            "connected": firestore_status.get("connected", True),
+            "is_cloud": firestore_status.get("is_cloud", False),
+            "project": firestore_status.get("project", "local_db")
+        },
+        "authentication": {
+            "mode": "FIREBASE_ID_TOKEN" if settings.is_production else "DEVELOPMENT_PERMISSIVE",
+            "enforced": settings.is_production,
+            "required_role": "STORE_MANAGER"
+        },
         "timestamp": current_utc_time()
     }
 

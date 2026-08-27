@@ -1,19 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
   Search,
-  Bell,
   Cpu,
-  UserCheck,
-  Zap,
-  RotateCcw
+  RotateCcw,
+  Database,
+  ShieldCheck,
+  Zap
 } from 'lucide-react';
+import { api } from '../services/api';
 
 export default function Topbar({ onOpenAskAI, onRefreshData, isRefreshing }) {
+  const [systemStatus, setSystemStatus] = useState(null);
+
+  const fetchStatus = async () => {
+    try {
+      const status = await api.getSystemStatus();
+      setSystemStatus(status);
+    } catch (err) {
+      console.warn('System status probe:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchStatus();
+  }, [isRefreshing]);
+
+  const isGeminiLive = systemStatus?.gemini?.live_available;
+  const isFirestoreCloud = systemStatus?.firestore?.is_cloud;
+  const isAuthStrict = systemStatus?.authentication?.enforced;
+
   return (
     <header className="h-16 bg-[#0B0F19]/90 backdrop-blur-md border-b border-slate-800/80 px-6 flex items-center justify-between shrink-0">
       {/* Search & Quick Trigger */}
-      <div className="flex items-center gap-4 flex-1 max-w-xl">
+      <div className="flex items-center gap-4 flex-1 max-w-md">
         <div className="relative w-full">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -26,18 +46,57 @@ export default function Topbar({ onOpenAskAI, onRefreshData, isRefreshing }) {
         </div>
       </div>
 
-      {/* Action Badges & Profile */}
-      <div className="flex items-center gap-3">
-        {/* Closed-Loop AI Engine Status */}
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-cyan-950/40 border border-cyan-800/40 text-cyan-400 text-xs font-semibold">
-          <Cpu className="w-3.5 h-3.5 animate-pulse" />
-          <span>Closed-Loop Engine: <strong className="text-white">Active</strong></span>
+      {/* Trustworthy Runtime Telemetry Badges */}
+      <div className="hidden xl:flex items-center gap-2">
+        {/* Gemini Status */}
+        <div
+          title={`Gemini Model: ${systemStatus?.gemini?.model || 'gemini-2.5-flash'}`}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono border ${
+            isGeminiLive
+              ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60'
+              : 'bg-amber-950/60 text-amber-300 border-amber-800/60'
+          }`}
+        >
+          <Cpu className="w-3 h-3" />
+          <span>Gemini: <strong>{isGeminiLive ? 'LIVE' : 'OFFLINE DEMO'}</strong></span>
         </div>
 
+        {/* Firestore Status */}
+        <div
+          title={`Persistence: ${systemStatus?.firestore?.project || 'local_db'}`}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono border ${
+            isFirestoreCloud
+              ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60'
+              : 'bg-cyan-950/60 text-cyan-300 border-cyan-800/60'
+          }`}
+        >
+          <Database className="w-3 h-3" />
+          <span>Firestore: <strong>{isFirestoreCloud ? 'CLOUD' : 'LOCAL JSON'}</strong></span>
+        </div>
+
+        {/* Authentication Mode */}
+        <div
+          title={`Auth Mode: ${systemStatus?.authentication?.mode || 'DEVELOPMENT_PERMISSIVE'}`}
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono border ${
+            isAuthStrict
+              ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60'
+              : 'bg-slate-900 text-slate-400 border-slate-800'
+          }`}
+        >
+          <ShieldCheck className="w-3 h-3" />
+          <span>Auth: <strong>{isAuthStrict ? 'STRICT RBAC' : 'DEV MODE'}</strong></span>
+        </div>
+      </div>
+
+      {/* Action Badges & Profile */}
+      <div className="flex items-center gap-3">
         {/* Refresh button */}
         <button
-          onClick={onRefreshData}
-          title="Refresh store telemetry"
+          onClick={() => {
+            onRefreshData();
+            fetchStatus();
+          }}
+          title="Refresh store telemetry & subsystem status"
           className="p-2 text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 rounded-lg border border-slate-800 transition-all"
         >
           <RotateCcw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-cyan-400' : ''}`} />
