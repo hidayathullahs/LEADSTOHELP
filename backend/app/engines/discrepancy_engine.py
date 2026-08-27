@@ -3,7 +3,7 @@ LEADSTOHELP AI - 3-Way Invoice Matching & Discrepancy Engine
 Deterministically detects 8 discrepancy vectors between Extracted Invoices and Purchase Orders.
 """
 
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 from ..models.invoice import DiscrepancyType, DiscrepancyDetail, DiscrepancyStatus
 from ..models.common import RiskLevel
 
