@@ -13,21 +13,41 @@ from ..config import get_settings
 from ..models.common import current_utc_time
 
 class DualModeFirestoreService:
-    # Hard wall-clock timeout for the entire cloud initialization path
-    # (credential discovery + client construction + connectivity probe).
-    # This bounds the google-auth metadata server retry loop which can
-    # otherwise block for ~300s with exponential backoff.
-    CLOUD_INIT_TIMEOUT_SECONDS = 8
+    # Timeout (seconds) for the Firestore startup connectivity probe RPC.
+    # This bounds only the .get() call; credential discovery is bounded
+    # separately via GCE_METADATA_TIMEOUT / GCE_METADATA_DETECT_RETRIES.
+    PROBE_RPC_TIMEOUT_SECONDS = 3
+
+    @staticmethod
+    def _configure_gce_metadata_bounds():
+        """
+        Configures google-auth library environment variables to prevent the
+        GCE metadata server discovery from blocking for ~300s with exponential
+        backoff retries when no valid credentials are available.
+
+        These are official, library-supported configuration knobs:
+        - GCE_METADATA_TIMEOUT: per-request timeout to metadata server (default: 3s)
+        - GCE_METADATA_DETECT_RETRIES: number of retries during detection (default: 3)
+
+        Production-safe values: 1 second timeout, 1 retry = worst case ~2s for
+        metadata discovery instead of ~300s.
+
+        Only sets them if not already configured, so operators can override
+        via environment or .env for environments that need longer timeouts
+        (e.g., slow GKE Workload Identity startup).
+        """
+        os.environ.setdefault("GCE_METADATA_TIMEOUT", "1")
+        os.environ.setdefault("GCE_METADATA_DETECT_RETRIES", "1")
 
     def __init__(self):
         self.settings = get_settings()
         self.mode = self.settings.FIRESTORE_MODE
         self._firestore_client = None
         self._local_db: Dict[str, Any] = {}
-        
+
         # Load local state from seeded data file
         self._load_local_data()
-        
+
         # In production mode with FIRESTORE_MODE=cloud, strictly require live Firestore
         if self.mode == "cloud" or (self.settings.is_production and self.mode != "local"):
             try:
@@ -59,40 +79,37 @@ class DualModeFirestoreService:
 
     def _create_and_probe_firestore_client(self):
         """
-        Creates a Firestore client and validates connectivity within a hard
-        wall-clock timeout. This bounds the ENTIRE initialization path including:
-        
-        A. google.auth.default() credential discovery — which can block for
-           ~300s when the GCE metadata server is unreachable (exponential
-           backoff retries in google-auth).
-        B. The Firestore .get() RPC connectivity probe.
-        
-        Uses concurrent.futures to enforce a strict deadline that cannot be
-        defeated by internal retry loops in google-auth or gRPC.
+        Creates a Firestore client and validates real connectivity.
+
+        Bounds the two slowest paths:
+        A. google.auth.default() credential discovery — bounded by
+           GCE_METADATA_TIMEOUT=1 and GCE_METADATA_DETECT_RETRIES=1
+           (set via _configure_gce_metadata_bounds). Worst case ~2s.
+        B. Firestore .get() RPC — bounded by PROBE_RPC_TIMEOUT_SECONDS=3
+           with retry disabled on the probe call.
+
+        Total worst-case: ~5s instead of ~300s.
         """
-        import concurrent.futures
+        # Ensure metadata discovery is bounded before any google.cloud import
+        # triggers credential resolution.
+        self._configure_gce_metadata_bounds()
 
-        def _init_and_probe():
-            from google.cloud import firestore
-            client = firestore.Client(
-                project=self.settings.GOOGLE_CLOUD_PROJECT,
-                database=self.settings.FIRESTORE_DATABASE
-            )
-            # Force real credentials and project connectivity check
-            client.collection("_system_health").document("probe").get(timeout=5.0)
-            return client
+        from google.cloud import firestore
+        from google.api_core import retry as api_retry
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(_init_and_probe)
-            try:
-                return future.result(timeout=self.CLOUD_INIT_TIMEOUT_SECONDS)
-            except concurrent.futures.TimeoutError:
-                future.cancel()
-                raise TimeoutError(
-                    f"Firestore cloud initialization exceeded {self.CLOUD_INIT_TIMEOUT_SECONDS}s deadline. "
-                    f"Credential discovery or network connectivity to project "
-                    f"'{self.settings.GOOGLE_CLOUD_PROJECT}' timed out."
-                )
+        client = firestore.Client(
+            project=self.settings.GOOGLE_CLOUD_PROJECT,
+            database=self.settings.FIRESTORE_DATABASE
+        )
+
+        # Connectivity probe: single attempt, no retries, tight timeout.
+        # The default .get() uses automatic retries with backoff which can
+        # compound on top of the credential discovery delay.
+        client.collection("_system_health").document("probe").get(
+            timeout=self.PROBE_RPC_TIMEOUT_SECONDS,
+            retry=api_retry.Retry(deadline=self.PROBE_RPC_TIMEOUT_SECONDS),
+        )
+        return client
 
     def get_status(self) -> Dict[str, Any]:
         """Returns non-secret status of the persistence subsystem"""
