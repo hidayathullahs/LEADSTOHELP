@@ -30,6 +30,8 @@ class DualModeFirestoreService:
                     project=self.settings.GOOGLE_CLOUD_PROJECT,
                     database=self.settings.FIRESTORE_DATABASE
                 )
+                # Force real credentials and project connectivity check via minimal harmless read
+                self._firestore_client.collection("_system_health").document("probe").get(timeout=5.0)
                 self.mode = "cloud"
                 print(f"[PERSISTENCE] Connected to Google Cloud Firestore ({self.settings.GOOGLE_CLOUD_PROJECT})")
             except Exception as e:
@@ -50,6 +52,8 @@ class DualModeFirestoreService:
                     project=self.settings.GOOGLE_CLOUD_PROJECT,
                     database=self.settings.FIRESTORE_DATABASE
                 )
+                # Force real connectivity validation
+                self._firestore_client.collection("_system_health").document("probe").get(timeout=5.0)
                 self.mode = "cloud"
                 print(f"[PERSISTENCE] Connected to Google Cloud Firestore ({self.settings.GOOGLE_CLOUD_PROJECT})")
             except Exception as e:
