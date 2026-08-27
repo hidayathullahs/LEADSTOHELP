@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#0B0F19] text-slate-100 antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Custom scrollbar for operations console */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0B0F19;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #1E293B;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #334155;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-xl shadow-xl;
+  }
+  
+  .glass-panel {
+    @apply bg-slate-900/60 backdrop-blur-sm border border-slate-800/60 rounded-lg;
+  }
+
+  .badge-emerald {
+    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-800/60;
+  }
+
+  .badge-amber {
+    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-950/80 text-amber-400 border border-amber-800/60;
+  }
+
+  .badge-rose {
+    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-950/80 text-rose-400 border border-rose-800/60;
+  }
+
+  .badge-cyan {
+    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-950/80 text-cyan-400 border border-cyan-800/60;
+  }
+
+  .badge-indigo {
+    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-950/80 text-indigo-400 border border-indigo-800/60;
+  }
+
+  .glow-border-cyan {
+    box-shadow: 0 0 15px -3px rgba(6, 182, 212, 0.25);
+  }
+
+  .glow-border-rose {
+    box-shadow: 0 0 15px -3px rgba(244, 63, 94, 0.25);
+  }
+
+  .glow-border-emerald {
+    box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.25);
+  }
+}
