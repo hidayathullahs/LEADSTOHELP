@@ -13,6 +13,12 @@ from ..config import get_settings
 from ..models.common import current_utc_time
 
 class DualModeFirestoreService:
+    # Hard wall-clock timeout for the entire cloud initialization path
+    # (credential discovery + client construction + connectivity probe).
+    # This bounds the google-auth metadata server retry loop which can
+    # otherwise block for ~300s with exponential backoff.
+    CLOUD_INIT_TIMEOUT_SECONDS = 8
+
     def __init__(self):
         self.settings = get_settings()
         self.mode = self.settings.FIRESTORE_MODE
@@ -25,13 +31,7 @@ class DualModeFirestoreService:
         # In production mode with FIRESTORE_MODE=cloud, strictly require live Firestore
         if self.mode == "cloud" or (self.settings.is_production and self.mode != "local"):
             try:
-                from google.cloud import firestore
-                self._firestore_client = firestore.Client(
-                    project=self.settings.GOOGLE_CLOUD_PROJECT,
-                    database=self.settings.FIRESTORE_DATABASE
-                )
-                # Force real credentials and project connectivity check via minimal harmless read
-                self._firestore_client.collection("_system_health").document("probe").get(timeout=5.0)
+                self._firestore_client = self._create_and_probe_firestore_client()
                 self.mode = "cloud"
                 print(f"[PERSISTENCE] Connected to Google Cloud Firestore ({self.settings.GOOGLE_CLOUD_PROJECT})")
             except Exception as e:
@@ -47,13 +47,7 @@ class DualModeFirestoreService:
         elif self.mode == "dual":
             # Development dual-mode: try cloud, gracefully fallback to local
             try:
-                from google.cloud import firestore
-                self._firestore_client = firestore.Client(
-                    project=self.settings.GOOGLE_CLOUD_PROJECT,
-                    database=self.settings.FIRESTORE_DATABASE
-                )
-                # Force real connectivity validation
-                self._firestore_client.collection("_system_health").document("probe").get(timeout=5.0)
+                self._firestore_client = self._create_and_probe_firestore_client()
                 self.mode = "cloud"
                 print(f"[PERSISTENCE] Connected to Google Cloud Firestore ({self.settings.GOOGLE_CLOUD_PROJECT})")
             except Exception as e:
@@ -62,6 +56,43 @@ class DualModeFirestoreService:
         else:
             self.mode = "local"
             print("[PERSISTENCE] Initialized in local JSON persistence mode.")
+
+    def _create_and_probe_firestore_client(self):
+        """
+        Creates a Firestore client and validates connectivity within a hard
+        wall-clock timeout. This bounds the ENTIRE initialization path including:
+        
+        A. google.auth.default() credential discovery — which can block for
+           ~300s when the GCE metadata server is unreachable (exponential
+           backoff retries in google-auth).
+        B. The Firestore .get() RPC connectivity probe.
+        
+        Uses concurrent.futures to enforce a strict deadline that cannot be
+        defeated by internal retry loops in google-auth or gRPC.
+        """
+        import concurrent.futures
+
+        def _init_and_probe():
+            from google.cloud import firestore
+            client = firestore.Client(
+                project=self.settings.GOOGLE_CLOUD_PROJECT,
+                database=self.settings.FIRESTORE_DATABASE
+            )
+            # Force real credentials and project connectivity check
+            client.collection("_system_health").document("probe").get(timeout=5.0)
+            return client
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(_init_and_probe)
+            try:
+                return future.result(timeout=self.CLOUD_INIT_TIMEOUT_SECONDS)
+            except concurrent.futures.TimeoutError:
+                future.cancel()
+                raise TimeoutError(
+                    f"Firestore cloud initialization exceeded {self.CLOUD_INIT_TIMEOUT_SECONDS}s deadline. "
+                    f"Credential discovery or network connectivity to project "
+                    f"'{self.settings.GOOGLE_CLOUD_PROJECT}' timed out."
+                )
 
     def get_status(self) -> Dict[str, Any]:
         """Returns non-secret status of the persistence subsystem"""
