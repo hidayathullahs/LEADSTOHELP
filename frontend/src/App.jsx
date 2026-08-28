@@ -6,6 +6,7 @@ import CommandPalette from './components/CommandPalette';
 import GuidedDemoTour from './components/GuidedDemoTour';
 import OnboardingModal from './components/OnboardingModal';
 
+import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import OverviewPage from './pages/OverviewPage';
 import DailyOperationsPage from './pages/DailyOperationsPage';
@@ -40,6 +41,7 @@ export default function App() {
   });
 
   const [activeTab, setActiveTab] = useState('overview');
+  const [isLandingMode, setIsLandingMode] = useState(false);
   const [overviewData, setOverviewData] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   
@@ -73,6 +75,7 @@ export default function App() {
   const handleLoginSuccess = (userData) => {
     setUser(userData);
     localStorage.setItem('lead_user_session', JSON.stringify(userData));
+    setIsLandingMode(false);
     // Check if first-run onboarding seen
     const seen = localStorage.getItem('lead_onboarding_seen');
     if (!seen) {
@@ -97,6 +100,7 @@ export default function App() {
 
   const handleNavigateToProcurement = (sku = 'COFFEE-001') => {
     setProcurementInitialSku(sku);
+    setIsLandingMode(false);
     setActiveTab('procurement');
   };
 
@@ -110,14 +114,34 @@ export default function App() {
   };
 
   const handleStartDemoTour = () => {
+    setIsLandingMode(false);
     setDemoTourStep(0);
     setDemoTourOpen(true);
     setActiveTab('overview');
   };
 
+  // If user requests landing page mode
+  if (isLandingMode) {
+    return (
+      <LandingPage
+        onEnterApp={() => setIsLandingMode(false)}
+        onStartDemoTour={handleStartDemoTour}
+        onOpenAskAI={(prompt) => {
+          setIsLandingMode(false);
+          handleOpenAskAI(prompt);
+        }}
+      />
+    );
+  }
+
   // If not authenticated, render LoginPage
   if (!user) {
-    return <LoginPage onLoginSuccess={handleLoginSuccess} />;
+    return (
+      <LoginPage
+        onLoginSuccess={handleLoginSuccess}
+        onExploreLanding={() => setIsLandingMode(true)}
+      />
+    );
   }
 
   return (
@@ -125,8 +149,12 @@ export default function App() {
       {/* Sidebar Navigation */}
       <Sidebar
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          setIsLandingMode(false);
+          setActiveTab(tab);
+        }}
         metrics={overviewData?.metrics}
+        onOpenAskAI={() => handleOpenAskAI(null)}
       />
 
       {/* Main Content Area */}
@@ -139,7 +167,10 @@ export default function App() {
           onOpenCommandPalette={() => setCommandPaletteOpen(true)}
           onStartDemoTour={handleStartDemoTour}
           activeTab={activeTab}
-          onNavigateTo={(tab) => setActiveTab(tab)}
+          onNavigateTo={(tab) => {
+            setIsLandingMode(false);
+            setActiveTab(tab);
+          }}
           user={user}
           onSignOut={handleSignOut}
         />
@@ -236,14 +267,20 @@ export default function App() {
         onClose={() => setIsAskAIOpen(false)}
         selectedSku={askAISku}
         pageContext={activeTab}
-        onNavigateTo={(tab) => setActiveTab(tab)}
+        onNavigateTo={(tab) => {
+          setIsLandingMode(false);
+          setActiveTab(tab);
+        }}
       />
 
       {/* Global ⌘K Command Palette */}
       <CommandPalette
         isOpen={commandPaletteOpen}
         onClose={() => setCommandPaletteOpen(false)}
-        onNavigateTo={(tab) => setActiveTab(tab)}
+        onNavigateTo={(tab) => {
+          setIsLandingMode(false);
+          setActiveTab(tab);
+        }}
         onOpenAskAI={(prompt) => handleOpenAskAI(prompt)}
       />
 
@@ -260,10 +297,16 @@ export default function App() {
         onClose={() => setDemoTourOpen(false)}
         currentStepIndex={demoTourStep}
         setCurrentStepIndex={setDemoTourStep}
-        onNavigateTo={(tab) => setActiveTab(tab)}
+        onNavigateTo={(tab) => {
+          setIsLandingMode(false);
+          setActiveTab(tab);
+        }}
         onOpenAskAI={(prompt) => handleOpenAskAI(prompt)}
         onOpenEvidence={() => handleOpenAskAI("Show evidence for COFFEE-001")}
-        onOpenWhatIf={() => setActiveTab('overview')}
+        onOpenWhatIf={() => {
+          setIsLandingMode(false);
+          setActiveTab('overview');
+        }}
       />
     </div>
   );

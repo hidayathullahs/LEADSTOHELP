@@ -13,7 +13,8 @@ import {
   Sparkles,
   Radio,
   Sliders,
-  CalendarCheck2
+  CalendarCheck2,
+  Bot
 } from 'lucide-react';
 
 const NAV_GROUPS = [
@@ -21,7 +22,7 @@ const NAV_GROUPS = [
     title: 'Monitor',
     items: [
       { id: 'overview', label: 'Control Tower', icon: LayoutDashboard, badge: null },
-      { id: 'daily-ops', label: 'Daily Operations', icon: CalendarCheck2, badge: 'Track 3' },
+      { id: 'daily-ops', label: 'Daily Operations', icon: CalendarCheck2, badge: null },
       { id: 'inventory', label: 'Inventory Risk', icon: Package, badge: null },
     ]
   },
@@ -55,24 +56,29 @@ const NAV_GROUPS = [
   }
 ];
 
-export default function Sidebar({ activeTab, setActiveTab, metrics }) {
+export default function Sidebar({ activeTab, setActiveTab, metrics, onOpenAskAI }) {
   return (
     <aside className="w-60 bg-surface-0 border-r border-white/[0.06] flex flex-col justify-between shrink-0 select-none z-20">
       {/* Brand Header */}
       <div>
-        <div className="h-14 px-4 border-b border-white/[0.06] flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-teal-400 flex items-center justify-center shadow-glow-teal">
-            <Sparkles className="w-4 h-4 text-black fill-black" />
-          </div>
-          <div>
-            <div className="flex items-center gap-1.5 leading-none">
-              <span className="font-extrabold text-xs tracking-wider text-white">LEADSTOHELP</span>
-              <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-brand-accent/15 text-brand-accent border border-brand-accent/30">
-                PRO
-              </span>
+        <div className="h-14 px-4 border-b border-white/[0.06] flex items-center justify-between">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className="flex items-center gap-2.5 text-left group"
+          >
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-teal-400 flex items-center justify-center shadow-glow-teal group-hover:scale-105 transition-transform">
+              <Sparkles className="w-4 h-4 text-black fill-black" />
             </div>
-            <p className="text-[10px] text-slate-400 font-medium mt-0.5">Retail Operations Tower</p>
-          </div>
+            <div>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span className="font-extrabold text-xs tracking-wider text-white">LEADSTOHELP</span>
+                <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-brand-accent/15 text-brand-accent border border-brand-accent/30">
+                  AI
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-400 font-medium mt-0.5">Control Tower</p>
+            </div>
+          </button>
         </div>
 
         {/* Grouped Navigation Sections */}
@@ -121,8 +127,6 @@ export default function Sidebar({ activeTab, setActiveTab, metrics }) {
                             ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse'
                             : item.badgeKey === 'riskScore'
                             ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
-                            : item.badge === 'Track 3'
-                            ? 'bg-accent-violet/20 text-accent-violet border border-accent-violet/30'
                             : isActive
                             ? 'bg-brand-accent/20 text-brand-accent border border-brand-accent/30'
                             : 'bg-surface-3 text-slate-400 border border-white/[0.06]'

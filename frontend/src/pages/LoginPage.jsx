@@ -10,12 +10,16 @@ import {
   Sliders,
   CheckCircle2,
   Radio,
-  Cpu
+  Eye,
+  EyeOff,
+  Cpu,
+  Store
 } from 'lucide-react';
 
-export default function LoginPage({ onLoginSuccess }) {
+export default function LoginPage({ onLoginSuccess, onExploreLanding }) {
   const [email, setEmail] = useState('arjun.rao@deccanroast.in');
   const [password, setPassword] = useState('••••••••••••');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e) => {
@@ -51,12 +55,11 @@ export default function LoginPage({ onLoginSuccess }) {
     <div className="min-h-screen w-screen bg-surface-0 flex flex-col lg:flex-row text-slate-100 font-sans selection:bg-brand-accent selection:text-black">
       {/* Left Brand & Product Value Story (60% width on Desktop) */}
       <div className="lg:w-7/12 p-8 lg:p-16 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/[0.06] bg-gradient-to-br from-surface-0 via-surface-1 to-surface-0 relative overflow-hidden">
-        {/* Background ambient lighting */}
+        {/* Ambient subtle glow */}
         <div className="absolute -top-32 -left-32 w-96 h-96 bg-brand-accent/5 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-accent-violet/5 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* Top Brand Logo */}
-        <div className="relative z-10">
+        <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-teal-400 flex items-center justify-center shadow-glow-teal">
               <Sparkles className="w-5 h-5 text-black fill-black" />
@@ -71,13 +74,25 @@ export default function LoginPage({ onLoginSuccess }) {
               <p className="text-xs text-slate-400 font-medium">Retail Operations & Verified Action Platform</p>
             </div>
           </div>
+
+          {onExploreLanding && (
+            <button
+              onClick={onExploreLanding}
+              className="text-xs text-brand-accent hover:underline font-semibold flex items-center gap-1"
+            >
+              <span>Explore Overview</span>
+              <ArrowRight className="w-3 h-3" />
+            </button>
+          )}
         </div>
 
         {/* Center Hero Story */}
         <div className="my-12 lg:my-0 space-y-6 max-w-xl relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2 border border-white/[0.08] text-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-2 border border-white/[0.08] text-xs">
             <span className="w-2 h-2 rounded-full bg-brand-accent animate-pulse"></span>
-            <span className="text-slate-300 font-medium">Track 1 • Track 2 • Track 3 Unified Platform</span>
+            <span className="text-slate-300 font-medium text-[11px] uppercase tracking-wide">
+              Autonomous Supply Chain Intelligence
+            </span>
           </div>
 
           <h1 className="text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
@@ -85,7 +100,7 @@ export default function LoginPage({ onLoginSuccess }) {
           </h1>
 
           <p className="text-sm text-slate-300 leading-relaxed">
-            LEADSTOHELP continuously monitors retail inventory depletion run-rates, investigates supplier reliability evidence, simulates multi-sourcing alternatives, and empowers teams to execute safe procurement actions with human approval.
+            LEADSTOHELP unifies retail inventory run-rates, supplier reliability, and invoice verification to help teams detect operational risks early and execute human-governed actions.
           </p>
 
           {/* 3 Core Capability Cards */}
@@ -95,9 +110,9 @@ export default function LoginPage({ onLoginSuccess }) {
               <div className="w-7 h-7 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
                 <Package className="w-4 h-4" />
               </div>
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider">1. Detect</h3>
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider">Detect</h3>
               <p className="text-[11px] text-slate-400 leading-relaxed">
-                Spot 2.8-day stockouts and invoice shortages before they hit customer menus.
+                Find risks before they become disruptions (~2.8d stockouts).
               </p>
             </div>
 
@@ -106,9 +121,9 @@ export default function LoginPage({ onLoginSuccess }) {
               <div className="w-7 h-7 rounded-lg bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent">
                 <Sliders className="w-4 h-4" />
               </div>
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider">2. Decide</h3>
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider">Decide</h3>
               <p className="text-[11px] text-slate-400 leading-relaxed">
-                Simulate 6 procurement scenarios with the What-If Digital Twin.
+                Compare 6 strategies before committing capital spend.
               </p>
             </div>
 
@@ -117,9 +132,9 @@ export default function LoginPage({ onLoginSuccess }) {
               <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                 <ShieldCheck className="w-4 h-4" />
               </div>
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider">3. Act</h3>
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider">Act</h3>
               <p className="text-[11px] text-slate-400 leading-relaxed">
-                Execute human-approved purchase orders with full cryptographic audit trace.
+                Turn recommendations into human-governed purchase orders.
               </p>
             </div>
           </div>
@@ -139,9 +154,9 @@ export default function LoginPage({ onLoginSuccess }) {
       <div className="lg:w-5/12 p-8 lg:p-16 flex flex-col justify-center bg-surface-1/50 relative">
         <div className="max-w-md w-full mx-auto space-y-6">
           <div className="space-y-1">
-            <h2 className="text-2xl font-bold text-white tracking-tight">Sign In to Control Tower</h2>
+            <h2 className="text-2xl font-bold text-white tracking-tight">Welcome Back</h2>
             <p className="text-xs text-slate-400">
-              Access real-time store telemetry, AI copilot, and governance queues.
+              Sign in to your operations control tower.
             </p>
           </div>
 
@@ -170,13 +185,20 @@ export default function LoginPage({ onLoginSuccess }) {
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-surface-2 border border-white/[0.08] text-xs text-white placeholder-slate-500 rounded-xl pl-9 pr-4 py-2.5 focus:outline-none focus:border-brand-accent transition-colors"
+                  className="w-full bg-surface-2 border border-white/[0.08] text-xs text-white placeholder-slate-500 rounded-xl pl-9 pr-10 py-2.5 focus:outline-none focus:border-brand-accent transition-colors"
                   placeholder="••••••••••••"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
@@ -189,7 +211,7 @@ export default function LoginPage({ onLoginSuccess }) {
                 <span>Authenticating with RBAC...</span>
               ) : (
                 <>
-                  <span>Sign In as Operations Lead</span>
+                  <span>Sign In to Control Tower</span>
                   <ArrowRight className="w-3.5 h-3.5 text-black" />
                 </>
               )}
@@ -218,21 +240,29 @@ export default function LoginPage({ onLoginSuccess }) {
               <Sparkles className="w-3.5 h-3.5 text-brand-accent" />
             </div>
             <h4 className="text-xs font-bold text-white group-hover:text-brand-accent transition-colors">
-              Enter Deccan Roast Demo Environment
+              Enter Demo Environment (Deccan Roast)
             </h4>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              Instant access pre-loaded with the Arabica Crisis inventory risk and 6 procurement scenarios.
+              Pre-loaded with the Arabica Crisis inventory risk and 6 procurement scenarios.
             </p>
           </button>
 
-          {/* Security & Truthful Environment Notice */}
-          <div className="p-3 bg-surface-2/40 rounded-xl border border-white/[0.04] text-[11px] text-slate-400 space-y-1">
-            <div className="flex items-center gap-1.5 text-slate-300 font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5 text-brand-accent" />
-              <span>Zero-Trust Enterprise Governance</span>
+          {/* Truthful Demo Environment Telemetry Status */}
+          <div className="p-3 bg-surface-2/40 rounded-xl border border-white/[0.04] text-[11px] text-slate-400 space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-300 font-semibold flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Governance State</span>
+              </span>
+              <span className="badge-emerald text-[9px] font-mono font-bold">DEMO ENVIRONMENT</span>
             </div>
-            <p className="text-[10px] text-slate-500">
-              Deterministic engines enforce strict human authorization for all financial commitments. No hallucinated actions.
+            <div className="grid grid-cols-3 gap-1 pt-1 font-mono text-[10px] text-slate-500">
+              <div>Gemini: <span className="text-slate-300">Offline Demo</span></div>
+              <div>Data: <span className="text-slate-300">Local JSON</span></div>
+              <div>Auth: <span className="text-slate-300">Dev JWT</span></div>
+            </div>
+            <p className="text-[10px] text-slate-500 pt-1 border-t border-white/[0.04]">
+              High-impact actions remain strictly under human approval.
             </p>
           </div>
         </div>
