@@ -12,7 +12,8 @@ import {
   Settings,
   Sparkles,
   Radio,
-  Sliders
+  Sliders,
+  CalendarCheck2
 } from 'lucide-react';
 
 const NAV_GROUPS = [
@@ -20,6 +21,7 @@ const NAV_GROUPS = [
     title: 'Monitor',
     items: [
       { id: 'overview', label: 'Control Tower', icon: LayoutDashboard, badge: null },
+      { id: 'daily-ops', label: 'Daily Operations', icon: CalendarCheck2, badge: 'Track 3' },
       { id: 'inventory', label: 'Inventory Risk', icon: Package, badge: null },
     ]
   },
@@ -119,6 +121,8 @@ export default function Sidebar({ activeTab, setActiveTab, metrics }) {
                             ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse'
                             : item.badgeKey === 'riskScore'
                             ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                            : item.badge === 'Track 3'
+                            ? 'bg-accent-violet/20 text-accent-violet border border-accent-violet/30'
                             : isActive
                             ? 'bg-brand-accent/20 text-brand-accent border border-brand-accent/30'
                             : 'bg-surface-3 text-slate-400 border border-white/[0.06]'
