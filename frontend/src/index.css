@@ -11,8 +11,8 @@
 
   /* Sleek operations scrollbar */
   ::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
   }
   ::-webkit-scrollbar-track {
     background: #07090E;
@@ -26,18 +26,51 @@
   }
 }
 
+@layer utilities {
+  .bg-grid-pattern {
+    background-size: 32px 32px;
+    background-image: 
+      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  }
+
+  .bg-radial-ambient {
+    background: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.08) 0%, rgba(15, 23, 42, 0) 70%);
+  }
+
+  .bg-radial-emerald {
+    background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.08) 0%, rgba(15, 23, 42, 0) 70%);
+  }
+
+  .bg-radial-rose {
+    background: radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.08) 0%, rgba(15, 23, 42, 0) 70%);
+  }
+
+  .glow-border-teal {
+    box-shadow: 0 0 20px -5px rgba(0, 240, 255, 0.3);
+  }
+
+  .glow-border-emerald {
+    box-shadow: 0 0 20px -5px rgba(16, 185, 129, 0.3);
+  }
+
+  .glow-border-rose {
+    box-shadow: 0 0 20px -5px rgba(244, 63, 94, 0.3);
+  }
+}
+
 @layer components {
   /* Enterprise Grade Card Surfaces */
   .glass-card {
-    @apply bg-surface-1/90 backdrop-blur-md border border-white/[0.07] rounded-xl shadow-card-surface transition-all duration-200;
+    @apply bg-surface-1/90 backdrop-blur-md border border-white/[0.08] rounded-2xl shadow-card-surface transition-all duration-200;
   }
 
   .glass-card-interactive {
-    @apply bg-surface-1/90 backdrop-blur-md border border-white/[0.07] rounded-xl shadow-card-surface transition-all duration-200 hover:border-white/[0.15] hover:bg-surface-2/90;
+    @apply bg-surface-1/90 backdrop-blur-md border border-white/[0.08] rounded-2xl shadow-card-surface transition-all duration-200 hover:border-white/[0.18] hover:bg-surface-2/90 hover:-translate-y-0.5;
   }
 
   .glass-panel {
-    @apply bg-surface-2/70 backdrop-blur-sm border border-white/[0.06] rounded-lg;
+    @apply bg-surface-2/70 backdrop-blur-sm border border-white/[0.06] rounded-xl;
   }
 
   /* Refined Micro Badges */
@@ -67,18 +100,18 @@
 
   /* High-Impact Action Buttons */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-brand-accent hover:bg-brand-300 text-black font-bold text-xs shadow-glow-teal transition-all active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-brand-accent hover:bg-cyan-300 text-black font-bold text-xs shadow-glow-teal transition-all active:scale-[0.98];
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2 hover:bg-surface-3 text-slate-200 border border-white/[0.08] hover:border-white/[0.15] font-semibold text-xs transition-all active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-surface-2 hover:bg-surface-3 text-slate-200 border border-white/[0.08] hover:border-white/[0.18] font-semibold text-xs transition-all active:scale-[0.98];
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-semibold text-xs transition-all active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-semibold text-xs transition-all active:scale-[0.98];
   }
 
   .btn-success {
-    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs shadow-glow-emerald transition-all active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs shadow-glow-emerald transition-all active:scale-[0.98];
   }
 }
