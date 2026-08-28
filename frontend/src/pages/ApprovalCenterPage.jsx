@@ -10,7 +10,9 @@ import {
   FileText,
   DollarSign,
   ChevronRight,
-  UserCheck
+  UserCheck,
+  Lock,
+  ArrowRight
 } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -64,203 +66,196 @@ export default function ApprovalCenterPage({ onOpenAskAI }) {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between pb-4 border-b border-white/[0.06] gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800">
-              Human-in-the-Loop Barrier
+            <span className="badge-amber text-[10px] uppercase font-bold">
+              Human-in-the-Loop Governance
             </span>
-            <span className="text-xs text-slate-400">Zero-Trust Operational Governance</span>
+            <span className="text-xs text-slate-400">Zero Autonomous Financial Commitments</span>
           </div>
-          <h1 className="text-xl font-extrabold text-white flex items-center gap-2">
+          <h1 className="text-xl font-extrabold text-white flex items-center gap-2 tracking-tight">
             <CheckSquare className="w-5 h-5 text-amber-400" />
-            Human Approval Center
+            Human Approval Queue & Governance Barrier
           </h1>
           <p className="text-xs text-slate-400">
-            High-impact financial orders, supplier commitments, and fallback re-routes strictly require authorized manager approval.
+            Every high-impact purchase order, vendor re-allocation, or price adjustment requires cryptographic human sign-off.
           </p>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex items-center gap-2">
-          {['PENDING', 'APPROVED', 'REJECTED', 'ALL'].map((s) => (
-            <button
-              key={s}
-              onClick={() => setStatusFilter(s)}
-              className={`text-xs px-3 py-1.5 rounded-lg font-semibold transition-all ${
-                statusFilter === s
-                  ? 'bg-amber-500 text-black font-bold shadow-glow-amber'
-                  : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
-              }`}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
+        <button
+          onClick={() => onOpenAskAI("Review pending approval queue and provide operational impact summary.")}
+          className="btn-primary text-xs"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-black fill-black" />
+          <span>Ask AI Risk Assessment</span>
+        </button>
       </div>
 
-      {/* Main Grid: Approvals Queue (Left) + Decision Dossier (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Approvals Queue (4 Cols) */}
-        <div className="lg:col-span-4 space-y-3">
-          <h3 className="text-xs font-bold uppercase text-slate-400">
-            Decision Queue ({approvals.length})
-          </h3>
+      {/* Filter Tabs */}
+      <div className="flex items-center gap-2 border-b border-white/[0.06] pb-3">
+        {['PENDING', 'APPROVED', 'REJECTED', 'ALL'].map((st) => (
+          <button
+            key={st}
+            onClick={() => setStatusFilter(st)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+              statusFilter === st
+                ? 'bg-surface-2 text-white border border-white/[0.1] shadow-sm'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            {st}
+          </button>
+        ))}
+      </div>
 
+      {/* Main Grid: Approvals List (Left) + Detailed Approval Dossier (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Approvals List (5 Cols) */}
+        <div className="lg:col-span-5 space-y-3">
           {loading ? (
-            <div className="text-xs text-slate-400 py-8 text-center">Loading queue...</div>
+            <div className="glass-card p-12 text-center text-slate-400">
+              Loading approval queue...
+            </div>
           ) : approvals.length === 0 ? (
-            <div className="glass-card p-8 text-center text-slate-500 text-xs">
-              <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-400/60 mb-2" />
-              <p className="font-semibold text-slate-300">No {statusFilter.toLowerCase()} approvals.</p>
-              <p className="mt-1">All actions processed.</p>
+            <div className="glass-card p-12 text-center text-slate-400">
+              <CheckCircle2 className="w-8 h-8 mx-auto text-emerald-400 mb-2" />
+              <p>No actions matching filter "{statusFilter}".</p>
             </div>
           ) : (
-            approvals.map((appr) => (
-              <div
-                key={appr.approval_id}
-                onClick={() => setSelectedApproval(appr)}
-                className={`glass-card p-4 cursor-pointer transition-all ${
-                  selectedApproval?.approval_id === appr.approval_id
-                    ? 'border-amber-500 bg-amber-950/20 shadow-glow-amber'
-                    : 'hover:border-slate-700'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-mono text-[10px] text-cyan-400 font-bold">{appr.approval_id}</span>
-                  <span
-                    className={
-                      appr.status === 'PENDING'
-                        ? 'badge-amber'
-                        : appr.status === 'APPROVED'
-                        ? 'badge-emerald'
-                        : 'badge-rose'
-                    }
-                  >
-                    {appr.status}
-                  </span>
-                </div>
+            approvals.map((appr) => {
+              const isSelected = selectedApproval?.approval_id === appr.approval_id;
 
-                <h4 className="text-xs font-bold text-white line-clamp-1">{appr.title}</h4>
-                <p className="text-[11px] text-slate-400 truncate mt-0.5">{appr.supplier_name}</p>
+              return (
+                <div
+                  key={appr.approval_id}
+                  onClick={() => setSelectedApproval(appr)}
+                  className={`glass-card p-4 transition-all cursor-pointer group ${
+                    isSelected
+                      ? 'border-amber-500/80 bg-surface-2 ring-1 ring-amber-500/40 shadow-glow-teal'
+                      : 'hover:border-white/[0.12] bg-surface-1'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="font-mono text-[10px] text-brand-accent font-bold">{appr.approval_id}</span>
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+                      appr.status === 'PENDING' ? 'badge-amber' :
+                      appr.status === 'APPROVED' ? 'badge-emerald' : 'badge-rose'
+                    }`}>
+                      {appr.status}
+                    </span>
+                  </div>
 
-                <div className="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Investment:</span>
-                  <strong className="font-mono text-white">₹{appr.cost_inr.toLocaleString()}</strong>
+                  <h3 className="text-xs font-bold text-white leading-tight">{appr.title}</h3>
+                  <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">{appr.why_recommended}</p>
+
+                  <div className="flex items-center justify-between text-xs font-mono mt-3 pt-2 border-t border-white/[0.04]">
+                    <span className="text-slate-400">Commitment:</span>
+                    <strong className="text-white font-bold">₹{appr.cost_inr.toLocaleString()}</strong>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
-        {/* Right Column: Decision Dossier (8 Cols) */}
-        {selectedApproval ? (
-          <div className="lg:col-span-8 glass-card p-6 space-y-6">
-            {/* Top Dossier Header */}
-            <div className="flex items-start justify-between border-b border-slate-800 pb-4">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-cyan-400">{selectedApproval.approval_id}</span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">
-                    Type: {selectedApproval.type}
-                  </span>
-                </div>
-                <h2 className="text-base font-bold text-white mt-1">{selectedApproval.title}</h2>
-                <p className="text-xs text-slate-400 mt-0.5">{selectedApproval.description}</p>
-              </div>
-
-              <div className="text-right">
-                <span className="text-[10px] text-slate-400 block uppercase font-bold">Total Spend Required</span>
-                <span className="text-xl font-extrabold font-mono text-white">
-                  ₹{selectedApproval.cost_inr.toLocaleString()}
-                </span>
-                {selectedApproval.potential_savings_inr > 0 && (
-                  <span className="text-xs font-mono text-emerald-400 block">
-                    +₹{selectedApproval.potential_savings_inr.toLocaleString()} savings
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Explainable Decision Dossier (4 Cards) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-                <span className="text-[10px] uppercase font-bold text-cyan-400">1. What Will Happen:</span>
-                <p className="text-xs text-slate-200">{selectedApproval.what_will_happen}</p>
-              </div>
-
-              <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-                <span className="text-[10px] uppercase font-bold text-amber-400">2. Why It Is Recommended:</span>
-                <p className="text-xs text-slate-200">{selectedApproval.why_recommended}</p>
-              </div>
-
-              <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-                <span className="text-[10px] uppercase font-bold text-emerald-400">3. Expected Operational Impact:</span>
-                <p className="text-xs text-slate-200">{selectedApproval.expected_benefit}</p>
-              </div>
-
-              <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-                <span className="text-[10px] uppercase font-bold text-indigo-400">4. Grounded Data Sources:</span>
-                <ul className="list-disc list-inside text-xs text-slate-300 space-y-0.5">
-                  {selectedApproval.data_sources_used?.map((ds, i) => (
-                    <li key={i}>{ds}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* Approval Decision Controls */}
-            {selectedApproval.status === 'PENDING' ? (
-              <div className="pt-4 border-t border-slate-800 space-y-4">
+        {/* Detailed Approval Dossier (7 Cols) */}
+        <div className="lg:col-span-7">
+          {selectedApproval ? (
+            <div className="glass-card p-6 space-y-5 bg-surface-1">
+              {/* Top Meta Header */}
+              <div className="flex items-start justify-between border-b border-white/[0.06] pb-4">
                 <div>
-                  <label className="text-xs text-slate-300 font-semibold block mb-1">
-                    Manager Sign-off Note / Authorization Comments (Optional)
-                  </label>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-mono text-xs text-brand-accent font-bold bg-brand-accent/10 px-2 py-0.5 rounded border border-brand-accent/20">
+                      {selectedApproval.approval_id}
+                    </span>
+                    <span className="badge-amber font-mono text-[10px]">
+                      {selectedApproval.type}
+                    </span>
+                  </div>
+                  <h2 className="text-base font-bold text-white">{selectedApproval.title}</h2>
+                </div>
+
+                <div className="text-right">
+                  <span className="text-xl font-bold font-mono text-white">
+                    ₹{selectedApproval.cost_inr.toLocaleString()}
+                  </span>
+                  <span className="text-[10px] text-slate-400 block font-mono">Net Outlay</span>
+                </div>
+              </div>
+
+              {/* Dossier Sections */}
+              <div className="space-y-3.5 text-xs">
+                {/* 1. What Will Happen */}
+                <div className="p-3.5 bg-surface-2 rounded-xl border border-white/[0.04] space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-brand-accent tracking-wider block">
+                    1. Proposed Operational Action
+                  </span>
+                  <p className="text-slate-200 leading-relaxed">{selectedApproval.what_will_happen}</p>
+                </div>
+
+                {/* 2. Why Recommended */}
+                <div className="p-3.5 bg-surface-2 rounded-xl border border-white/[0.04] space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider block">
+                    2. Strategic Rationale & Benefit
+                  </span>
+                  <p className="text-slate-200 leading-relaxed">{selectedApproval.why_recommended}</p>
+                  {selectedApproval.expected_benefit && (
+                    <p className="text-emerald-300 font-semibold mt-1">
+                      Expected ROI: {selectedApproval.expected_benefit}
+                    </p>
+                  )}
+                </div>
+
+                {/* 3. Risk Assessment */}
+                <div className="p-3.5 bg-surface-2 rounded-xl border border-white/[0.04] space-y-1">
+                  <span className="text-[10px] uppercase font-bold text-amber-400 tracking-wider block">
+                    3. Risk Assessment & Inaction Impact
+                  </span>
+                  <p className="text-slate-300 leading-relaxed">{selectedApproval.risk_of_inaction || 'Failure to approve triggers severe stockout risk.'}</p>
+                </div>
+              </div>
+
+              {/* Action Controls (if pending) */}
+              {selectedApproval.status === 'PENDING' && (
+                <div className="pt-4 border-t border-white/[0.06] space-y-3">
                   <input
                     type="text"
+                    placeholder="Optional manager decision notes..."
                     value={actionReason}
                     onChange={(e) => setActionReason(e.target.value)}
-                    placeholder="e.g. Authorized for weekend demand surge..."
-                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:border-amber-500"
+                    className="w-full bg-surface-2 border border-white/[0.08] text-xs text-white placeholder-slate-500 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-accent"
                   />
-                </div>
 
-                <div className="flex items-center justify-end gap-3">
-                  <button
-                    onClick={() => handleDecision('REJECTED')}
-                    disabled={processing}
-                    className="px-4 py-2 bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
-                  >
-                    <XCircle className="w-4 h-4" />
-                    <span>Reject Action</span>
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => handleDecision('APPROVED')}
+                      disabled={processing}
+                      className="flex-1 btn-success text-xs py-2"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Authorize & Dispatch Action</span>
+                    </button>
 
-                  <button
-                    onClick={() => handleDecision('APPROVED')}
-                    disabled={processing}
-                    className="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs rounded-lg shadow-glow-emerald transition-all flex items-center gap-1.5"
-                  >
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Authorize & Execute</span>
-                  </button>
+                    <button
+                      onClick={() => handleDecision('REJECTED')}
+                      disabled={processing}
+                      className="btn-danger text-xs py-2 px-4"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      <span>Reject</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs text-slate-400 space-y-1">
-                <div className="flex items-center gap-1.5 font-bold text-slate-200">
-                  <UserCheck className="w-4 h-4 text-emerald-400" />
-                  <span>Decided by {selectedApproval.decided_by_name || 'Arjun Rao'}</span>
-                </div>
-                <p className="font-mono text-[11px] text-slate-500">Timestamp: {selectedApproval.decided_at}</p>
-                <p className="text-slate-300">Reason: {selectedApproval.decision_reason}</p>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="lg:col-span-8 glass-card p-12 text-center text-slate-500">
-            Select a pending decision to review explainable factors and grant execution approval.
-          </div>
-        )}
+              )}
+            </div>
+          ) : (
+            <div className="glass-card p-12 text-center text-slate-500">
+              Select an item from the queue to inspect governance dossier.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

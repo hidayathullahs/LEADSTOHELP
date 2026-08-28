@@ -1,10 +1,8 @@
 import React, { useMemo } from 'react';
-import { AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, ShieldCheck, Activity } from 'lucide-react';
 
 /**
- * SupplierNetworkGraph — SVG-based supply chain network visualization.
- * Shows store node connected to supplier nodes, with edge styling
- * based on reliability score and active issues.
+ * SupplierNetworkGraph — High-tech SVG supply chain network topology visualizer.
  */
 export default function SupplierNetworkGraph({ suppliers = [], storeName = 'Deccan Roast' }) {
   const nodes = useMemo(() => {
@@ -14,16 +12,16 @@ export default function SupplierNetworkGraph({ suppliers = [], storeName = 'Decc
       x: 280,
       y: 160,
       type: 'store',
-      color: '#06b6d4', // cyan
+      color: '#00F0FF',
     };
 
     const supplierNodes = suppliers.map((s, i) => {
       const angle = (i / suppliers.length) * Math.PI * 2 - Math.PI / 2;
-      const radius = 120;
+      const radius = 125;
       const reliability = s.performance?.reliability_score || 85;
-      let color = '#22c55e'; // green
-      if (reliability < 80) color = '#ef4444'; // red
-      else if (reliability < 90) color = '#f59e0b'; // amber
+      let color = '#10B981'; // green
+      if (reliability < 80) color = '#F43F5E'; // red
+      else if (reliability < 90) color = '#F59E0B'; // amber
 
       return {
         id: s.supplier_id,
@@ -58,23 +56,30 @@ export default function SupplierNetworkGraph({ suppliers = [], storeName = 'Decc
   const concentrationRisk = hhi > 50 ? 'HIGH' : hhi > 33 ? 'MEDIUM' : 'LOW';
 
   return (
-    <div className="glass-card p-4 border-indigo-500/15 space-y-3">
+    <div className="glass-card p-4 border-white/[0.08] bg-surface-1 space-y-3">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-bold text-white">Supplier Network Topology</h4>
+        <div className="flex items-center gap-2">
+          <Activity className="w-4 h-4 text-brand-accent" />
+          <h4 className="text-xs font-bold text-white tracking-tight">Supplier Network Topology</h4>
+        </div>
         <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
           concentrationRisk === 'LOW'
-            ? 'text-emerald-400 bg-emerald-950/40 border-emerald-800/50'
+            ? 'badge-emerald'
             : concentrationRisk === 'MEDIUM'
-            ? 'text-amber-400 bg-amber-950/40 border-amber-800/50'
-            : 'text-rose-400 bg-rose-950/40 border-rose-800/50'
+            ? 'badge-amber'
+            : 'badge-rose'
         }`}>
           Concentration: {concentrationRisk}
         </span>
       </div>
 
-      {/* SVG Network */}
-      <div className="bg-slate-900/40 rounded-xl border border-slate-800/40 overflow-hidden">
+      {/* SVG Network Canvas */}
+      <div className="bg-surface-0 rounded-xl border border-white/[0.04] overflow-hidden p-1">
         <svg viewBox="0 0 560 320" className="w-full h-auto" style={{ maxHeight: 280 }}>
+          {/* Subtle Grid / Radar Rings */}
+          <circle cx={storeNode.x} cy={storeNode.y} r="125" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
+          <circle cx={storeNode.x} cy={storeNode.y} r="70" fill="none" stroke="rgba(255,255,255,0.02)" strokeWidth="1" />
+
           {/* Edges */}
           {supplierNodes.map((sn) => (
             <g key={`edge-${sn.id}`}>
@@ -84,14 +89,14 @@ export default function SupplierNetworkGraph({ suppliers = [], storeName = 'Decc
                 x2={sn.x}
                 y2={sn.y}
                 stroke={sn.color}
-                strokeWidth={sn.hasIssue ? 1.5 : 2}
-                strokeOpacity={0.5}
-                strokeDasharray={sn.hasIssue ? '4,4' : 'none'}
+                strokeWidth={sn.hasIssue ? 1.2 : 1.8}
+                strokeOpacity={0.4}
+                strokeDasharray={sn.hasIssue ? '3,3' : 'none'}
               />
-              {/* Animated pulse on connections */}
-              <circle r="3" fill={sn.color} opacity="0.7">
+              {/* Animated pulse on connection lines */}
+              <circle r="2.5" fill={sn.color} opacity="0.8">
                 <animateMotion
-                  dur={`${2 + Math.random() * 2}s`}
+                  dur={`${2.5 + Math.random() * 1.5}s`}
                   repeatCount="indefinite"
                   path={`M${storeNode.x},${storeNode.y} L${sn.x},${sn.y}`}
                 />
@@ -101,36 +106,36 @@ export default function SupplierNetworkGraph({ suppliers = [], storeName = 'Decc
 
           {/* Store Node */}
           <g>
-            <circle cx={storeNode.x} cy={storeNode.y} r="28" fill="#0e1726" stroke={storeNode.color} strokeWidth="2" />
-            <circle cx={storeNode.x} cy={storeNode.y} r="22" fill={storeNode.color} fillOpacity="0.15" />
-            <text x={storeNode.x} y={storeNode.y - 4} textAnchor="middle" className="text-[8px] font-bold fill-cyan-300">
+            <circle cx={storeNode.x} cy={storeNode.y} r="26" fill="#0D111A" stroke={storeNode.color} strokeWidth="2" />
+            <circle cx={storeNode.x} cy={storeNode.y} r="20" fill={storeNode.color} fillOpacity="0.12" />
+            <text x={storeNode.x} y={storeNode.y - 3} textAnchor="middle" className="text-[8px] font-bold font-sans fill-brand-accent">
               {storeNode.label.split(' ')[0]}
             </text>
-            <text x={storeNode.x} y={storeNode.y + 8} textAnchor="middle" className="text-[7px] fill-slate-400">
-              Store Hub
+            <text x={storeNode.x} y={storeNode.y + 8} textAnchor="middle" className="text-[7px] font-mono fill-slate-400">
+              HUB-01
             </text>
           </g>
 
           {/* Supplier Nodes */}
           {supplierNodes.map((sn) => (
-            <g key={sn.id}>
-              <circle cx={sn.x} cy={sn.y} r="24" fill="#0e1726" stroke={sn.color} strokeWidth="1.5" />
-              <circle cx={sn.x} cy={sn.y} r="18" fill={sn.color} fillOpacity="0.12" />
-              <text x={sn.x} y={sn.y - 6} textAnchor="middle" className="text-[7px] font-bold" fill={sn.color}>
+            <g key={sn.id} className="cursor-pointer">
+              <circle cx={sn.x} cy={sn.y} r="22" fill="#0D111A" stroke={sn.color} strokeWidth="1.5" />
+              <circle cx={sn.x} cy={sn.y} r="16" fill={sn.color} fillOpacity="0.1" />
+              <text x={sn.x} y={sn.y - 5} textAnchor="middle" className="text-[7px] font-bold font-sans" fill={sn.color}>
                 {sn.label.split(' ').slice(0, 2).join(' ')}
               </text>
-              <text x={sn.x} y={sn.y + 5} textAnchor="middle" className="text-[7px] fill-slate-400">
+              <text x={sn.x} y={sn.y + 5} textAnchor="middle" className="text-[7px] font-mono fill-slate-300 font-semibold">
                 {sn.reliability}%
               </text>
-              <text x={sn.x} y={sn.y + 14} textAnchor="middle" className="text-[6px] fill-slate-500">
+              <text x={sn.x} y={sn.y + 13} textAnchor="middle" className="text-[6px] font-mono fill-slate-500">
                 {sn.skuCount} SKUs
               </text>
 
-              {/* Issue indicator */}
+              {/* Issue indicator badge */}
               {sn.hasIssue && (
-                <g transform={`translate(${sn.x + 16}, ${sn.y - 18})`}>
-                  <circle r="6" fill="#7f1d1d" stroke="#ef4444" strokeWidth="1" />
-                  <text x="0" y="3" textAnchor="middle" className="text-[7px] fill-rose-400 font-bold">!</text>
+                <g transform={`translate(${sn.x + 15}, ${sn.y - 15})`}>
+                  <circle r="5" fill="#F43F5E" />
+                  <text x="0" y="2.5" textAnchor="middle" className="text-[6px] fill-black font-bold">!</text>
                 </g>
               )}
             </g>
@@ -139,19 +144,22 @@ export default function SupplierNetworkGraph({ suppliers = [], storeName = 'Decc
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 text-[10px] text-slate-400">
-        <div className="flex items-center gap-1">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Reliable (90%+)
+      <div className="flex flex-wrap items-center justify-between text-[10px] text-slate-400 pt-1">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span>High Reliability (90%+)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-amber-400" />
+            <span>Moderate (80-90%)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-rose-400" />
+            <span>Risk SLA (&lt;80%)</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <div className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Warning (80-90%)
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-2.5 h-2.5 rounded-full bg-rose-500" /> Critical (&lt;80%)
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-0 border-t border-dashed border-slate-400" /> Issue Flagged
-        </div>
+        <span className="text-[10px] text-slate-500 font-mono">10 Active Partners</span>
       </div>
     </div>
   );

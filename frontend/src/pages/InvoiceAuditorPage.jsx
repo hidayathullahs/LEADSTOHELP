@@ -11,7 +11,11 @@ import {
   FileText,
   ShieldAlert,
   Loader2,
-  HelpCircle
+  HelpCircle,
+  DollarSign,
+  Package,
+  Layers,
+  ChevronRight
 } from 'lucide-react';
 import { api } from '../services/api';
 
@@ -113,16 +117,16 @@ export default function InvoiceAuditorPage({ onOpenAskAI }) {
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between pb-4 border-b border-white/[0.06] gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">
+            <span className="badge-teal text-[10px] uppercase font-bold">
               Multimodal Vision + 3-Way Match
             </span>
             <span className="text-xs text-slate-400">Zero-Trust Document Reconciler</span>
           </div>
-          <h1 className="text-xl font-extrabold text-white flex items-center gap-2">
-            <FileCheck className="w-5 h-5 text-cyan-400" />
+          <h1 className="text-xl font-extrabold text-white flex items-center gap-2 tracking-tight">
+            <FileCheck className="w-5 h-5 text-brand-accent" />
             Multimodal Invoice Auditor & Discrepancy Engine
           </h1>
           <p className="text-xs text-slate-400">
@@ -132,37 +136,37 @@ export default function InvoiceAuditorPage({ onOpenAskAI }) {
 
         <button
           onClick={() => onOpenAskAI("Analyze all unresolved invoice discrepancies and draft a debit note claim.")}
-          className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 text-black font-bold text-xs rounded-xl shadow-glow-cyan flex items-center gap-1.5 transition-all"
+          className="btn-primary text-xs"
         >
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="w-3.5 h-3.5 text-black fill-black" />
           <span>Ask AI Invoice Copilot</span>
         </button>
       </div>
 
       {/* Upload & Demo Presets Row */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Drag and drop upload */}
-        <div className="md:col-span-6 glass-card p-5 border-dashed border-2 border-slate-700 hover:border-cyan-500/50 transition-all flex flex-col items-center justify-center text-center">
-          <div className="w-12 h-12 rounded-full bg-cyan-950 border border-cyan-800/60 flex items-center justify-center text-cyan-400 mb-3">
-            <Upload className="w-6 h-6" />
+        <div className="md:col-span-6 glass-card p-5 border-dashed border-2 border-white/[0.1] hover:border-brand-accent/40 transition-all flex flex-col items-center justify-center text-center bg-surface-1">
+          <div className="w-10 h-10 rounded-xl bg-surface-2 border border-white/[0.08] flex items-center justify-center text-brand-accent mb-2.5">
+            <Upload className="w-5 h-5" />
           </div>
-          <h3 className="text-xs font-bold text-white mb-1">Upload Supplier Invoice / Receipt Image</h3>
+          <h3 className="text-xs font-bold text-white mb-1">Upload Supplier Invoice / Receipt</h3>
           <p className="text-[11px] text-slate-400 max-w-sm mb-3">
             Supports PNG, JPEG, PDF Tax Invoices & Physical Delivery Challans.
           </p>
           <button
             onClick={() => handleRunPresetAudit('DISCREPANCY')}
             disabled={scanning}
-            className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700"
+            className="btn-secondary text-xs"
           >
             Upload Document File
           </button>
         </div>
 
         {/* 1-Click Interactive Demonstration Presets */}
-        <div className="md:col-span-6 glass-card p-5 space-y-3 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950">
-          <div className="flex items-center gap-2 text-xs font-bold text-cyan-300">
-            <Sparkles className="w-4 h-4" />
+        <div className="md:col-span-6 glass-card p-5 space-y-3 bg-surface-1">
+          <div className="flex items-center gap-2 text-xs font-bold text-brand-accent">
+            <Sparkles className="w-3.5 h-3.5 text-brand-accent fill-brand-accent" />
             <span>Interactive Demo Scenarios</span>
           </div>
           <p className="text-[11px] text-slate-400">
@@ -173,166 +177,177 @@ export default function InvoiceAuditorPage({ onOpenAskAI }) {
             <button
               onClick={() => handleRunPresetAudit('CLEAN')}
               disabled={scanning}
-              className="p-3 bg-slate-950 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-500/50 rounded-xl text-left transition-all group"
+              className="p-3 bg-surface-2 hover:bg-emerald-500/10 border border-white/[0.06] hover:border-emerald-500/30 rounded-xl text-left transition-all group"
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-bold text-emerald-400 uppercase">Case 1: Clean Match</span>
+                <span className="text-[10px] font-bold text-emerald-400 uppercase font-mono">Case 1: Clean Match</span>
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
               </div>
               <p className="text-xs font-bold text-white">Metro Wholesale</p>
-              <p className="text-[10px] text-slate-400 mt-0.5">INV-10428 • ₹44,600 • 100% Match</p>
+              <p className="text-[10px] text-slate-400 mt-0.5 font-mono">INV-10428 • ₹44,600 • 100% Match</p>
             </button>
 
             <button
               onClick={() => handleRunPresetAudit('DISCREPANCY')}
               disabled={scanning}
-              className="p-3 bg-slate-950 hover:bg-rose-950/40 border border-slate-800 hover:border-rose-500/50 rounded-xl text-left transition-all group"
+              className="p-3 bg-surface-2 hover:bg-rose-500/10 border border-white/[0.06] hover:border-rose-500/30 rounded-xl text-left transition-all group"
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-bold text-rose-400 uppercase">Case 2: Shortage Flag</span>
+                <span className="text-[10px] font-bold text-rose-400 uppercase font-mono">Case 2: Shortage Flag</span>
                 <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
               </div>
               <p className="text-xs font-bold text-white">Kaveri Dairy Shortage</p>
-              <p className="text-[10px] text-rose-300/80 mt-0.5">8L Milk Missing • ₹486.40 Overbill</p>
+              <p className="text-[10px] text-rose-300 mt-0.5 font-mono">8L Milk Missing • ₹486.40 Overbill</p>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Scanning In-Progress Animation */}
-      {scanning && (
-        <div className="glass-card p-6 border-cyan-500/40 bg-cyan-950/20 text-center space-y-3 animate-in fade-in">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto text-cyan-400" />
-          <h3 className="text-sm font-bold text-white">
-            {scanStep === 1 && 'Scanning document with Gemini Vision OCR...'}
-            {scanStep === 2 && 'Extracting structured line items and GST tax schedules...'}
-            {scanStep === 3 && 'Retrieving matching Purchase Order record from ledger...'}
-            {scanStep >= 4 && 'Running 8-vector deterministic discrepancy tests...'}
+      {/* Main Audit Breakdown: Invoices List (Left) + Detailed Audit Inspector (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column: Audits List */}
+        <div className="lg:col-span-4 space-y-3">
+          <h3 className="text-xs font-bold uppercase text-slate-400 tracking-wider">
+            Audited Invoices ({audits.length})
           </h3>
-          <div className="w-64 bg-slate-800 rounded-full h-1.5 mx-auto overflow-hidden">
-            <div
-              className="h-full bg-cyan-500 transition-all duration-300"
-              style={{ width: `${(scanStep / 4) * 100}%` }}
-            ></div>
+
+          <div className="space-y-2">
+            {audits.map((a) => {
+              const isSelected = activeAudit?.audit_id === a.audit_id;
+              const hasDiscrepancy = a.discrepancies?.length > 0;
+
+              return (
+                <div
+                  key={a.audit_id}
+                  onClick={() => setActiveAudit(a)}
+                  className={`glass-card p-3.5 cursor-pointer transition-all ${
+                    isSelected
+                      ? 'border-brand-accent bg-surface-2 ring-1 ring-brand-accent/40 shadow-glow-teal'
+                      : 'hover:border-white/[0.12] bg-surface-1'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-mono text-[10px] text-brand-accent font-bold">{a.invoice_number}</span>
+                    <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded border ${
+                      a.status === 'CLEAN' ? 'badge-emerald' : 'badge-rose'
+                    }`}>
+                      {a.status}
+                    </span>
+                  </div>
+
+                  <h4 className="text-xs font-bold text-white">{a.supplier_name}</h4>
+                  
+                  <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono mt-2 pt-2 border-t border-white/[0.04]">
+                    <span>Total: ₹{a.total_amount_inr?.toLocaleString()}</span>
+                    <span>PO: {a.purchase_order_id}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
-      )}
 
-      {/* Main Audit Report Display */}
-      {activeAudit && !scanning && (
-        <div className="glass-card p-6 space-y-6 border-slate-700">
-          {/* Audit Banner */}
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b border-slate-800 pb-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-bold text-cyan-400">{activeAudit.audit_id}</span>
-                <span
-                  className={
-                    activeAudit.status === 'RED'
-                      ? 'badge-rose'
-                      : activeAudit.status === 'AMBER'
-                      ? 'badge-amber'
-                      : 'badge-emerald'
-                  }
-                >
-                  {activeAudit.status === 'RED'
-                    ? '🔴 RED: Critical Discrepancy'
-                    : activeAudit.status === 'AMBER'
-                    ? '🟡 AMBER: Manual Review'
-                    : '🟢 GREEN: 100% Verified'}
-                </span>
-              </div>
-              <h2 className="text-lg font-bold text-white mt-1">
-                Audit Report: {activeAudit.invoice_number} ({activeAudit.supplier_name})
-              </h2>
-              <p className="text-xs text-slate-400 font-mono">
-                Matching PO: <strong>{activeAudit.matching_po_id || 'PO-10022'}</strong> • Billed Total: <strong className="text-white">₹{activeAudit.extracted_data?.total_amount?.toLocaleString()}</strong>
-              </p>
-            </div>
+        {/* Right Column: Detailed 3-Way Match Inspector */}
+        <div className="lg:col-span-8">
+          {activeAudit ? (
+            <div className="glass-card p-6 space-y-6 bg-surface-1">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/[0.06] pb-4 gap-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs text-brand-accent font-bold bg-brand-accent/10 px-2 py-0.5 rounded border border-brand-accent/20">
+                      {activeAudit.invoice_number}
+                    </span>
+                    <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+                      activeAudit.status === 'CLEAN' ? 'badge-emerald' : 'badge-rose'
+                    }`}>
+                      {activeAudit.status === 'CLEAN' ? '3-WAY MATCH VERIFIED' : 'DISCREPANCY DETECTED'}
+                    </span>
+                  </div>
+                  <h2 className="text-base font-bold text-white mt-1.5">{activeAudit.supplier_name}</h2>
+                </div>
 
-            <div className="flex items-center gap-3">
-              {activeAudit.total_variance_inr > 0 && (
-                <div className="text-right p-2.5 bg-rose-950/60 border border-rose-800/60 rounded-xl">
-                  <span className="text-[10px] text-rose-400 block font-semibold uppercase">Total Overbilling</span>
-                  <span className="text-sm font-mono font-extrabold text-rose-300">
-                    ₹{activeAudit.total_variance_inr.toFixed(2)}
+                <div className="text-right">
+                  <span className="text-lg font-bold font-mono text-white">
+                    ₹{activeAudit.total_amount_inr?.toLocaleString()}
+                  </span>
+                  <span className="text-[10px] text-slate-400 block font-mono">
+                    PO Ref: {activeAudit.purchase_order_id}
                   </span>
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
 
-          {/* Discrepancy Callout Items */}
-          {activeAudit.discrepancies?.length > 0 ? (
-            <div className="space-y-3">
-              <h3 className="text-xs font-bold uppercase text-rose-400 tracking-wider flex items-center gap-1.5">
-                <AlertTriangle className="w-4 h-4" />
-                Detected Discrepancy Vectors ({activeAudit.discrepancies.length})
-              </h3>
-
-              {activeAudit.discrepancies.map((disc, i) => (
-                <div key={i} className="p-4 bg-rose-950/20 border border-rose-500/30 rounded-xl space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-mono font-bold text-rose-300">{disc.type}</span>
-                    <span className="font-mono text-rose-400 font-bold">Variance: ₹{disc.variance_amount}</span>
+              {/* Discrepancies Callout */}
+              {activeAudit.discrepancies?.length > 0 ? (
+                <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl space-y-2.5">
+                  <div className="flex items-center gap-2 text-xs font-bold text-rose-400">
+                    <AlertTriangle className="w-4 h-4 text-rose-400" />
+                    <span>Discrepancies Flagged ({activeAudit.discrepancies.length})</span>
                   </div>
-                  <p className="text-xs text-slate-200">{disc.description}</p>
+
+                  <div className="space-y-2">
+                    {activeAudit.discrepancies.map((d, i) => (
+                      <div key={i} className="p-3 bg-surface-0 rounded-lg border border-rose-500/20 text-xs space-y-1 font-mono">
+                        <div className="flex items-center justify-between text-rose-400 font-bold">
+                          <span>{d.type}</span>
+                          <span>Variance: ₹{d.amount_inr?.toFixed(2)}</span>
+                        </div>
+                        <p className="text-slate-300 font-sans text-[11px]">{d.description}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="p-4 bg-emerald-950/20 border border-emerald-500/30 rounded-xl flex items-center gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-              <div>
-                <h4 className="text-xs font-bold text-white">Zero Discrepancies Found</h4>
-                <p className="text-[11px] text-slate-300">
-                  Every invoiced quantity, unit price, and GST calculation matches the approved Purchase Order.
-                </p>
+              ) : (
+                <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                  <div>
+                    <span className="text-xs font-bold text-emerald-400 block">100% 3-Way Match Verified</span>
+                    <p className="text-[11px] text-slate-300">
+                      Billed items, quantities, unit prices, and GST calculations match the approved Purchase Order and physical goods receipt perfectly.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Line Items Table */}
+              <div className="space-y-2">
+                <span className="text-xs font-bold uppercase text-slate-400 tracking-wider">
+                  Audited Line Items ({activeAudit.items?.length || 0})
+                </span>
+
+                <div className="border border-white/[0.06] rounded-xl overflow-hidden">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-surface-2 text-slate-400 font-mono text-[10px] uppercase border-b border-white/[0.06]">
+                      <tr>
+                        <th className="p-3">SKU / Item</th>
+                        <th className="p-3 text-right">Quantity</th>
+                        <th className="p-3 text-right">Unit Price</th>
+                        <th className="p-3 text-right">Line Total</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/[0.04] bg-surface-1">
+                      {activeAudit.items?.map((item, idx) => (
+                        <tr key={idx} className="hover:bg-surface-2/40 transition-colors">
+                          <td className="p-3">
+                            <span className="font-mono text-brand-accent font-bold block">{item.sku}</span>
+                            <span className="text-slate-300 text-[11px]">{item.name}</span>
+                          </td>
+                          <td className="p-3 text-right font-mono text-white">{item.quantity}</td>
+                          <td className="p-3 text-right font-mono text-white">₹{item.unit_price?.toFixed(2)}</td>
+                          <td className="p-3 text-right font-mono font-bold text-white">₹{item.line_total?.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
+          ) : (
+            <div className="glass-card p-12 text-center text-slate-500">
+              Select an audited invoice to inspect discrepancy trace.
+            </div>
           )}
-
-          {/* Audit Summary & Recommended Action */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-            <div className="p-4 bg-slate-950 rounded-xl border border-slate-800">
-              <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1">AI Audit Assessment</span>
-              <p className="text-xs text-slate-300">{activeAudit.audit_summary}</p>
-            </div>
-
-            <div className="p-4 bg-slate-950 rounded-xl border border-slate-800">
-              <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Recommended Governance Action</span>
-              <p className="text-xs text-cyan-300 font-semibold">{activeAudit.recommended_action}</p>
-            </div>
-          </div>
-
-          {/* Extracted Line Items Table */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-bold uppercase text-slate-400">Extracted Line Items</h4>
-            <div className="overflow-x-auto rounded-xl border border-slate-800">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-slate-950 text-slate-400 text-[10px] uppercase font-bold">
-                  <tr>
-                    <th className="py-2.5 px-3">Item Name</th>
-                    <th className="py-2.5 px-3 text-right">Invoiced Qty</th>
-                    <th className="py-2.5 px-3 text-right">Unit Rate</th>
-                    <th className="py-2.5 px-3 text-right">Total (₹)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/80">
-                  {activeAudit.extracted_data?.items?.map((item, idx) => (
-                    <tr key={idx} className="bg-slate-900/60">
-                      <td className="py-2.5 px-3 font-medium text-white">{item.name}</td>
-                      <td className="py-2.5 px-3 text-right font-mono text-slate-200">{item.quantity}</td>
-                      <td className="py-2.5 px-3 text-right font-mono text-slate-200">₹{item.unit_price}</td>
-                      <td className="py-2.5 px-3 text-right font-mono font-bold text-white">₹{item.line_total}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

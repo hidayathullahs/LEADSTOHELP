@@ -12,100 +12,140 @@ import {
   BarChart3,
   Settings,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  Radio
 } from 'lucide-react';
 
-const NAV_ITEMS = [
-  { id: 'overview', label: 'Control Tower', icon: LayoutDashboard, badge: null },
-  { id: 'inventory', label: 'Inventory Intelligence', icon: Package, badge: null },
-  { id: 'procurement', label: 'Procurement Simulator', icon: ShoppingCart, badge: null },
-  { id: 'suppliers', label: 'Supplier Network', icon: Users, badge: null },
-  { id: 'invoices', label: 'Invoice Auditor (Vision)', icon: FileCheck, badge: 'AI' },
-  { id: 'negotiations', label: 'Vendor Negotiations', icon: MessageSquareDiff, badge: null },
-  { id: 'approvals', label: 'Approval Center', icon: CheckSquare, badgeKey: 'pendingApprovals' },
-  { id: 'risk-radar', label: 'Supply Risk Radar', icon: Radar, badgeKey: 'riskScore' },
-  { id: 'agent-inspector', label: 'AI Activity & Inspector', icon: Activity, badge: 'Live' },
-  { id: 'analytics', label: 'Impact & Analytics', icon: BarChart3, badge: null },
-  { id: 'settings', label: 'Store Settings', icon: Settings, badge: null },
+const NAV_SECTIONS = [
+  {
+    title: 'Core Operations',
+    items: [
+      { id: 'overview', label: 'Control Tower', icon: LayoutDashboard, badge: null },
+      { id: 'inventory', label: 'Inventory Intelligence', icon: Package, badge: null },
+      { id: 'procurement', label: 'Procurement Optimizer', icon: ShoppingCart, badge: null },
+    ]
+  },
+  {
+    title: 'Intelligence & Partners',
+    items: [
+      { id: 'suppliers', label: 'Supplier Network', icon: Users, badge: null },
+      { id: 'invoices', label: 'Invoice Vision Audit', icon: FileCheck, badge: 'OCR' },
+      { id: 'negotiations', label: 'Vendor Negotiations', icon: MessageSquareDiff, badge: null },
+    ]
+  },
+  {
+    title: 'Governance & Audit',
+    items: [
+      { id: 'approvals', label: 'Approval Queue', icon: CheckSquare, badgeKey: 'pendingApprovals' },
+      { id: 'risk-radar', label: 'Supply Risk Radar', icon: Radar, badgeKey: 'riskScore' },
+      { id: 'agent-inspector', label: 'Multi-Agent Traces', icon: Activity, badge: 'Live' },
+      { id: 'analytics', label: 'Financial Analytics', icon: BarChart3, badge: null },
+    ]
+  },
+  {
+    title: 'System',
+    items: [
+      { id: 'settings', label: 'Store Configuration', icon: Settings, badge: null },
+    ]
+  }
 ];
 
 export default function Sidebar({ activeTab, setActiveTab, metrics }) {
   return (
-    <aside className="w-64 bg-[#0B0F19] border-r border-slate-800/80 flex flex-col justify-between shrink-0 select-none">
+    <aside className="w-60 bg-surface-0 border-r border-white/[0.06] flex flex-col justify-between shrink-0 select-none z-20">
       {/* Brand Header */}
       <div>
-        <div className="p-5 border-b border-slate-800/60 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 via-cyan-500 to-indigo-500 flex items-center justify-center shadow-glow-cyan">
-            <Sparkles className="w-5 h-5 text-black" />
+        <div className="h-14 px-4 border-b border-white/[0.06] flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-teal-400 flex items-center justify-center shadow-glow-teal">
+            <Sparkles className="w-4 h-4 text-black fill-black" />
           </div>
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-extrabold text-sm tracking-wider text-white">LEADSTOHELP</span>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800/60">AI</span>
+            <div className="flex items-center gap-1.5 leading-none">
+              <span className="font-extrabold text-xs tracking-wider text-white">LEADSTOHELP</span>
+              <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-brand-accent/15 text-brand-accent border border-brand-accent/30">
+                PRO
+              </span>
             </div>
-            <p className="text-[11px] text-slate-400 font-medium">Operations Control Tower</p>
+            <p className="text-[10px] text-slate-400 font-medium mt-0.5">Autonomous Supply Chain</p>
           </div>
         </div>
 
-        {/* Navigation Items */}
-        <nav className="p-3 space-y-1">
-          {NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            
-            // Dynamic badge computation
-            let badgeDisplay = item.badge;
-            if (item.badgeKey === 'pendingApprovals' && metrics?.pending_approvals_count > 0) {
-              badgeDisplay = metrics.pending_approvals_count;
-            } else if (item.badgeKey === 'riskScore' && metrics?.risk_radar?.overall_score) {
-              badgeDisplay = `${Math.round(metrics.risk_radar.overall_score)}`;
-            }
+        {/* Grouped Navigation Sections */}
+        <nav className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-140px)]">
+          {NAV_SECTIONS.map((section, sIdx) => (
+            <div key={sIdx} className="space-y-1">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 px-2.5 block mb-1">
+                {section.title}
+              </span>
 
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-all ${
-                  isActive
-                    ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-glow-cyan'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border border-transparent'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-cyan-400' : 'text-slate-400'}`} />
-                  <span>{item.label}</span>
-                </div>
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                
+                // Dynamic badge computation
+                let badgeDisplay = item.badge;
+                let isAlertBadge = false;
+                if (item.badgeKey === 'pendingApprovals' && metrics?.pending_approvals_count > 0) {
+                  badgeDisplay = metrics.pending_approvals_count;
+                  isAlertBadge = true;
+                } else if (item.badgeKey === 'riskScore' && metrics?.risk_radar?.overall_score) {
+                  badgeDisplay = `${Math.round(metrics.risk_radar.overall_score)}`;
+                }
 
-                {badgeDisplay && (
-                  <span
-                    className={`px-1.5 py-0.5 text-[10px] font-bold rounded-full ${
-                      item.badgeKey === 'pendingApprovals'
-                        ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                        : item.badgeKey === 'riskScore'
-                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
-                        : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all group ${
+                      isActive
+                        ? 'bg-surface-2 text-white font-semibold border border-white/[0.08] shadow-sm'
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-surface-1 border border-transparent'
                     }`}
                   >
-                    {badgeDisplay}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+                    <div className="flex items-center gap-2.5">
+                      <Icon className={`w-4 h-4 transition-colors ${
+                        isActive ? 'text-brand-accent' : 'text-slate-400 group-hover:text-slate-200'
+                      }`} />
+                      <span>{item.label}</span>
+                    </div>
+
+                    {badgeDisplay && (
+                      <span
+                        className={`px-1.5 py-0.2 text-[10px] font-mono font-bold rounded-full ${
+                          isAlertBadge
+                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse'
+                            : item.badgeKey === 'riskScore'
+                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                            : isActive
+                            ? 'bg-brand-accent/20 text-brand-accent border border-brand-accent/30'
+                            : 'bg-surface-3 text-slate-400 border border-white/[0.06]'
+                        }`}
+                      >
+                        {badgeDisplay}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </nav>
       </div>
 
-      {/* Footer Store Status */}
-      <div className="p-4 border-t border-slate-800/60 bg-slate-900/40 m-3 rounded-xl border">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1.5 text-xs text-slate-300 font-medium">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Bengaluru Hub</span>
+      {/* Footer Store Hub Status */}
+      <div className="p-3 border-t border-white/[0.06] bg-surface-1/60 m-2.5 rounded-xl border border-white/[0.04]">
+        <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center gap-1.5 text-xs text-slate-200 font-semibold">
+            <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+            <span>Store Hub Active</span>
           </div>
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span className="text-[10px] font-mono text-slate-500 font-semibold">BLR-01</span>
         </div>
-        <p className="text-[11px] text-slate-400 truncate">Deccan Roast Café #01</p>
-        <p className="text-[10px] text-slate-500 font-mono mt-0.5">INR (₹) • Asia/Kolkata</p>
+        <p className="text-[11px] text-slate-400 truncate">Deccan Roast Café • Hub #1</p>
+        <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono mt-1 pt-1 border-t border-white/[0.04]">
+          <span>65 Monitored SKUs</span>
+          <span className="text-emerald-400 font-semibold">100% Synced</span>
+        </div>
       </div>
     </aside>
   );

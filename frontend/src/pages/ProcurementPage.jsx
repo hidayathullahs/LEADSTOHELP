@@ -87,7 +87,6 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
 
   const selectedScenario = simulation?.scenarios?.find(s => s.scenario_id === selectedScenarioId) || simulation?.scenarios?.[0];
 
-  // Helper to generate impact metrics for the selected scenario
   const getScenarioImpact = (sc) => {
     if (!sc) return null;
     const isSplit = sc.scenario_id === 'SCENARIO-B';
@@ -111,16 +110,16 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between pb-4 border-b border-white/[0.06] gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800">
+            <span className="badge-teal text-[10px] uppercase font-bold">
               Closed-Loop Procurement
             </span>
             <span className="text-xs text-slate-400">Multi-Supplier Strategic Optimizer • 6 Scenarios</span>
           </div>
-          <h1 className="text-xl font-extrabold text-white flex items-center gap-2">
-            <ShoppingCart className="w-5 h-5 text-cyan-400" />
+          <h1 className="text-xl font-extrabold text-white flex items-center gap-2 tracking-tight">
+            <ShoppingCart className="w-5 h-5 text-brand-accent" />
             Procurement Scenario Simulator & Optimizer
           </h1>
           <p className="text-xs text-slate-400">
@@ -130,12 +129,12 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
 
         <div className="flex items-center gap-2.5">
           {/* Toggle between 6-Scenario Matrix and What-If Digital Twin */}
-          <div className="flex bg-slate-900 border border-slate-800 rounded-xl p-1 text-xs">
+          <div className="flex bg-surface-1 border border-white/[0.06] rounded-xl p-1 text-xs">
             <button
               onClick={() => setActiveTab('scenarios')}
               className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
                 activeTab === 'scenarios'
-                  ? 'bg-cyan-500 text-black shadow-glow-cyan'
+                  ? 'bg-brand-accent text-black shadow-glow-teal font-bold'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -146,7 +145,7 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
               onClick={() => setActiveTab('whatif')}
               className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1.5 ${
                 activeTab === 'whatif'
-                  ? 'bg-indigo-600 text-white shadow-md'
+                  ? 'bg-accent-violet text-white shadow-md font-bold'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -157,16 +156,16 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
 
           <button
             onClick={() => onOpenAskAI(`Simulate best procurement strategy for SKU ${sku}`)}
-            className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 text-black font-bold text-xs rounded-xl shadow-glow-cyan flex items-center gap-1.5 transition-all"
+            className="btn-secondary text-xs"
           >
-            <Sparkles className="w-4 h-4" />
+            <Sparkles className="w-3.5 h-3.5 text-brand-accent" />
             <span>Ask AI Strategy</span>
           </button>
         </div>
       </div>
 
       {/* Input Configuration Panel */}
-      <div className="glass-card p-5 bg-slate-900/80">
+      <div className="glass-card p-5 bg-surface-1">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -181,7 +180,7 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
             <select
               value={sku}
               onChange={(e) => setSku(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-white focus:border-cyan-500"
+              className="w-full bg-surface-2 border border-white/[0.08] rounded-lg px-3.5 py-2 text-xs text-white focus:border-brand-accent focus:outline-none"
             >
               <option value="COFFEE-001">COFFEE-001 - Specialty Arabica Coffee Beans (AAA Grade)</option>
               <option value="DAIRY-001">DAIRY-001 - Pasteurized Full Cream Barista Milk</option>
@@ -201,7 +200,7 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
               step="5"
               value={quantity}
               onChange={(e) => setQuantity(parseFloat(e.target.value) || 10)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-white font-mono focus:border-cyan-500"
+              className="w-full bg-surface-2 border border-white/[0.08] rounded-lg px-3.5 py-2 text-xs text-white font-mono focus:border-brand-accent focus:outline-none"
             />
           </div>
 
@@ -209,16 +208,16 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs rounded-lg shadow-glow-cyan flex items-center justify-center gap-1.5 transition-all"
+              className="w-full btn-primary text-xs py-2"
             >
               {loading ? (
                 <>
-                  <RotateCcw className="w-3.5 h-3.5 animate-spin" />
+                  <RotateCcw className="w-3.5 h-3.5 animate-spin text-black" />
                   <span>Simulating...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <Sparkles className="w-3.5 h-3.5 text-black fill-black" />
                   <span>Run Scenario Model</span>
                 </>
               )}
@@ -246,7 +245,7 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
 
           <button
             onClick={() => onNavigateToApprovals()}
-            className="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs rounded-lg flex items-center gap-1 shadow-glow-emerald shrink-0"
+            className="btn-success text-xs px-3.5 py-1.5 shrink-0"
           >
             <span>Review in Approval Center</span>
             <ChevronRight className="w-3.5 h-3.5" />
@@ -264,7 +263,7 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
                   Selected Strategy Impact Profile
                 </span>
-                <span className="text-[11px] text-cyan-400 font-mono">
+                <span className="text-[11px] text-brand-accent font-mono">
                   Scenario: {selectedScenario.scenario_id}
                 </span>
               </div>
@@ -280,14 +279,14 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
           {/* 6-Scenario Grid */}
           {loading ? (
             <div className="text-center py-16 text-slate-400">
-              <RotateCcw className="w-8 h-8 animate-spin mx-auto text-cyan-400 mb-2" />
+              <RotateCcw className="w-8 h-8 animate-spin mx-auto text-brand-accent mb-2" />
               <p className="text-sm">Calculating 6-Scenario Mathematical Simulations...</p>
             </div>
           ) : simulation?.scenarios?.length > 0 ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Layers className="w-4 h-4 text-cyan-400" />
+                  <Layers className="w-4 h-4 text-brand-accent" />
                   6 Strategic Procurement Scenarios ({simulation.target_quantity} units of {simulation.sku})
                 </h2>
                 <span className="text-xs text-slate-400 font-mono">
@@ -295,7 +294,7 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {simulation.scenarios.map((sc) => {
                   const isRecommended = sc.is_recommended;
                   const isSelected = sc.scenario_id === selectedScenarioId;
@@ -306,15 +305,15 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
                       onClick={() => setSelectedScenarioId(sc.scenario_id)}
                       className={`glass-card p-5 flex flex-col justify-between transition-all relative cursor-pointer group ${
                         isSelected
-                          ? 'border-cyan-500 bg-slate-900/95 ring-1 ring-cyan-500/50 shadow-glow-cyan'
+                          ? 'border-brand-accent bg-surface-2 ring-1 ring-brand-accent/50 shadow-glow-teal'
                           : isRecommended
-                          ? 'border-cyan-500/60 bg-gradient-to-b from-cyan-950/20 via-slate-900/90 to-slate-900/90 hover:border-cyan-400'
-                          : 'border-slate-800 hover:border-slate-700 bg-slate-900/80'
+                          ? 'border-brand-accent/40 bg-surface-1 hover:border-brand-accent'
+                          : 'border-white/[0.06] hover:border-white/[0.12] bg-surface-1'
                       }`}
                     >
                       {isRecommended && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-cyan-500 text-black font-extrabold text-[10px] uppercase shadow-md flex items-center gap-1">
-                          <Sparkles className="w-3 h-3" />
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-brand-accent text-black font-extrabold text-[10px] uppercase shadow-md flex items-center gap-1">
+                          <Sparkles className="w-3 h-3 text-black fill-black" />
                           <span>AI Recommended Strategy</span>
                         </div>
                       )}
@@ -323,25 +322,25 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
                         {/* Scenario Title */}
                         <div className="mb-4">
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 font-mono">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-accent font-mono">
                               {sc.scenario_id}
                             </span>
-                            <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${
-                              sc.risk_level === 'LOW' ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-800' :
-                              sc.risk_level === 'MEDIUM' ? 'bg-amber-950/60 text-amber-300 border border-amber-800' :
-                              'bg-rose-950/60 text-rose-300 border border-rose-800'
+                            <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
+                              sc.risk_level === 'LOW' ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20' :
+                              sc.risk_level === 'MEDIUM' ? 'bg-amber-500/10 text-amber-300 border-amber-500/20' :
+                              'bg-rose-500/10 text-rose-300 border-rose-500/20'
                             }`}>
                               {sc.risk_level} RISK
                             </span>
                           </div>
-                          <h3 className="text-sm font-bold text-white mt-1 group-hover:text-cyan-300 transition-colors">
+                          <h3 className="text-sm font-bold text-white mt-1 group-hover:text-brand-accent transition-colors">
                             {sc.name}
                           </h3>
                           <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">{sc.strategy}</p>
                         </div>
 
                         {/* Financial & Delivery Metrics */}
-                        <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-2 mb-4">
+                        <div className="p-3 bg-surface-0 rounded-xl border border-white/[0.06] space-y-2 mb-4">
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-slate-400">Total Investment:</span>
                             <span className="font-mono font-bold text-white text-sm">
@@ -351,7 +350,7 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
 
                           <div className="flex items-center justify-between text-xs">
                             <span className="text-slate-400">Blended Unit Rate:</span>
-                            <span className="font-mono font-semibold text-cyan-300">
+                            <span className="font-mono font-semibold text-brand-accent">
                               ₹{sc.unit_price.toFixed(2)}/unit
                             </span>
                           </div>
@@ -363,7 +362,7 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
                             </span>
                           </div>
 
-                          <div className="flex items-center justify-between text-xs pt-1.5 border-t border-slate-800/80">
+                          <div className="flex items-center justify-between text-xs pt-1.5 border-t border-white/[0.06]">
                             <span className="text-emerald-400 font-semibold">Simulated Savings:</span>
                             <span className="font-mono font-bold text-emerald-400">
                               +₹{sc.savings_vs_quote.toLocaleString()}
@@ -375,9 +374,9 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
                         <div className="space-y-1.5 mb-4">
                           <span className="text-[10px] uppercase font-bold text-slate-500">Allocation Split:</span>
                           {sc.supplier_allocations?.map((alloc, i) => (
-                            <div key={i} className="p-2 bg-slate-900/60 rounded border border-slate-800 text-[11px] flex justify-between">
+                            <div key={i} className="p-2 bg-surface-2 rounded border border-white/[0.04] text-[11px] flex justify-between">
                               <span className="text-slate-300 truncate max-w-[140px]">{alloc.supplier_name}</span>
-                              <span className="font-mono font-semibold text-cyan-400">
+                              <span className="font-mono font-semibold text-brand-accent">
                                 {alloc.quantity} units (₹{alloc.cost.toLocaleString()})
                               </span>
                             </div>
@@ -415,10 +414,10 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
                         disabled={submitting}
                         className={`w-full py-2 rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 transition-all ${
                           isRecommended
-                            ? 'bg-cyan-500 hover:bg-cyan-400 text-black shadow-glow-cyan'
+                            ? 'btn-primary'
                             : isSelected
-                            ? 'bg-indigo-600 hover:bg-indigo-500 text-white'
-                            : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                            ? 'bg-accent-violet hover:bg-accent-violet/80 text-white font-bold'
+                            : 'btn-secondary'
                         }`}
                       >
                         <span>{isRecommended ? 'Select Recommended Plan' : 'Select This Strategy'}</span>
@@ -443,12 +442,12 @@ export default function ProcurementPage({ initialSku, onNavigateToApprovals, onO
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <Sliders className="w-4 h-4 text-indigo-400" />
+              <Sliders className="w-4 h-4 text-accent-violet" />
               Supply Chain What-If Digital Twin ({sku})
             </h2>
             <button
               onClick={() => setActiveTab('scenarios')}
-              className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold"
+              className="text-xs text-brand-accent hover:text-brand-300 font-semibold"
             >
               Back to 6-Scenario Matrix →
             </button>

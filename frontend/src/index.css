@@ -4,65 +4,81 @@
 
 @layer base {
   body {
-    @apply bg-[#0B0F19] text-slate-100 antialiased;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    @apply bg-surface-0 text-slate-100 antialiased selection:bg-brand-accent selection:text-black;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+    letter-spacing: -0.011em;
   }
 
-  /* Custom scrollbar for operations console */
+  /* Sleek operations scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
-    background: #0B0F19;
+    background: #07090E;
   }
   ::-webkit-scrollbar-thumb {
-    background: #1E293B;
-    border-radius: 3px;
+    background: #1C2234;
+    border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #334155;
+    background: #2D3748;
   }
 }
 
 @layer components {
+  /* Enterprise Grade Card Surfaces */
   .glass-card {
-    @apply bg-slate-900/80 backdrop-blur-md border border-slate-800/80 rounded-xl shadow-xl;
-  }
-  
-  .glass-panel {
-    @apply bg-slate-900/60 backdrop-blur-sm border border-slate-800/60 rounded-lg;
+    @apply bg-surface-1/90 backdrop-blur-md border border-white/[0.07] rounded-xl shadow-card-surface transition-all duration-200;
   }
 
+  .glass-card-interactive {
+    @apply bg-surface-1/90 backdrop-blur-md border border-white/[0.07] rounded-xl shadow-card-surface transition-all duration-200 hover:border-white/[0.15] hover:bg-surface-2/90;
+  }
+
+  .glass-panel {
+    @apply bg-surface-2/70 backdrop-blur-sm border border-white/[0.06] rounded-lg;
+  }
+
+  /* Refined Micro Badges */
   .badge-emerald {
-    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-400 border border-emerald-800/60;
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/25;
   }
 
   .badge-amber {
-    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-950/80 text-amber-400 border border-amber-800/60;
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/25;
   }
 
   .badge-rose {
-    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-950/80 text-rose-400 border border-rose-800/60;
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/25;
   }
 
-  .badge-cyan {
-    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold bg-cyan-950/80 text-cyan-400 border border-cyan-800/60;
+  .badge-teal {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-accent/10 text-brand-accent border border-brand-accent/25;
   }
 
-  .badge-indigo {
-    @apply px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-950/80 text-indigo-400 border border-indigo-800/60;
+  .badge-violet {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-accent-violet/10 text-accent-violet border border-accent-violet/25;
   }
 
-  .glow-border-cyan {
-    box-shadow: 0 0 15px -3px rgba(6, 182, 212, 0.25);
+  .badge-neutral {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-surface-3 text-slate-300 border border-white/[0.08];
   }
 
-  .glow-border-rose {
-    box-shadow: 0 0 15px -3px rgba(244, 63, 94, 0.25);
+  /* High-Impact Action Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-brand-accent hover:bg-brand-300 text-black font-bold text-xs shadow-glow-teal transition-all active:scale-[0.98];
   }
 
-  .glow-border-emerald {
-    box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.25);
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-surface-2 hover:bg-surface-3 text-slate-200 border border-white/[0.08] hover:border-white/[0.15] font-semibold text-xs transition-all active:scale-[0.98];
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 font-semibold text-xs transition-all active:scale-[0.98];
+  }
+
+  .btn-success {
+    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs shadow-glow-emerald transition-all active:scale-[0.98];
   }
 }

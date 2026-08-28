@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Sparkles,
   Search,
@@ -6,12 +6,20 @@ import {
   RotateCcw,
   Database,
   ShieldCheck,
-  Zap
+  ChevronDown,
+  Activity,
+  CheckCircle2,
+  Command,
+  HelpCircle,
+  Building2,
+  Store
 } from 'lucide-react';
 import { api } from '../services/api';
 
 export default function Topbar({ onOpenAskAI, onRefreshData, isRefreshing }) {
   const [systemStatus, setSystemStatus] = useState(null);
+  const [statusMenuOpen, setStatusMenuOpen] = useState(false);
+  const menuRef = useRef(null);
 
   const fetchStatus = async () => {
     try {
@@ -26,74 +34,142 @@ export default function Topbar({ onOpenAskAI, onRefreshData, isRefreshing }) {
     fetchStatus();
   }, [isRefreshing]);
 
+  // Handle outside click for system status popover
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setStatusMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const isGeminiLive = systemStatus?.gemini?.live_available;
   const isFirestoreCloud = systemStatus?.firestore?.is_cloud;
   const isAuthStrict = systemStatus?.authentication?.enforced;
 
   return (
-    <header className="h-16 bg-[#0B0F19]/90 backdrop-blur-md border-b border-slate-800/80 px-6 flex items-center justify-between shrink-0">
-      {/* Search & Quick Trigger */}
-      <div className="flex items-center gap-4 flex-1 max-w-md">
-        <div className="relative w-full">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+    <header className="h-14 bg-surface-0/90 backdrop-blur-xl border-b border-white/[0.06] px-5 flex items-center justify-between shrink-0 z-30 select-none">
+      {/* Left: Store Selector & Command Search */}
+      <div className="flex items-center gap-4 flex-1 max-w-xl">
+        {/* Store Hub Breadcrumb Badge */}
+        <div className="hidden md:flex items-center gap-2 px-2.5 py-1 rounded-lg bg-surface-1 border border-white/[0.06] text-xs">
+          <Store className="w-3.5 h-3.5 text-brand-accent" />
+          <span className="font-semibold text-slate-200">Deccan Roast Hub</span>
+          <span className="text-[10px] text-slate-500 font-mono">#BLR-01</span>
+        </div>
+
+        {/* Global Command Bar / Search */}
+        <div className="relative flex-1">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Search SKUs, suppliers, purchase orders, or ask AI..."
+            placeholder="Search SKUs, suppliers, POs, or ask AI (Press ⌘K)..."
             onClick={onOpenAskAI}
             readOnly
-            className="w-full bg-slate-900/80 border border-slate-800 text-xs text-slate-200 placeholder-slate-500 rounded-lg pl-9 pr-4 py-2 focus:outline-none focus:border-cyan-500/50 cursor-pointer transition-all hover:bg-slate-800/60"
+            className="w-full bg-surface-1 hover:bg-surface-2 border border-white/[0.06] hover:border-white/[0.12] text-xs text-slate-200 placeholder-slate-500 rounded-lg pl-8 pr-12 py-1.5 focus:outline-none focus:border-brand-accent/50 cursor-pointer transition-all"
           />
+          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 pointer-events-none">
+            <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-surface-3 border border-white/[0.08] text-slate-400">
+              ⌘K
+            </kbd>
+          </div>
         </div>
       </div>
 
-      {/* Trustworthy Runtime Telemetry Badges */}
-      <div className="hidden xl:flex items-center gap-2">
-        {/* Gemini Status */}
-        <div
-          title={`Gemini Model: ${systemStatus?.gemini?.model || 'gemini-2.5-flash'}`}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono border ${
-            isGeminiLive
-              ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60'
-              : 'bg-amber-950/60 text-amber-300 border-amber-800/60'
-          }`}
-        >
-          <Cpu className="w-3 h-3" />
-          <span>Gemini: <strong>{isGeminiLive ? 'LIVE' : 'OFFLINE DEMO'}</strong></span>
-        </div>
-
-        {/* Firestore Status */}
-        <div
-          title={`Persistence: ${systemStatus?.firestore?.project || 'local_db'}`}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono border ${
-            isFirestoreCloud
-              ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60'
-              : 'bg-cyan-950/60 text-cyan-300 border-cyan-800/60'
-          }`}
-        >
-          <Database className="w-3 h-3" />
-          <span>Firestore: <strong>{isFirestoreCloud ? 'CLOUD' : 'LOCAL JSON'}</strong></span>
-        </div>
-
-        {/* Authentication Mode */}
-        <div
-          title={`Auth Mode: ${systemStatus?.authentication?.mode || 'DEVELOPMENT_PERMISSIVE'}`}
-          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono border ${
-            isAuthStrict
-              ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60'
-              : 'bg-slate-900 text-slate-400 border-slate-800'
-          }`}
-        >
-          <ShieldCheck className="w-3 h-3" />
-          <span>Auth: <strong>{isAuthStrict ? 'STRICT RBAC' : 'DEV MODE'}</strong></span>
-        </div>
-      </div>
-
-      {/* Action Badges & Profile */}
+      {/* Right Controls & Health Status */}
       <div className="flex items-center gap-3">
-        {/* Reset Demo Scenario Button */}
+        {/* Unified System Health Status Popover */}
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setStatusMenuOpen(!statusMenuOpen)}
+            className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-surface-1 hover:bg-surface-2 border border-white/[0.06] hover:border-white/[0.12] text-xs transition-all"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="text-slate-300 font-medium hidden sm:inline">System Health</span>
+            <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-surface-3 text-slate-300 border border-white/[0.06]">
+              {isGeminiLive ? 'LIVE' : 'DEMO'}
+            </span>
+            <ChevronDown className="w-3 h-3 text-slate-400" />
+          </button>
+
+          {/* Health Dropdown Panel */}
+          {statusMenuOpen && (
+            <div className="absolute right-0 mt-2 w-72 bg-surface-2 border border-white/[0.1] rounded-xl shadow-2xl p-3.5 space-y-3 z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between border-b border-white/[0.08] pb-2">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-brand-accent" />
+                  Telemetry Subsystems
+                </span>
+                <span className="text-[10px] font-mono text-emerald-400 font-semibold flex items-center gap-1">
+                  <CheckCircle2 className="w-3 h-3" /> Nominal
+                </span>
+              </div>
+
+              <div className="space-y-2 text-xs">
+                {/* Gemini Model */}
+                <div className="flex items-center justify-between p-2 rounded-lg bg-surface-1 border border-white/[0.04]">
+                  <div className="flex items-center gap-2">
+                    <Cpu className="w-3.5 h-3.5 text-slate-400" />
+                    <div>
+                      <span className="text-slate-200 font-medium block leading-tight">Gemini 2.5 Flash</span>
+                      <span className="text-[10px] text-slate-500 font-mono">Reasoning & Multimodal</span>
+                    </div>
+                  </div>
+                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+                    isGeminiLive
+                      ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+                      : 'bg-amber-500/10 text-amber-300 border-amber-500/20'
+                  }`}>
+                    {isGeminiLive ? 'LIVE CLOUD' : 'OFFLINE DEMO'}
+                  </span>
+                </div>
+
+                {/* Firestore Persistence */}
+                <div className="flex items-center justify-between p-2 rounded-lg bg-surface-1 border border-white/[0.04]">
+                  <div className="flex items-center gap-2">
+                    <Database className="w-3.5 h-3.5 text-slate-400" />
+                    <div>
+                      <span className="text-slate-200 font-medium block leading-tight">Persistence Layer</span>
+                      <span className="text-[10px] text-slate-500 font-mono">Dual-Mode Ledger</span>
+                    </div>
+                  </div>
+                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+                    isFirestoreCloud
+                      ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+                      : 'bg-brand-accent/10 text-brand-accent border-brand-accent/20'
+                  }`}>
+                    {isFirestoreCloud ? 'CLOUD FIRESTORE' : 'LOCAL JSON'}
+                  </span>
+                </div>
+
+                {/* Auth Mode */}
+                <div className="flex items-center justify-between p-2 rounded-lg bg-surface-1 border border-white/[0.04]">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+                    <div>
+                      <span className="text-slate-200 font-medium block leading-tight">Access Control</span>
+                      <span className="text-[10px] text-slate-500 font-mono">RBAC Governance</span>
+                    </div>
+                  </div>
+                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+                    isAuthStrict
+                      ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+                      : 'bg-slate-800 text-slate-300 border-slate-700'
+                  }`}>
+                    {isAuthStrict ? 'STRICT RBAC' : 'DEV MODE'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Reset Demo Scenario */}
         <button
           onClick={async () => {
-            if (window.confirm("Reset demo data to deterministic initial state for Arabica Crisis walkthrough?")) {
+            if (window.confirm("Reset demo scenario to clean deterministic state for Arabica Crisis walkthrough?")) {
               try {
                 await api.resetDemo();
                 onRefreshData();
@@ -105,42 +181,44 @@ export default function Topbar({ onOpenAskAI, onRefreshData, isRefreshing }) {
             }
           }}
           title="Reset store data to clean deterministic state"
-          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-semibold transition-all"
+          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-1 hover:bg-surface-2 text-slate-300 hover:text-white border border-white/[0.06] hover:border-white/[0.12] text-xs font-medium transition-all"
         >
-          <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
+          <RotateCcw className="w-3 h-3 text-brand-accent" />
           <span>Reset Demo</span>
         </button>
 
-        {/* Refresh button */}
+        {/* Refresh Telemetry */}
         <button
           onClick={() => {
             onRefreshData();
             fetchStatus();
           }}
-          title="Refresh store telemetry & subsystem status"
-          className="p-2 text-slate-400 hover:text-slate-100 hover:bg-slate-800/60 rounded-lg border border-slate-800 transition-all"
+          title="Refresh store telemetry"
+          className="p-1.5 text-slate-400 hover:text-white bg-surface-1 hover:bg-surface-2 rounded-lg border border-white/[0.06] hover:border-white/[0.12] transition-all"
         >
-          <RotateCcw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-cyan-400' : ''}`} />
+          <RotateCcw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand-accent' : ''}`} />
         </button>
 
-
-        {/* Global Ask AI Copilot Button */}
+        {/* Global Copilot Launcher (⌘J) */}
         <button
           onClick={onOpenAskAI}
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 text-black font-bold text-xs shadow-glow-cyan transition-all transform active:scale-95"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-400 to-teal-400 hover:from-cyan-300 hover:to-teal-300 text-black font-bold text-xs shadow-glow-teal transition-all active:scale-[0.98]"
         >
-          <Sparkles className="w-3.5 h-3.5 text-black" />
-          <span>Ask AI Ops</span>
+          <Sparkles className="w-3.5 h-3.5 text-black fill-black" />
+          <span>Copilot</span>
+          <kbd className="hidden md:inline-block text-[9px] font-mono px-1 py-0.2 rounded bg-black/20 text-black border border-black/20 font-bold">
+            ⌘J
+          </kbd>
         </button>
 
         {/* Manager User Profile */}
-        <div className="flex items-center gap-2 pl-3 border-l border-slate-800/80">
-          <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-cyan-400 font-bold text-xs">
+        <div className="flex items-center gap-2 pl-2 border-l border-white/[0.08]">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-900 to-indigo-900 border border-white/[0.15] flex items-center justify-center text-brand-accent font-bold text-xs">
             AR
           </div>
-          <div className="hidden md:block text-left">
+          <div className="hidden xl:block text-left">
             <p className="text-xs font-semibold text-white leading-tight">Arjun Rao</p>
-            <p className="text-[10px] text-slate-400">Operations Manager</p>
+            <p className="text-[10px] text-slate-400">Lead Operator</p>
           </div>
         </div>
       </div>
