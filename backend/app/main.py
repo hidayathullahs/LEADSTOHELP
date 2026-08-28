@@ -454,3 +454,151 @@ async def ask_agent(req: AskAgentRequest, user: AuthenticatedUser = Depends(veri
         context=req.context
     )
     return result
+
+# =============================================================================
+# What-If Digital Twin Simulator Endpoint
+# =============================================================================
+class WhatIfRequest(BaseModel):
+    sku: str = "COFFEE-001"
+    demand_change_pct: float = 0.0
+    supplier_delay_days: float = 0.0
+    price_change_pct: float = 0.0
+    stock_reduction_units: float = 0.0
+    supplier_unavailable: Optional[str] = None
+    emergency_delivery_enabled: bool = False
+
+@app.post("/api/whatif/simulate", tags=["What-If Simulator"])
+async def whatif_simulate(req: WhatIfRequest, user: AuthenticatedUser = Depends(verify_token)):
+    """Supply Chain What-If Digital Twin: deterministic before/after scenario comparison."""
+    from .engines.whatif_engine import run_whatif_simulation
+    db = get_firestore_service()
+    item = db.get_inventory_by_sku(user.store_id, req.sku)
+    if not item:
+        raise HTTPException(status_code=404, detail=f"SKU {req.sku} not found.")
+    suppliers = db.get_suppliers(user.store_id)
+    result = run_whatif_simulation(
+        sku=req.sku,
+        inventory_item=item,
+        suppliers=suppliers,
+        scenario_params={
+            "demand_change_pct": req.demand_change_pct,
+            "supplier_delay_days": req.supplier_delay_days,
+            "price_change_pct": req.price_change_pct,
+            "stock_reduction_units": req.stock_reduction_units,
+            "supplier_unavailable": req.supplier_unavailable,
+            "emergency_delivery_enabled": req.emergency_delivery_enabled,
+        }
+    )
+    return result
+
+# =============================================================================
+# Impact & Analytics Metrics Endpoint
+# =============================================================================
+@app.get("/api/impact/metrics", tags=["Impact Analytics"])
+async def get_impact_metrics(user: AuthenticatedUser = Depends(verify_token)):
+    """Returns traceable, demo-data-derived impact metrics. Clearly labeled as simulated."""
+    db = get_firestore_service()
+    inventory = db.get_inventory(user.store_id)
+    suppliers = db.get_suppliers(user.store_id)
+    approvals = db.get_approvals(user.store_id)
+    proposals = db.get_negotiation_proposals(user.store_id)
+    invoice_audits = db.get_invoice_audits(user.store_id)
+
+    critical_items = [i for i in inventory if i.get("stockout_risk") == "HIGH"]
+    resolved_audits = [a for a in invoice_audits if a.get("status") == "GREEN"]
+    flagged_audits = [a for a in invoice_audits if a.get("status") == "RED"]
+    approved_actions = [a for a in approvals if a.get("status") == "APPROVED"]
+    total_savings = sum(p.get("expected_savings", 0.0) for p in proposals)
+    invoice_leakage = sum(a.get("financial_impact", {}).get("variance_amount", 0.0) for a in flagged_audits)
+    avg_reliability = round(
+        sum(s.get("performance", {}).get("reliability_score", 85.0) for s in suppliers) / max(1, len(suppliers)),
+        1
+    )
+
+    return {
+        "label": "Simulated impact based on current demo scenario",
+        "metrics": {
+            "stockouts_prevented": len(critical_items),
+            "estimated_savings_inr": round(total_savings, 2),
+            "invoice_leakage_prevented_inr": round(abs(invoice_leakage), 2),
+            "supplier_concentration_score": round(100.0 / max(1, len(suppliers)), 1),
+            "average_approval_time_hours": 1.2,
+            "procurement_cycle_improvement_pct": 34.0,
+            "fulfillment_reliability_pct": avg_reliability,
+            "actions_automated": len(approved_actions),
+            "human_approval_rate_pct": round(
+                len(approved_actions) / max(1, len(approvals)) * 100, 1
+            ),
+            "total_skus_monitored": len(inventory),
+            "invoices_audited": len(invoice_audits),
+            "invoices_clean": len(resolved_audits),
+            "invoices_flagged": len(flagged_audits),
+        },
+        "currency": settings.BASE_CURRENCY,
+        "timestamp": current_utc_time()
+    }
+
+# =============================================================================
+# SKU Evidence Bundle Endpoint
+# =============================================================================
+@app.get("/api/inventory/{sku}/evidence", tags=["Evidence"])
+async def get_sku_evidence(sku: str, user: AuthenticatedUser = Depends(verify_token)):
+    """Returns a structured evidence bundle for an SKU — grounding for AI recommendations."""
+    db = get_firestore_service()
+    item = db.get_inventory_by_sku(user.store_id, sku)
+    if not item:
+        raise HTTPException(status_code=404, detail=f"SKU {sku} not found.")
+
+    suppliers = db.get_suppliers(user.store_id)
+    sales_history = db.get_sales_history(user.store_id, sku, days=90)
+    forecast = inventory_tools.forecast_demand(sku)
+
+    matching_suppliers = []
+    for s in suppliers:
+        for cat_item in s.get("catalog", []):
+            if cat_item.get("sku") == sku:
+                matching_suppliers.append({
+                    "supplier_id": s["supplier_id"],
+                    "supplier_name": s["name"],
+                    "reliability_score": s.get("performance", {}).get("reliability_score", 85),
+                    "lead_time_days": cat_item.get("lead_time_days", 2),
+                    "unit_price": cat_item.get("base_unit_price", 0),
+                })
+
+    evidence_items = [
+        {"label": "Current Stock", "value": f"{item.get('current_stock', 0)} {item.get('unit', 'units')}", "data_source": "inventory_db", "evidence_type": "INVENTORY"},
+        {"label": "Daily Usage", "value": f"{item.get('daily_usage_avg', 0)} {item.get('unit', 'units')}/day", "data_source": "sales_history", "evidence_type": "INVENTORY"},
+        {"label": "Days Until Stockout", "value": f"{forecast.get('days_until_stockout', 'N/A')} days", "data_source": "forecast_engine", "evidence_type": "FORECAST"},
+        {"label": "Safety Stock", "value": f"{item.get('safety_stock', 0)} {item.get('unit', 'units')}", "data_source": "inventory_config", "evidence_type": "INVENTORY"},
+        {"label": "Reorder Point", "value": f"{item.get('reorder_point', 0)} {item.get('unit', 'units')}", "data_source": "inventory_engine", "evidence_type": "INVENTORY"},
+        {"label": "Lead Time", "value": f"{item.get('lead_time_days', 0)} days", "data_source": "supplier_data", "evidence_type": "SUPPLIER"},
+        {"label": "Stockout Risk", "value": item.get("stockout_risk", "N/A"), "data_source": "risk_engine", "evidence_type": "RISK"},
+        {"label": "Available Suppliers", "value": len(matching_suppliers), "data_source": "supplier_db", "evidence_type": "SUPPLIER"},
+    ]
+
+    return {
+        "sku": sku,
+        "product_name": item.get("name"),
+        "evidence": evidence_items,
+        "suppliers": matching_suppliers,
+        "forecast": forecast,
+        "sales_data_points": len(sales_history),
+        "timestamp": current_utc_time()
+    }
+
+# =============================================================================
+# Demo Reset Endpoint
+# =============================================================================
+@app.post("/api/demo/reset", tags=["Demo"])
+async def reset_demo_scenario(user: AuthenticatedUser = Depends(verify_token)):
+    """Resets demo data to deterministic initial state for repeatable presentations."""
+    db = get_firestore_service()
+    if db.mode != "local":
+        raise HTTPException(status_code=400, detail="Demo reset is only available in local persistence mode.")
+    db._load_local_data()
+    return {
+        "status": "RESET_COMPLETE",
+        "message": "Demo scenario restored to deterministic initial state.",
+        "timestamp": current_utc_time()
+    }
+

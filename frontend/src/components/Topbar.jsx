@@ -90,6 +90,27 @@ export default function Topbar({ onOpenAskAI, onRefreshData, isRefreshing }) {
 
       {/* Action Badges & Profile */}
       <div className="flex items-center gap-3">
+        {/* Reset Demo Scenario Button */}
+        <button
+          onClick={async () => {
+            if (window.confirm("Reset demo data to deterministic initial state for Arabica Crisis walkthrough?")) {
+              try {
+                await api.resetDemo();
+                onRefreshData();
+                fetchStatus();
+                alert("Demo scenario reset to initial clean state.");
+              } catch (err) {
+                console.error("Demo reset error:", err);
+              }
+            }
+          }}
+          title="Reset store data to clean deterministic state"
+          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-semibold transition-all"
+        >
+          <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
+          <span>Reset Demo</span>
+        </button>
+
         {/* Refresh button */}
         <button
           onClick={() => {
@@ -101,6 +122,7 @@ export default function Topbar({ onOpenAskAI, onRefreshData, isRefreshing }) {
         >
           <RotateCcw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-cyan-400' : ''}`} />
         </button>
+
 
         {/* Global Ask AI Copilot Button */}
         <button

@@ -165,8 +165,10 @@ export default function App() {
         isOpen={isAskAIOpen}
         onClose={() => setIsAskAIOpen(false)}
         selectedSku={askAISku}
+        pageContext={activeTab}
         onNavigateTo={(tab) => setActiveTab(tab)}
       />
     </div>
   );
 }
+

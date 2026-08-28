@@ -1,0 +1,23 @@
+# LEADSTOHELP AI — Final Submission Checklist
+
+- [x] **Public Production Frontend Verified**: `https://leadstohelp.onrender.com`
+- [x] **Public Production Backend Verified**: `https://leadstohelp-api.onrender.com`
+- [x] **Backend Health Probes Passing**: `/health` & `/api/system/status` return 200 OK
+- [x] **28/28 Pytest Automated Tests Passing**: All security, engine, and API integration tests verified
+- [x] **Frontend Production Build Passing**: Vite bundle generated cleanly with zero errors
+- [x] **Deterministic Demo Flow Tested**: "Arabica Crisis" flow executable repeatedly via `Reset Demo`
+- [x] **6 Procurement Scenarios Operational**: Scenario A, B, C, D, E, F fully verified
+- [x] **What-If Digital Twin Interactive**: Parameter sliders recalculate baseline vs. scenario metrics in real-time
+- [x] **8-Part Structured Response Envelope**: Summary, Evidence, What-If, Strategy, Risk, Action, Governance, Correlation ID
+- [x] **Supplier Network Topology Graph**: SVG visualizer with concentration risk and reliability metrics
+- [x] **Multimodal Invoice Auditor**: 3-way PO matching catching physical shortages and price inflation
+- [x] **Human-in-the-Loop Governance Barrier**: Cryptographic sign-off required for all PO executions
+- [x] **Truthful Telemetry Displayed**: Explicit `OFFLINE DEMO` / `LIVE GEMINI` badges with zero false claims
+- [x] **Zero Secret Leakage**: No API keys, passwords, or service account JSON committed
+- [x] **Complete Documentation Package**:
+  - `README.md`
+  - `docs/DEMO.md`
+  - `docs/ARCHITECTURE.md`
+  - `docs/SECURITY.md`
+  - `docs/EVALUATION.md`
+  - `docs/SUBMISSION_CHECKLIST.md`

@@ -1,82 +1,154 @@
-# LEADSTOHELP AI — System Architecture Specification
+# LEADSTOHELP AI — Technical System Architecture
 
-## 1. Executive Overview
-**LEADSTOHELP AI** is an AI-Native Retail Operations Control Tower and Autonomous Procurement Platform designed for small and medium enterprises (SMEs), cloud kitchens, retail cafés, and neighbourhood merchants.
-
-### Core Closed-Loop Lifecycle
-$$\text{DETECT} \longrightarrow \text{INVESTIGATE} \longrightarrow \text{PREDICT} \longrightarrow \text{SIMULATE} \longrightarrow \text{RECOMMEND} \longrightarrow \text{NEGOTIATE} \longrightarrow \text{HUMAN APPROVAL} \longrightarrow \text{EXECUTE} \longrightarrow \text{VERIFY} \longrightarrow \text{LEARN}$$
-
----
-
-## 2. Technology Stack & Google Cloud Services
-
-| Layer | Technology / Service | Rationale & Responsibility |
-| :--- | :--- | :--- |
-| **Frontend** | React 18 + Vite + Tailwind CSS + Lucide | High-density operations command center with glassmorphic dashboards and live telemetry. |
-| **Backend API** | FastAPI (Python 3.11/3.14) + Uvicorn | High-performance asynchronous API gateway and agent orchestration runtime. |
-| **Agent Reasoning** | Google Gen AI SDK (`google-genai` / `gemini-2.5-flash`) | Conversational reasoning, multimodal invoice extraction, scenario explanation, and negotiation drafting. |
-| **Deterministic Math** | Pure Python Arithmetic Modules | Safety stock, ROP, order quantities, price variances, discount curves, and tax computations. |
-| **Persistence** | Google Cloud Firestore (Dual-Mode Engine) | Real-time state synchronization with seamless local transactional JSON fallback. |
-| **Document Storage** | Google Cloud Storage (GCS) | Supplier invoice photographs, delivery challans, and audit artifacts. |
-| **Security & Auth** | Firebase Authentication + RBAC Middleware | Server-side verified ID tokens and store tenancy boundaries. |
-| **Deployment** | Google Cloud Run + Multi-stage Docker | Containerized auto-scaling execution listening on port 8080. |
-
----
-
-## 3. Specialized Multi-Agent Layer
+## 1. High-Level System Architecture Diagram
 
 ```mermaid
 flowchart TD
-    User([Operations Manager]) --> Orch[Master Orchestrator Agent]
-    
-    subgraph Specialists ["Specialized AI Agents"]
-        InvAgent[Inventory Intelligence Agent]
-        ProcAgent[Procurement & Simulation Agent]
-        InvAudAgent[Invoice Auditor Agent]
-        NegAgent[Vendor Negotiation Agent]
-        VerAgent[Verification & Resilience Agent]
+    subgraph ClientLayer ["Client Layer (Frontend)"]
+        UI["React 18 + Vite + TailwindCSS"]
+        Drawer["Contextual Ask AI Drawer"]
+        Inspector["Agent Inspector Telemetry"]
+        WhatIfUI["What-If Digital Twin Simulator"]
+        GraphUI["Supplier Network Topology (SVG)"]
     end
 
-    subgraph Engines ["Deterministic Calculation Engines"]
-        InvMath[Safety Stock & ROP Engine]
-        SimMath[Multi-Scenario Simulator]
-        DiscMath[3-Way Reconciliation Engine]
-        RiskMath[7-Factor Risk Radar]
-        ScoreMath[Supplier Scoring Engine]
+    subgraph APILayer ["API Gateway (FastAPI Backend)"]
+        Router["FastAPI REST Endpoints"]
+        AuthMiddleware["Firebase Auth & Token Verification"]
+        AuditMiddleware["Audit Log & Correlation Middleware"]
     end
 
-    subgraph Governance ["Human-in-the-Loop Barrier"]
-        ApprCenter{Approval Center}
-        AuditLedger[(Immutable Audit Trail)]
+    subgraph AgenticCore ["Agentic AI Core (Multi-Agent System)"]
+        Orchestrator["Master Orchestrator Agent"]
+        InvAgent["Inventory Intelligence Agent"]
+        SupAgent["Supplier Intelligence Agent"]
+        SimAgent["Simulation & Scenario Agent"]
+        NegAgent["Vendor Negotiation Agent"]
+        GovAgent["Governance & Barrier Agent"]
+        InvAudAgent["Multimodal Invoice Auditor Agent"]
+        VerAgent["Verification & Fulfillment Agent"]
     end
 
-    Orch --> InvAgent & ProcAgent & InvAudAgent & NegAgent & VerAgent
-    InvAgent <--> InvMath
-    ProcAgent <--> SimMath
-    InvAudAgent <--> DiscMath
-    NegAgent <--> SimMath
-    VerAgent <--> ScoreMath
-    
-    NegAgent --> ApprCenter
-    ApprCenter -- "Manager Signed" --> VerAgent
-    ApprCenter --> AuditLedger
+    subgraph DeterministicEngines ["Deterministic Computation Layer (Pure Math)"]
+        InvEngine["Inventory Engine (Safety Stock, ROP, DOS)"]
+        SimEngine["6-Scenario Optimizer (Blended Unit Rates)"]
+        WhatIfEngine["What-If Digital Twin Engine"]
+        DiscEngine["3-Way Matching & Discrepancy Engine"]
+        RiskEngine["7-Factor Supply Risk Radar Engine"]
+        ScoringEngine["Supplier Reliability Scoring Engine"]
+    end
+
+    subgraph IntelligenceLayer ["Generative Intelligence Layer"]
+        GeminiService["Google Gemini 2.5 Flash / Pro"]
+        FallbackService["Deterministic Offline Fallback Service"]
+        PromptGuard["Prompt Injection Defense & Sanitizer"]
+    end
+
+    subgraph DataLayer ["Dual-Mode Persistence Layer"]
+        DualDB["DualModeFirestoreService"]
+        CloudFirestore[("Google Cloud Firestore (Production)")]
+        LocalJSON[("Local Seeded JSON DB (Development/Demo)")]
+    end
+
+    UI --> Router
+    Drawer --> Router
+    Inspector --> Router
+    WhatIfUI --> Router
+    GraphUI --> Router
+
+    Router --> AuthMiddleware
+    AuthMiddleware --> AuditMiddleware
+    AuditMiddleware --> Orchestrator
+
+    Orchestrator --> InvAgent
+    Orchestrator --> SupAgent
+    Orchestrator --> SimAgent
+    Orchestrator --> NegAgent
+    Orchestrator --> GovAgent
+    Orchestrator --> InvAudAgent
+    Orchestrator --> VerAgent
+
+    InvAgent --> InvEngine
+    SimAgent --> SimEngine
+    WhatIfUI --> WhatIfEngine
+    InvAudAgent --> DiscEngine
+    Orchestrator --> RiskEngine
+    SupAgent --> ScoringEngine
+
+    InvAgent -.-> GeminiService
+    InvAudAgent -.-> GeminiService
+    Orchestrator -.-> GeminiService
+    GeminiService -.-> FallbackService
+
+    InvEngine --> DualDB
+    SimEngine --> DualDB
+    DiscEngine --> DualDB
+    DualDB --> CloudFirestore
+    DualDB --> LocalJSON
 ```
 
 ---
 
-## 4. Deterministic vs. Generative Boundary
+## 2. Multi-Agent Pipeline Execution Sequence
 
-To guarantee zero financial hallucinations, **LEADSTOHELP AI** strictly separates deterministic calculations from generative AI capabilities:
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Manager as Store Manager (Arjun Rao)
+    participant UI as Control Tower (React)
+    participant Gateway as FastAPI Gateway
+    participant Orchestrator as Master Orchestrator
+    participant InvAgent as Inventory Agent
+    participant SimAgent as Simulation Agent
+    participant NegAgent as Negotiation Agent
+    participant GovAgent as Governance Agent
+    participant Gemini as Gemini AI Service
+    participant DB as DualMode Persistence
 
-* **Deterministic Python Code (Math & Rules):**
-  * Safety Stock ($Z \times \sigma_d \times \sqrt{L}$) and Reorder Point ($(\bar{d} \times L) + \text{SS}$).
-  * 3-way invoice reconciliation (quantity shortages, price variances, GST tax computation).
-  * Weighted multi-scenario order costs and volume discount tier applications.
-  * 7-Factor Supply Risk Radar numerical aggregation ($0\text{--}100$).
-  * Server-side authorization and RBAC permission checks.
-* **Google Gemini 2.5 Flash (Reasoning & Language):**
-  * Intent classification and specialist agent dispatching.
-  * Multimodal OCR extraction from supplier invoice photographs.
-  * Trade-off explanations between single vs split procurement scenarios.
-  * Polite, professional vendor negotiation letter drafting citing volume tiers.
-  * Plain-English operational risk summaries for business managers.
+    Manager->>UI: "Will we run out of coffee beans this week?"
+    UI->>Gateway: POST /api/agent/ask (Correlation: LH-2026-000184)
+    Gateway->>Orchestrator: process_user_request()
+    
+    Orchestrator->>InvAgent: Detect depletion & calculate ROP
+    InvAgent->>DB: get_inventory_by_sku("COFFEE-001")
+    InvAgent->>DB: get_sales_history(days=90)
+    InvAgent-->>Orchestrator: Stock: 36kg, Depletion: 2.8 days, Reorder Qty: 100kg
+    
+    Orchestrator->>SimAgent: Simulate 6 strategic scenarios
+    SimAgent->>DB: get_suppliers()
+    SimAgent-->>Orchestrator: 6 Scenarios (Scenario B recommended: Split Order)
+    
+    Orchestrator->>NegAgent: Create proposal draft (Scenario B)
+    NegAgent-->>Orchestrator: Proposal PROP-2026-001 (Total: ₹86,328, Savings: ₹8,672)
+    
+    Orchestrator->>GovAgent: Enforce human approval barrier
+    GovAgent->>DB: create_approval_request(Status: PENDING)
+    GovAgent-->>Orchestrator: Approval ID: APPR-2026-001
+    
+    Orchestrator->>Gemini: Synthesize structured operational response
+    Gemini-->>Orchestrator: 8-Part Structured Envelope
+    
+    Orchestrator->>DB: save_agent_run(telemetry_trace)
+    Orchestrator-->>Gateway: Return response envelope + Correlation ID
+    Gateway-->>UI: Render structured card + [Review Evidence] + [Approve]
+```
+
+---
+
+## 3. Core Architectural Principles
+
+### A. Strict Separation: Arithmetic vs. Generative Reasoning
+- **Deterministic Math**: Safety Stock, Reorder Point (ROP), Days of Supply (DOS), Price Tier Volume Discounts, Invoice Variances, and Supplier Reliability Scores are calculated **exclusively in pure Python mathematical engines**.
+- **Generative AI**: Google Gemini is used **strictly for natural language synthesis, multimodal visual OCR/extraction, and strategic explainability**. Gemini is never asked to perform arithmetic.
+
+### B. Dual-Mode Storage Architecture
+- **Production Mode (`FIRESTORE_MODE=cloud`)**: Authenticates against live Google Cloud Firestore using Application Default Credentials (ADC) or Service Account keys with bound 8-second fast-fail probes.
+- **Local/Demo Mode (`FIRESTORE_MODE=local`)**: Reads and writes to an in-memory, thread-safe JSON store initialized from `seeded_store_data.json`. Allows 100% offline, deterministic, zero-dependency competition demos.
+
+### C. Cryptographic Human-in-the-Loop Governance
+- High-impact operations (Purchase Order confirmation, vendor contract modifications, bank payment releases) cannot be executed directly by AI agents.
+- The server rejects any state bypass and requires an explicit `POST /api/approvals/{id}/decision` signed by an authenticated manager token.
+
+### D. End-to-End Traceability (Correlation IDs)
+- Every workflow generates an immutable correlation identifier (e.g. `LH-2026-000184`).
+- The correlation ID is propagated across all specialist agent steps, telemetry records, approval documents, and frontend drawers.

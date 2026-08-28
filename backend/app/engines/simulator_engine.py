@@ -188,4 +188,117 @@ def simulate_procurement_scenarios(
         "is_recommended": False
     })
 
+    # =========================================================================
+    # SCENARIO D: Cheapest Supplier (Maximum Cost Savings)
+    # =========================================================================
+    cost_d = cheapest_supplier["unit_price"] * target_quantity
+    savings_d = max(0.0, baseline_quote_cost - cost_d)
+
+    scenarios.append({
+        "scenario_id": "SCENARIO-D",
+        "name": f"Scenario D: Cheapest Supplier ({cheapest_supplier['supplier_name']})",
+        "strategy": f"Full order ({target_quantity:.0f} units) via lowest-cost vendor",
+        "total_cost": round(cost_d, 2),
+        "unit_price": round(cost_d / target_quantity, 2),
+        "lead_time_days": cheapest_supplier["lead_time_days"],
+        "supplier_allocations": [
+            {
+                "supplier_id": cheapest_supplier["supplier_id"],
+                "supplier_name": cheapest_supplier["supplier_name"],
+                "quantity": target_quantity,
+                "cost": round(cost_d, 2)
+            }
+        ],
+        "risk_level": "MEDIUM",
+        "stockout_risk": "MEDIUM" if cheapest_supplier["lead_time_days"] > 3 else "LOW",
+        "savings_vs_quote": round(savings_d, 2),
+        "pros": [
+            f"Maximum unit cost savings (₹{cheapest_supplier['unit_price']:.2f}/unit)",
+            f"Savings of ₹{savings_d:.2f} vs baseline quote"
+        ],
+        "cons": [
+            f"Longer lead time ({cheapest_supplier['lead_time_days']} days) may not cover stockout window",
+            "Single supplier concentration risk"
+        ],
+        "is_recommended": False
+    })
+
+    # =========================================================================
+    # SCENARIO E: Reliability-First (Highest Performance Vendor)
+    # =========================================================================
+    most_reliable = max(matching_suppliers, key=lambda x: x["reliability_score"])
+    cost_e = most_reliable["unit_price"] * target_quantity
+    savings_e = max(0.0, baseline_quote_cost - cost_e)
+
+    scenarios.append({
+        "scenario_id": "SCENARIO-E",
+        "name": f"Scenario E: Reliability-First ({most_reliable['supplier_name']})",
+        "strategy": f"Full order ({target_quantity:.0f} units) via most reliable vendor",
+        "total_cost": round(cost_e, 2),
+        "unit_price": round(cost_e / target_quantity, 2),
+        "lead_time_days": most_reliable["lead_time_days"],
+        "supplier_allocations": [
+            {
+                "supplier_id": most_reliable["supplier_id"],
+                "supplier_name": most_reliable["supplier_name"],
+                "quantity": target_quantity,
+                "cost": round(cost_e, 2)
+            }
+        ],
+        "risk_level": "LOW",
+        "stockout_risk": "LOW",
+        "savings_vs_quote": round(savings_e, 2),
+        "pros": [
+            f"Highest supplier reliability ({most_reliable['reliability_score']}%)",
+            f"Strong on-time delivery rate ({most_reliable['on_time_rate']}%)",
+            "Minimizes fulfillment uncertainty"
+        ],
+        "cons": [
+            "May not be cheapest option",
+            "Single supplier dependency"
+        ],
+        "is_recommended": False
+    })
+
+    # =========================================================================
+    # SCENARIO F: Emergency Expedited (Crisis Response)
+    # =========================================================================
+    emergency_qty = round(target_quantity * 0.5, 0)
+    emergency_premium = 1.15  # 15% expedite surcharge
+    emergency_unit_price = fastest_supplier["unit_price"] * emergency_premium
+    cost_f = emergency_unit_price * emergency_qty
+    savings_f = max(0.0, (fastest_supplier["base_unit_price"] * emergency_qty) - cost_f)
+
+    scenarios.append({
+        "scenario_id": "SCENARIO-F",
+        "name": "Scenario F: Emergency Expedited (Crisis Response)",
+        "strategy": f"Rush {emergency_qty:.0f} units via fastest vendor with expedite surcharge",
+        "total_cost": round(cost_f, 2),
+        "unit_price": round(emergency_unit_price, 2),
+        "lead_time_days": max(1, fastest_supplier["lead_time_days"] - 1),
+        "supplier_allocations": [
+            {
+                "supplier_id": fastest_supplier["supplier_id"],
+                "supplier_name": fastest_supplier["supplier_name"],
+                "quantity": emergency_qty,
+                "cost": round(cost_f, 2)
+            }
+        ],
+        "risk_level": "LOW",
+        "stockout_risk": "LOW",
+        "savings_vs_quote": round(savings_f, 2),
+        "pros": [
+            f"Fastest possible delivery ({max(1, fastest_supplier['lead_time_days'] - 1)} day)",
+            "Prevents immediate stockout crisis",
+            "Buys time for larger follow-up order"
+        ],
+        "cons": [
+            f"15% expedite surcharge (₹{emergency_unit_price:.2f}/unit)",
+            f"Only covers {emergency_qty:.0f} units — follow-up order needed",
+            "Highest cost per unit of all scenarios"
+        ],
+        "is_recommended": False
+    })
+
     return scenarios
+

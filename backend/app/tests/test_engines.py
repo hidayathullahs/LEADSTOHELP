@@ -73,11 +73,47 @@ def test_scenario_simulator():
         daily_usage=13.0
     )
 
-    assert len(scenarios) == 3
+    assert len(scenarios) == 6
     scenario_b = next(s for s in scenarios if s["scenario_id"] == "SCENARIO-B")
     assert scenario_b["is_recommended"] is True
     assert scenario_b["unit_price"] < 900.0
     assert scenario_b["savings_vs_quote"] > 0
+    assert any(s["scenario_id"] == "SCENARIO-D" for s in scenarios)
+    assert any(s["scenario_id"] == "SCENARIO-E" for s in scenarios)
+    assert any(s["scenario_id"] == "SCENARIO-F" for s in scenarios)
+
+def test_whatif_digital_twin_engine():
+    """Validates deterministic What-If digital twin simulation calculations"""
+    from app.engines.whatif_engine import run_whatif_simulation
+    mock_item = {
+        "sku": "COFFEE-001",
+        "name": "Arabica Coffee Beans",
+        "current_stock": 36.0,
+        "daily_usage_avg": 13.0,
+        "daily_usage_std": 2.5,
+        "lead_time_days": 2,
+        "safety_stock": 20.0,
+        "reorder_point": 41.5
+    }
+    mock_suppliers = [
+        {
+            "supplier_id": "sup_01",
+            "name": "Metro Wholesale Hub",
+            "catalog": [{"sku": "COFFEE-001", "base_unit_price": 950.0, "volume_discount_tiers": []}]
+        }
+    ]
+    result = run_whatif_simulation(
+        sku="COFFEE-001",
+        inventory_item=mock_item,
+        suppliers=mock_suppliers,
+        scenario_params={"demand_change_pct": 20.0, "supplier_delay_days": 2.0}
+    )
+    assert result["sku"] == "COFFEE-001"
+    assert result["baseline"]["days_of_supply"] == 2.8
+    assert result["modified"]["days_of_supply"] < 2.8
+    assert result["risk_delta"] > 0
+    assert len(result["recommendation"]) > 10
+
 
 def test_invoice_discrepancy_detection_perfect_match():
     """Validates zero-discrepancy clean invoice verification"""

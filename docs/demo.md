@@ -1,26 +1,136 @@
-# LEADSTOHELP AI — Official Demo Walkthrough & Script
-
-## 1. Demo Narrative Overview
-* **Store Persona:** Arjun Rao, Operations Manager at *Deccan Roast Specialty Coffee & Bakery* (Bengaluru, Karnataka).
-* **Target Duration:** 3 Minutes.
-* **Core Tagline:** *"From supply-chain signals to verified business action."*
+# LEADSTOHELP AI — Official 3-Minute Competition Demo Script
+**Scenario: The "Arabica Crisis"**
+**Store:** Deccan Roast Specialty Hub, Bangalore (Store ID: `store_deccan_roast_01`)
+**User Persona:** Arjun Rao, Operations Manager
 
 ---
 
-## 2. 3-Minute Timing Breakdown
+## ⏱️ Exact 3-Minute Walkthrough Timeline
 
-| Timestamp | Phase | What to Show |
-| :--- | :--- | :--- |
-| **0:00 - 0:20** | **The SME Problem** | Disconnected spreadsheets, unexpected stockouts mid-service rush, and blind invoice payments bleeding cash. |
-| **0:20 - 0:50** | **Control Tower & Signal Detection (WOW #1)** | Open **Control Tower**. Type in *"Will we run out of coffee beans this week?"*. Inventory Agent calculates run-rate ($13.0\text{ kg/day} + 32\%\text{ weekend surge}$) and flags critical stockout in **2.8 days**. |
-| **0:50 - 1:30** | **Scenario Simulation & Negotiation** | Procurement Agent simulates **Scenario A (Single Supplier)** vs **Scenario B (Split Order)** vs **Scenario C (Delay)**. Highlights Scenario B saving **₹8,672**. Negotiation Agent prepares volume outreach letter. |
-| **1:30 - 2:00** | **Human-in-the-Loop Governance** | Show **Approval Center (APPR-2026-081)**. Explain What Will Happen, Why Recommended, Cost & Savings impact. Click **[Authorize & Execute]**. PO is created and ledger updated. |
-| **2:00 - 2:30** | **Multimodal Invoice Vision 3-Way Match (WOW #2)** | Navigate to **Invoice Auditor**. Upload Kaveri Dairy Invoice (`INV-KAV-8842`). Gemini Vision extracts 100L billed; deterministic matcher checks delivery note (92L received). Flags **RED Discrepancy** (8L missing, ₹486.40 shortage). |
-| **2:30 - 2:50** | **Autonomous Resilience (WOW #3)** | Simulate primary vendor non-confirmation. Verification Agent detects SLA failure $\rightarrow$ autonomously replans with fallback vendor $\rightarrow$ presents revised approval to manager. |
-| **2:50 - 3:00** | **Closing & Impact** | Review **Impact & Analytics** (time saved, ₹148,500+ savings). End with final closing statement. |
+```mermaid
+timeline
+    title 3-Minute Competition Demo Flow
+    00:00-00:15 : Context & Problem Introduction
+    00:15-00:30 : Control Tower & Signal Detection
+    00:30-00:50 : AI Copilot Grounded Investigation
+    00:50-01:10 : Verifiable Evidence Trace Review
+    01:10-01:30 : What-If Digital Twin Simulation (+20% Surge)
+    01:30-01:50 : 6-Scenario Multi-Supplier Optimizer
+    01:50-02:05 : Select Split-Order Recommended Strategy
+    02:05-02:20 : Automated Draft Negotiation Generation
+    02:20-02:35 : Human-in-the-Loop Approval & Governance
+    02:35-02:45 : Multi-Agent Operations Inspector Trace
+    02:45-03:00 : Multimodal Invoice Vision Audit (Kaveri Dairy)
+```
 
 ---
 
-## 3. Final Closing Statement
-> *"We don't just predict the next supply-chain problem.*  
-> *LeadstoHelp AI detects it, investigates it, plans the response, negotiates the opportunity, asks a human before high-impact actions, executes approved work, verifies the outcome, and learns from what happened."*
+### 00:00 – 00:15 | Problem Setup
+- **What to say:**
+  > *"Retail SMEs and multi-outlet chains face a daily nightmare: stockouts during peak rushes, vendor overcharges, and hours lost manually cross-checking spreadsheets and paper bills. Today, we present **LEADSTOHELP AI** — an autonomous, explainable supply chain intelligence platform with closed-loop human governance."*
+- **Screen:** Overview Page (Control Tower).
+
+---
+
+### 00:15 – 00:30 | Signal Detection
+- **What to do:**
+  1. Click **`Reset Demo`** in the top navigation bar to ensure a deterministic clean baseline.
+  2. Point out the top telemetry badges (`Gemini`, `Firestore`, `Auth`).
+  3. Direct judge's attention to the flashing red banner: **"Immediate Stockout Threat Detected — COFFEE-001 at 2.8 days"**.
+- **What to say:**
+  > *"Our continuous predictive engine has detected that Specialty Arabica Coffee Beans (COFFEE-001) has only 36 kg left — depleting in 2.8 days at 13 kg/day, right before weekend rush."*
+
+---
+
+### 00:30 – 00:50 | AI Copilot Grounded Investigation
+- **What to do:**
+  1. Click **`Ask AI Ops`** in the topbar or click the quick chip: **`"Will we run out of coffee beans this week?"`**.
+  2. The assistant responds with the **8-Part Structured Response Envelope**.
+- **What to say:**
+  > *"Notice the assistant does not generate unverified text. It returns an 8-part structured envelope: Summary, Grounded Evidence, What-If insight, Strategy, Risk, Proposed Action, Governance State, and Correlation ID `LH-2026-XXXX`."*
+
+---
+
+### 00:50 – 01:10 | Grounded Evidence Review
+- **What to do:**
+  1. Click the **`[Review Evidence]`** button on the response card.
+  2. The slide-out **Evidence Drawer** opens, showing the 8-step decision trace with source attribution (`inventory_db`, `sales_history`, `supplier_data`).
+- **What to say:**
+  > *"Every claim is grounded in verifiable store ledger entries. No hallucinated inventory numbers. The judge can trace the exact data points and confidence scores."*
+
+---
+
+### 01:10 – 01:30 | What-If Digital Twin Simulation
+- **What to do:**
+  1. Click **`[Run What-If]`** or open the **What-If Digital Twin** tab.
+  2. Move the **Demand Change** slider to **`+20%`** and **Supplier Delay** to **`+2 days`**.
+  3. Click **`Run Simulation`** — review the real-time Baseline vs. Scenario comparison.
+- **What to say:**
+  > *"Our deterministic What-If Digital Twin allows managers to model risk before spending capital. Under a +20% demand surge, stock coverage drops to 2.1 days, triggering an urgent split-order contingency."*
+
+---
+
+### 01:30 – 01:50 | 6-Scenario Multi-Supplier Optimizer
+- **What to do:**
+  1. Navigate to **Procurement** in the sidebar.
+  2. Click **`Run Scenario Model`** (SKU: `COFFEE-001`, Quantity: `100`).
+  3. Show all 6 strategic scenarios:
+     - `Scenario A`: Single Supplier (Metro Wholesale)
+     - `Scenario B`: Split Order Strategy (AI Recommended)
+     - `Scenario C`: Delay Purchase (Just-in-Time)
+     - `Scenario D`: Cheapest Supplier (Malnad Coffee Direct)
+     - `Scenario E`: Reliability-First (Malnad Coffee Direct)
+     - `Scenario F`: Emergency Expedited (Rush Delivery)
+- **What to say:**
+  > *"Unlike simple reorder bots, LEADSTOHELP mathematically evaluates 6 strategic scenarios. Scenario B splits volume between fast delivery and direct farm source to achieve ₹8,672 in savings while reducing stockout risk to under 8%."*
+
+---
+
+### 01:50 – 02:05 | Select Recommended Strategy
+- **What to do:**
+  1. Click **`Select Recommended Plan`** on Scenario B.
+  2. The success banner confirms: **`Negotiation Proposal PROP-2026-001 Generated`** and routed to human approval.
+
+---
+
+### 02:05 – 02:20 | Human-in-the-Loop Governance & Sign-off
+- **What to do:**
+  1. Click **`Review in Approval Center`** or navigate to **Approvals** tab.
+  2. Open the pending approval: **`Procurement Proposal: 100 units of COFFEE-001 (Split Order)`**.
+  3. Review the complete impact card, financial breakdown (Total: ₹86,328, Savings: ₹8,672).
+  4. Click **`Approve Action`**.
+- **What to say:**
+  > *"Crucially, AI never executes high-risk financial actions autonomously. The server enforces a hard cryptographic governance barrier requiring explicit manager sign-off."*
+
+---
+
+### 02:20 – 02:35 | Multi-Agent Operations Inspector Trace
+- **What to do:**
+  1. Navigate to **Agent Inspector** tab.
+  2. Select the latest execution run.
+  3. Show the vertical pipeline execution:
+     `Master Orchestrator → Inventory Risk Agent → Supplier Intelligence Agent → Simulation Agent → Negotiation Agent → Governance Agent`.
+  4. Expand the step tool calls to show inputs, outputs, and execution duration in milliseconds.
+- **What to say:**
+  > *"Every multi-agent thought, tool invocation, and latency metric is fully observable under correlation ID `LH-2026-XXXX`."*
+
+---
+
+### 02:35 – 03:00 | Multimodal Invoice Vision Audit & Conclusion
+- **What to do:**
+  1. Navigate to **Invoice Auditor** tab.
+  2. Show the pre-audited invoice from **Kaveri Organic Dairy Co-op (`INV-KAV-8842`)**.
+  3. Point out the **RED Discrepancy Flag**: PO contracted 100L milk, physical delivery was 92L, invoice billed full 100L (₹486.40 leakage caught).
+  4. Navigate to **Analytics** tab to show the aggregated ₹1.48L total savings opportunity and 100% human governance rate.
+- **What to say:**
+  > *"From predictive signal detection and What-If simulation to human-governed execution and multimodal invoice reconciliation — LEADSTOHELP AI delivers enterprise-grade supply chain intelligence with zero hallucinations and total explainability. Thank you!"*
+
+---
+
+## 🛠️ Contingency & Fallback Checklist for Presenters
+
+| Issue | Fallback Step |
+|---|---|
+| **Network latency / Slow API** | Use the cached local state; click `Reset Demo` to restore clean data in under 200ms. |
+| **Gemini API quota exceeded** | The system automatically operates in transparent `OFFLINE DEMO` fallback with zero runtime crashes. |
+| **Accidental navigation away** | Click `Overview` or `Reset Demo` in the Topbar to return to the starting step instantly. |

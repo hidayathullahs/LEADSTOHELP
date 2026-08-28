@@ -104,5 +104,21 @@ export const api = {
   askAgent: (prompt, sku, context) => request('/api/agent/ask', {
     method: 'POST',
     body: JSON.stringify({ prompt, sku, context })
-  })
+  }),
+
+  // What-If Digital Twin Simulator
+  whatifSimulate: (params) => request('/api/whatif/simulate', {
+    method: 'POST',
+    body: JSON.stringify(params)
+  }),
+
+  // Impact & Analytics Metrics
+  getImpactMetrics: () => request('/api/impact/metrics'),
+
+  // SKU Evidence Bundle
+  getSkuEvidence: (sku) => request(`/api/inventory/${sku}/evidence`),
+
+  // Demo Reset
+  resetDemo: () => request('/api/demo/reset', { method: 'POST' })
 };
+
