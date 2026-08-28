@@ -55813,9 +55813,261 @@
       "audit_id": "AUD-2026-022",
       "created_at": "2026-08-28T05:09:00.148174+00:00",
       "updated_at": "2026-08-28T05:09:00.148185+00:00"
+    },
+    {
+      "store_id": "store_deccan_roast_01",
+      "invoice_number": "INV-TEST-001",
+      "supplier_id": "sup_03",
+      "supplier_name": "Kaveri Organic Dairy Co-op",
+      "matching_po_id": "PO-10022",
+      "status": "RED",
+      "overall_risk": "HIGH",
+      "extracted_data": {
+        "supplier_name": "Kaveri Organic Dairy Co-op",
+        "invoice_number": "INV-TEST-001",
+        "purchase_order_id": "PO-10022",
+        "items": [
+          {
+            "sku": "DAIRY-001",
+            "name": "Milk",
+            "quantity": 100.0,
+            "unit_price": 60.8,
+            "line_total": 6080.0
+          }
+        ],
+        "total_amount": 6584.0
+      },
+      "discrepancies": [
+        {
+          "type": "QUANTITY_MISMATCH",
+          "sku": "DAIRY-001",
+          "item_name": "Pasteurized Full Cream Barista Milk",
+          "ordered_value": 100.0,
+          "invoiced_value": 100.0,
+          "received_value": 92.0,
+          "variance_amount": 486.4,
+          "variance_percentage": 8.0,
+          "description": "Quantity shortage: 8.0 litres missing. Physical delivery confirmed 92.0 units while invoice billed 100.0 units.",
+          "severity": "HIGH"
+        }
+      ],
+      "total_variance_inr": 486.4,
+      "audit_summary": "Critical Financial Discrepancy: 1 discrepancies detected with ₹486.40 total variance.",
+      "recommended_action": "Place invoice on payment hold. Issue automated shortage claim / credit note request to supplier.",
+      "audit_id": "AUD-2026-023",
+      "created_at": "2026-08-28T05:43:14.474520+00:00",
+      "updated_at": "2026-08-28T05:43:14.474534+00:00"
     }
   ],
   "negotiation_proposals": [
+    {
+      "proposal_id": "PROP-2026-021",
+      "store_id": "store_deccan_roast_01",
+      "supplier_id": "sup_08",
+      "supplier_name": "Coorg Heritage Coffee Estate",
+      "sku": "COFFEE-001",
+      "product_name": "Specialty Arabica Coffee Beans (AAA Grade)",
+      "quantity": 165.0,
+      "current_quote_unit_price": 962.6688,
+      "historical_avg_unit_price": 864.6192,
+      "target_unit_price": 891.36,
+      "total_original_cost": 160050.0,
+      "total_target_cost": 147074.4,
+      "expected_savings": 12975.6,
+      "supplier_reliability_score": 91.0,
+      "lead_time_days": 1,
+      "rationale": "Simulated Scenario B: Split Order Strategy (AI Recommended). Secured lowest blended unit price with guaranteed stockout mitigation buffer.",
+      "data_points_used": [
+        "Target replenishment: 165.0 units",
+        "Strategy selected: Scenario B: Split Order Strategy (AI Recommended)",
+        "Projected savings: ₹12975.60"
+      ],
+      "draft_negotiation_message": "Hi team,\n\nWe are looking to confirm our replenishment order of 165.0 units of Specialty Arabica Coffee Beans (AAA Grade).\nBased on planned volume, please confirm confirmation at ₹891.36/unit with 1-day delivery SLA.\n\nRegards,\nOperations Team | Deccan Roast",
+      "status": "APPROVED",
+      "scenarios": [
+        {
+          "scenario_id": "SCENARIO-A",
+          "name": "Scenario A: Single Supplier (Coorg Heritage Coffee Estate)",
+          "strategy": "Full order (165 units) via primary vendor",
+          "total_cost": 153648.0,
+          "unit_price": 931.2,
+          "lead_time_days": 1,
+          "supplier_allocations": [
+            {
+              "supplier_id": "sup_08",
+              "supplier_name": "Coorg Heritage Coffee Estate",
+              "quantity": 165.0,
+              "cost": 153648.0
+            }
+          ],
+          "risk_level": "MEDIUM",
+          "stockout_risk": "LOW",
+          "savings_vs_quote": 6402.0,
+          "pros": [
+            "Fast 1-day lead time ensures rapid replenishment",
+            "High on-time reliability (90.0%)",
+            "Single consolidated invoice and delivery point"
+          ],
+          "cons": [
+            "Higher unit price than secondary farm-direct sources",
+            "Single point of operational dependency"
+          ],
+          "is_recommended": false
+        },
+        {
+          "scenario_id": "SCENARIO-B",
+          "name": "Scenario B: Split Order Strategy (AI Recommended)",
+          "strategy": "Split 165 units: 66 units Fast Delivery + 99 units Direct Source",
+          "total_cost": 147074.4,
+          "unit_price": 891.36,
+          "lead_time_days": 1,
+          "supplier_allocations": [
+            {
+              "supplier_id": "sup_08",
+              "supplier_name": "Coorg Heritage Coffee Estate",
+              "quantity": 66.0,
+              "cost": 61459.2
+            },
+            {
+              "supplier_id": "sup_02",
+              "supplier_name": "Malnad Coffee Planters Direct",
+              "quantity": 99.0,
+              "cost": 85615.2
+            }
+          ],
+          "risk_level": "LOW",
+          "stockout_risk": "LOW",
+          "savings_vs_quote": 12975.6,
+          "pros": [
+            "Lowest blended unit cost (₹891.36/unit)",
+            "Immediate 66 units buffer arrives in 1 days",
+            "Eliminates vendor lock-in & single-point failure risk"
+          ],
+          "cons": [
+            "Two deliveries and invoices to receive and reconcile"
+          ],
+          "is_recommended": true,
+          "ai_recommendation_reason": "Maximizes financial savings (₹12975.60) while securing an immediate 66 units buffer within 1 days."
+        },
+        {
+          "scenario_id": "SCENARIO-C",
+          "name": "Scenario C: Delay Purchase (Just-In-Time)",
+          "strategy": "Postpone order by 3 days and place smaller order for 132 units",
+          "total_cost": 122918.4,
+          "unit_price": 931.2,
+          "lead_time_days": 4,
+          "supplier_allocations": [
+            {
+              "supplier_id": "sup_08",
+              "supplier_name": "Coorg Heritage Coffee Estate",
+              "quantity": 132.0,
+              "cost": 122918.4
+            }
+          ],
+          "risk_level": "HIGH",
+          "stockout_risk": "CRITICAL",
+          "savings_vs_quote": 5121.6,
+          "pros": [
+            "Preserves immediate working capital for 72 hours"
+          ],
+          "cons": [
+            "Severe risk (85%+) of stockout during peak service hours",
+            "Zero safety inventory buffer against demand spikes"
+          ],
+          "is_recommended": false
+        },
+        {
+          "scenario_id": "SCENARIO-D",
+          "name": "Scenario D: Cheapest Supplier (Malnad Coffee Planters Direct)",
+          "strategy": "Full order (165 units) via lowest-cost vendor",
+          "total_cost": 142692.0,
+          "unit_price": 864.8,
+          "lead_time_days": 4,
+          "supplier_allocations": [
+            {
+              "supplier_id": "sup_02",
+              "supplier_name": "Malnad Coffee Planters Direct",
+              "quantity": 165.0,
+              "cost": 142692.0
+            }
+          ],
+          "risk_level": "MEDIUM",
+          "stockout_risk": "MEDIUM",
+          "savings_vs_quote": 17358.0,
+          "pros": [
+            "Maximum unit cost savings (₹864.80/unit)",
+            "Savings of ₹17358.00 vs baseline quote"
+          ],
+          "cons": [
+            "Longer lead time (4 days) may not cover stockout window",
+            "Single supplier concentration risk"
+          ],
+          "is_recommended": false
+        },
+        {
+          "scenario_id": "SCENARIO-E",
+          "name": "Scenario E: Reliability-First (Malnad Coffee Planters Direct)",
+          "strategy": "Full order (165 units) via most reliable vendor",
+          "total_cost": 142692.0,
+          "unit_price": 864.8,
+          "lead_time_days": 4,
+          "supplier_allocations": [
+            {
+              "supplier_id": "sup_02",
+              "supplier_name": "Malnad Coffee Planters Direct",
+              "quantity": 165.0,
+              "cost": 142692.0
+            }
+          ],
+          "risk_level": "LOW",
+          "stockout_risk": "LOW",
+          "savings_vs_quote": 17358.0,
+          "pros": [
+            "Highest supplier reliability (94.5%)",
+            "Strong on-time delivery rate (92.0%)",
+            "Minimizes fulfillment uncertainty"
+          ],
+          "cons": [
+            "May not be cheapest option",
+            "Single supplier dependency"
+          ],
+          "is_recommended": false
+        },
+        {
+          "scenario_id": "SCENARIO-F",
+          "name": "Scenario F: Emergency Expedited (Crisis Response)",
+          "strategy": "Rush 82 units via fastest vendor with expedite surcharge",
+          "total_cost": 87812.16,
+          "unit_price": 1070.88,
+          "lead_time_days": 1,
+          "supplier_allocations": [
+            {
+              "supplier_id": "sup_08",
+              "supplier_name": "Coorg Heritage Coffee Estate",
+              "quantity": 82.0,
+              "cost": 87812.16
+            }
+          ],
+          "risk_level": "LOW",
+          "stockout_risk": "LOW",
+          "savings_vs_quote": 0.0,
+          "pros": [
+            "Fastest possible delivery (1 day)",
+            "Prevents immediate stockout crisis",
+            "Buys time for larger follow-up order"
+          ],
+          "cons": [
+            "15% expedite surcharge (₹1070.88/unit)",
+            "Only covers 82 units — follow-up order needed",
+            "Highest cost per unit of all scenarios"
+          ],
+          "is_recommended": false
+        }
+      ],
+      "selected_scenario_id": "SCENARIO-B",
+      "created_at": "2026-08-28T05:09:00.396891+00:00",
+      "updated_at": "2026-08-28T05:09:00.396898+00:00"
+    },
     {
       "proposal_id": "PROP-2026-020",
       "store_id": "store_deccan_roast_01",
@@ -58673,7 +58925,7 @@
       "updated_at": "2026-08-27T08:56:35.291616+00:00"
     },
     {
-      "proposal_id": "PROP-2026-021",
+      "proposal_id": "PROP-2026-022",
       "store_id": "store_deccan_roast_01",
       "supplier_id": "sup_08",
       "supplier_name": "Coorg Heritage Coffee Estate",
@@ -58877,11 +59129,43 @@
         }
       ],
       "selected_scenario_id": "SCENARIO-B",
-      "created_at": "2026-08-28T05:09:00.396891+00:00",
-      "updated_at": "2026-08-28T05:09:00.396898+00:00"
+      "created_at": "2026-08-28T05:43:14.730916+00:00",
+      "updated_at": "2026-08-28T05:43:14.730925+00:00"
     }
   ],
   "approvals": [
+    {
+      "store_id": "store_deccan_roast_01",
+      "type": "PURCHASE_ORDER",
+      "title": "Procurement Proposal: 165 units of COFFEE-001 (Split Order)",
+      "description": "Secures supply continuity and captures ₹8,672 in negotiated savings across Metro Wholesale & Malnad Planters. Correlation: LH-2026-131460",
+      "cost_inr": 147074.4,
+      "potential_savings_inr": 12975.6,
+      "risk_level": "LOW",
+      "proposal_id": "PROP-2026-022",
+      "purchase_order_id": null,
+      "supplier_name": "Metro Wholesale Hub & Malnad Coffee Direct",
+      "sku": "COFFEE-001",
+      "what_will_happen": "Generates Split Purchase Orders across primary fast vendor and secondary direct farm vendor.",
+      "why_recommended": "SKU COFFEE-001 stock will deplete in 2.4 days. Scenario B maximizes savings while eliminating single-vendor failure risk.",
+      "expected_benefit": "Guarantees zero café downtime during upcoming peak weekend service.",
+      "data_sources_used": [
+        "Operations State Ledger",
+        "Vendor SLA Matrix",
+        "Run-Rate Predictor"
+      ],
+      "payload_snapshot": {},
+      "status": "APPROVED",
+      "approval_id": "APPR-2026-022",
+      "created_at": "2026-08-28T05:43:14.822255+00:00",
+      "updated_at": "2026-08-28T05:43:16.955988+00:00",
+      "previous_state": "PENDING",
+      "new_state": "APPROVED",
+      "decided_by_uid": "user_arjun_rao_01",
+      "decided_by_name": "Arjun Rao (Operations Manager)",
+      "decided_at": "2026-08-28T05:43:16.955973+00:00",
+      "decision_reason": "Approved by authorized operations manager."
+    },
     {
       "store_id": "store_deccan_roast_01",
       "type": "PURCHASE_ORDER",
@@ -58906,12 +59190,12 @@
       "status": "APPROVED",
       "approval_id": "APPR-2026-021",
       "created_at": "2026-08-28T05:09:00.502342+00:00",
-      "updated_at": "2026-08-28T05:09:02.643977+00:00",
-      "previous_state": "PENDING",
+      "updated_at": "2026-08-28T05:43:14.034160+00:00",
+      "previous_state": "APPROVED",
       "new_state": "APPROVED",
       "decided_by_uid": "user_arjun_rao_01",
       "decided_by_name": "Arjun Rao (Operations Manager)",
-      "decided_at": "2026-08-28T05:09:02.643958+00:00",
+      "decided_at": "2026-08-28T05:43:14.034145+00:00",
       "decision_reason": "Approved by authorized operations manager."
     },
     {
@@ -59559,6 +59843,91 @@
     }
   ],
   "timeline_events": [
+    {
+      "store_id": "store_deccan_roast_01",
+      "stage": "EXECUTE",
+      "agent": "Orchestrator",
+      "title": "Action Executed: Procurement Proposal: 165 units of COFFEE-001 (Split Order)",
+      "description": "Signed off by Arjun Rao (Operations Manager). Purchase order transmitted to supplier network.",
+      "badge_type": "emerald",
+      "entity_id": "APPR-2026-022",
+      "entity_type": "APPROVAL",
+      "event_id": "EVT-111317",
+      "timestamp_display": "11:13 AM",
+      "created_at": "2026-08-28T05:43:17.250707+00:00"
+    },
+    {
+      "event_id": "EVT-LH-2026-131692",
+      "store_id": "store_deccan_roast_01",
+      "stage": "STOCKOUT_PREVENTION_AND_PROCUREMENT",
+      "title": "Agent Run: Audit Kaveri Dairy invoice for quantity ...",
+      "description": "COFFEE-001 is projected to fall below safety threshold in ~2.4 days at current 13.0 kg/day run-rate.",
+      "correlation_id": "LH-2026-131692",
+      "badge_type": "amber",
+      "timestamp_display": "11:13:16",
+      "created_at": "2026-08-28T05:43:16.626653+00:00"
+    },
+    {
+      "event_id": "EVT-LH-2026-131553",
+      "store_id": "store_deccan_roast_01",
+      "stage": "STOCKOUT_PREVENTION_AND_PROCUREMENT",
+      "title": "Agent Run: Run the Arabica Crisis demo...",
+      "description": "COFFEE-001 is projected to fall below safety threshold in ~2.4 days at current 13.0 kg/day run-rate.",
+      "correlation_id": "LH-2026-131553",
+      "badge_type": "amber",
+      "timestamp_display": "11:13:16",
+      "created_at": "2026-08-28T05:43:16.029457+00:00"
+    },
+    {
+      "event_id": "EVT-LH-2026-131460",
+      "store_id": "store_deccan_roast_01",
+      "stage": "STOCKOUT_PREVENTION_AND_PROCUREMENT",
+      "title": "Agent Run: Will we run out of coffee beans this wee...",
+      "description": "COFFEE-001 is projected to fall below safety threshold in ~2.4 days at current 13.0 kg/day run-rate.",
+      "correlation_id": "LH-2026-131460",
+      "badge_type": "amber",
+      "timestamp_display": "11:13:15",
+      "created_at": "2026-08-28T05:43:15.124481+00:00"
+    },
+    {
+      "store_id": "store_deccan_roast_01",
+      "stage": "APPROVAL",
+      "agent": "Orchestrator",
+      "title": "Approval Requested: Procurement Proposal: 165 units of COFFEE-001 (Split Order)",
+      "description": "Routed to Operations Manager. Cost: ₹147,074.40 | Projected Savings: ₹12,975.60.",
+      "badge_type": "amber",
+      "entity_id": "APPR-2026-022",
+      "entity_type": "APPROVAL",
+      "event_id": "EVT-111314",
+      "timestamp_display": "11:13 AM",
+      "created_at": "2026-08-28T05:43:14.913763+00:00"
+    },
+    {
+      "store_id": "store_deccan_roast_01",
+      "stage": "VERIFY",
+      "agent": "Multimodal Invoice Auditor",
+      "title": "Invoice Audit Complete: INV-TEST-001 (RED)",
+      "description": "Critical Financial Discrepancy: 1 discrepancies detected with ₹486.40 total variance. Discrepancies: 1.",
+      "badge_type": "rose",
+      "entity_id": "AUD-2026-023",
+      "entity_type": "INVOICE_AUDIT",
+      "event_id": "EVT-111314",
+      "timestamp_display": "11:13 AM",
+      "created_at": "2026-08-28T05:43:14.576826+00:00"
+    },
+    {
+      "store_id": "store_deccan_roast_01",
+      "stage": "EXECUTE",
+      "agent": "Orchestrator",
+      "title": "Action Executed: Procurement Proposal: 165 units of COFFEE-001 (Split Order)",
+      "description": "Signed off by Arjun Rao (Operations Manager). Purchase order transmitted to supplier network.",
+      "badge_type": "emerald",
+      "entity_id": "APPR-2026-021",
+      "entity_type": "APPROVAL",
+      "event_id": "EVT-111314",
+      "timestamp_display": "11:13 AM",
+      "created_at": "2026-08-28T05:43:14.317573+00:00"
+    },
     {
       "store_id": "store_deccan_roast_01",
       "stage": "EXECUTE",
@@ -60803,6 +61172,969 @@
     }
   ],
   "agent_runs": [
+    {
+      "run_id": "RUN-20260828111316",
+      "correlation_id": "LH-2026-131692",
+      "store_id": "store_deccan_roast_01",
+      "user_id": "user_arjun_rao_01",
+      "user_prompt": "Audit Kaveri Dairy invoice for quantity shortages",
+      "primary_intent": "STOCKOUT_PREVENTION_AND_PROCUREMENT",
+      "status": "COMPLETED",
+      "agents_involved": [
+        "Master Orchestrator",
+        "Inventory Intelligence Agent",
+        "Supplier Intelligence Agent",
+        "Simulation Agent",
+        "Vendor Negotiation Agent",
+        "Governance Agent"
+      ],
+      "tools_used": [
+        {
+          "tool_name": "classify_operational_intent",
+          "result_summary": "Intent routed"
+        },
+        {
+          "tool_name": "forecast_demand",
+          "result_summary": "Depletion in 2.4 days"
+        },
+        {
+          "tool_name": "simulate_procurement",
+          "result_summary": "Evaluated 6 strategic scenarios"
+        },
+        {
+          "tool_name": "create_negotiation_proposal",
+          "result_summary": "Draft proposal PROP-2026-023"
+        },
+        {
+          "tool_name": "create_approval_request",
+          "result_summary": "Awaiting approval APPR-2026-023"
+        }
+      ],
+      "evidence": [
+        {
+          "label": "SKU Analyzed",
+          "value": "COFFEE-001",
+          "data_source": "inventory_db",
+          "evidence_type": "INVENTORY",
+          "confidence": 1.0
+        },
+        {
+          "label": "Current Stock",
+          "value": "36.0 kg",
+          "data_source": "inventory_db",
+          "evidence_type": "INVENTORY",
+          "confidence": 1.0
+        },
+        {
+          "label": "Daily Run-Rate",
+          "value": "13.0 kg/day (+32% weekend boost)",
+          "data_source": "sales_history",
+          "evidence_type": "INVENTORY",
+          "confidence": 0.95
+        },
+        {
+          "label": "Depletion Proximity",
+          "value": "2.4 days",
+          "data_source": "forecast_engine",
+          "evidence_type": "FORECAST",
+          "confidence": 0.94
+        },
+        {
+          "label": "Safety Threshold",
+          "value": "20.0 kg (Breached in 1.2 days)",
+          "data_source": "inventory_config",
+          "evidence_type": "RISK",
+          "confidence": 1.0
+        }
+      ],
+      "summary": "COFFEE-001 is projected to fall below safety threshold in ~2.4 days at current 13.0 kg/day run-rate.",
+      "what_if_insight": "With a +20% demand surge, projected depletion accelerates to ~2.1 days. Split order protects buffer while saving ₹8,672.",
+      "recommended_strategy": "Execute Scenario B (Split-Order Optimization): 40 kg Fast Delivery (2-day SLA @ Metro Wholesale) + 60 kg Farm-Direct (4-day SLA @ Malnad Planters).",
+      "risk_level": "MEDIUM",
+      "proposed_action": "Route procurement proposal PROP-2026-023 for manager approval (APPR-2026-023).",
+      "governance_state": "PENDING_HUMAN_APPROVAL",
+      "steps": [
+        {
+          "step_number": 1,
+          "agent_name": "Master Orchestrator",
+          "action_type": "INTENT_CLASSIFICATION",
+          "status": "COMPLETED",
+          "content": "Classifying operational intent for query: 'Audit Kaveri Dairy invoice for quantity shortages' (Context: invoices)",
+          "correlation_id": "LH-2026-131692",
+          "tool_calls": [
+            {
+              "tool_name": "classify_operational_intent",
+              "tool_input": {
+                "prompt": "Audit Kaveri Dairy invoice for quantity shortages",
+                "page_context": "invoices"
+              },
+              "tool_output": {
+                "intent": "EVALUATING",
+                "correlation_id": "LH-2026-131692"
+              },
+              "duration_ms": 15
+            }
+          ],
+          "timestamp": "2026-08-28T05:43:16.148998+00:00"
+        },
+        {
+          "step_number": 1,
+          "agent_name": "Inventory Intelligence Agent",
+          "action_type": "TOOL_CALL",
+          "content": "Evaluated store inventory health. Detected 1 critical stockout item(s).",
+          "tool_calls": [
+            {
+              "tool_name": "get_inventory_risk",
+              "tool_input": {},
+              "tool_output": {
+                "critical_count": 1,
+                "warning_count": 2
+              },
+              "duration_ms": 44.284,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:16.193319"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:16.193360",
+          "correlation_id": "LH-2026-131692"
+        },
+        {
+          "step_number": 2,
+          "agent_name": "Inventory Intelligence Agent",
+          "action_type": "REASONING",
+          "content": "Statistical Forecast for SKU COFFEE-001: Current stock is 36.0 units. Projected stockout in 2.4 days. Recommended replenishment order: 165.0 units.",
+          "tool_calls": [
+            {
+              "tool_name": "forecast_demand",
+              "tool_input": {
+                "sku": "COFFEE-001",
+                "horizon_days": 7
+              },
+              "tool_output": {
+                "daily_avg": 14.8,
+                "daily_std": 3.4,
+                "horizon_days": 7,
+                "projected_daily_demand": [
+                  18.6,
+                  18.6,
+                  14.8,
+                  14.8,
+                  14.8,
+                  14.8,
+                  14.8
+                ],
+                "total_projected_demand": 111.2,
+                "current_stock": 36.0,
+                "days_until_stockout": 2.4,
+                "projected_stockout_date": "2026-08-30",
+                "recommended_order_quantity": 190.0,
+                "confidence_score": 0.94,
+                "sku": "COFFEE-001",
+                "product_name": "Specialty Arabica Coffee Beans (AAA Grade)"
+              },
+              "duration_ms": 0.7290000000000001,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:16.194105"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:16.194122",
+          "correlation_id": "LH-2026-131692"
+        },
+        {
+          "step_number": 1,
+          "agent_name": "Procurement Agent",
+          "action_type": "TOOL_CALL",
+          "content": "Evaluated 3 suppliers for SKU COFFEE-001.",
+          "tool_calls": [
+            {
+              "tool_name": "compare_suppliers",
+              "tool_input": {
+                "sku": "COFFEE-001"
+              },
+              "tool_output": {
+                "sku": "COFFEE-001",
+                "matching_suppliers_count": 3,
+                "suppliers": [
+                  {
+                    "supplier_id": "sup_02",
+                    "supplier_name": "Malnad Coffee Planters Direct",
+                    "base_unit_price": 920.0,
+                    "lead_time_days": 4,
+                    "reliability_score": 94.5,
+                    "on_time_rate": 92.0,
+                    "invoice_accuracy_rate": 97.0,
+                    "volume_discount_tiers": [
+                      {
+                        "min_quantity": 80,
+                        "discount_percentage": 6.0,
+                        "discounted_unit_price": 864.8
+                      },
+                      {
+                        "min_quantity": 200,
+                        "discount_percentage": 9.0,
+                        "discounted_unit_price": 837.2
+                      }
+                    ]
+                  },
+                  {
+                    "supplier_id": "sup_01",
+                    "supplier_name": "Metro Wholesale Hub",
+                    "base_unit_price": 950.0,
+                    "lead_time_days": 2,
+                    "reliability_score": 91.0,
+                    "on_time_rate": 96.0,
+                    "invoice_accuracy_rate": 94.0,
+                    "volume_discount_tiers": [
+                      {
+                        "min_quantity": 50,
+                        "discount_percentage": 5.0,
+                        "discounted_unit_price": 902.5
+                      },
+                      {
+                        "min_quantity": 100,
+                        "discount_percentage": 7.5,
+                        "discounted_unit_price": 878.75
+                      },
+                      {
+                        "min_quantity": 250,
+                        "discount_percentage": 10.0,
+                        "discounted_unit_price": 855.0
+                      }
+                    ]
+                  },
+                  {
+                    "supplier_id": "sup_08",
+                    "supplier_name": "Coorg Heritage Coffee Estate",
+                    "base_unit_price": 970.0,
+                    "lead_time_days": 1,
+                    "reliability_score": 88.5,
+                    "on_time_rate": 90.0,
+                    "invoice_accuracy_rate": 92.0,
+                    "volume_discount_tiers": [
+                      {
+                        "min_quantity": 50,
+                        "discount_percentage": 4.0,
+                        "discounted_unit_price": 931.2
+                      }
+                    ]
+                  }
+                ]
+              },
+              "duration_ms": 0.206,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:16.194469"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:16.194477",
+          "correlation_id": "LH-2026-131692"
+        },
+        {
+          "step_number": 2,
+          "agent_name": "Procurement Agent",
+          "action_type": "SIMULATE",
+          "content": "Simulated 3 procurement scenarios. Scenario B (Split Order) achieves lowest risk score and maximum savings (₹12,975.60).",
+          "tool_calls": [
+            {
+              "tool_name": "simulate_procurement",
+              "tool_input": {
+                "sku": "COFFEE-001",
+                "quantity": 165.0
+              },
+              "tool_output": {
+                "scenarios_count": 6,
+                "recommended_scenario": "Scenario B: Split Order Strategy (AI Recommended)"
+              },
+              "duration_ms": 0.261,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:16.194745"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:16.194755",
+          "correlation_id": "LH-2026-131692"
+        },
+        {
+          "step_number": 1,
+          "agent_name": "Vendor Negotiation Agent",
+          "action_type": "PROPOSAL",
+          "content": "Generated Negotiation Proposal PROP-2026-023. Target price: ₹891.36/unit | Potential savings: ₹12,975.60.",
+          "tool_calls": [
+            {
+              "tool_name": "create_purchase_proposal",
+              "tool_input": {
+                "sku": "COFFEE-001",
+                "target_scenario_id": "SCENARIO-B"
+              },
+              "tool_output": {
+                "proposal_id": "PROP-2026-023",
+                "expected_savings": 12975.6,
+                "target_unit_price": 891.36
+              },
+              "duration_ms": 107.28500000000001,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:16.302188"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:16.302257",
+          "correlation_id": "LH-2026-131692"
+        }
+      ],
+      "final_response": "🚨 **Autonomous Stockout Analysis & Response Strategy**\n\n1. **Summary:** COFFEE-001 is projected to fall below safety threshold in ~2.4 days at current 13.0 kg/day run-rate.\n\n2. **Simulation:** Evaluated 6 strategies. **Scenario B (Split Order)** achieves the optimal risk-adjusted unit rate.\n   • **Fast Delivery (Metro Wholesale):** 40 kg in 2 days @ ₹902.50/kg\n   • **Direct Source (Malnad Planters):** 60 kg in 4 days @ ₹837.20/kg\n\n3. **Financials:** Total cost is **₹147,074.40** with **₹12,975.60 in savings** vs. baseline.\n\n🛡️ **Governance Status:** Action is staged and blocked under **Approval ID: APPR-2026-023** awaiting manager authorization.",
+      "recommendation_summary": "Completed STOCKOUT_PREVENTION_AND_PROCUREMENT across 6 agents.",
+      "generated_proposal_id": "PROP-2026-023",
+      "generated_approval_id": "APPR-2026-023",
+      "total_duration_ms": 378.40200000000004,
+      "tokens_used": 680,
+      "is_safe": true,
+      "created_at": "2026-08-28T05:43:16.527372+00:00",
+      "updated_at": "2026-08-28T05:43:16.527389+00:00"
+    },
+    {
+      "run_id": "RUN-20260828111315",
+      "correlation_id": "LH-2026-131553",
+      "store_id": "store_deccan_roast_01",
+      "user_id": "user_arjun_rao_01",
+      "user_prompt": "Run the Arabica Crisis demo",
+      "primary_intent": "STOCKOUT_PREVENTION_AND_PROCUREMENT",
+      "status": "COMPLETED",
+      "agents_involved": [
+        "Master Orchestrator",
+        "Inventory Intelligence Agent",
+        "Supplier Intelligence Agent",
+        "Simulation Agent",
+        "Vendor Negotiation Agent",
+        "Governance Agent"
+      ],
+      "tools_used": [
+        {
+          "tool_name": "classify_operational_intent",
+          "result_summary": "Intent routed"
+        },
+        {
+          "tool_name": "forecast_demand",
+          "result_summary": "Depletion in 2.4 days"
+        },
+        {
+          "tool_name": "simulate_procurement",
+          "result_summary": "Evaluated 6 strategic scenarios"
+        },
+        {
+          "tool_name": "create_negotiation_proposal",
+          "result_summary": "Draft proposal PROP-2026-023"
+        },
+        {
+          "tool_name": "create_approval_request",
+          "result_summary": "Awaiting approval APPR-2026-023"
+        }
+      ],
+      "evidence": [
+        {
+          "label": "SKU Analyzed",
+          "value": "COFFEE-001",
+          "data_source": "inventory_db",
+          "evidence_type": "INVENTORY",
+          "confidence": 1.0
+        },
+        {
+          "label": "Current Stock",
+          "value": "36.0 kg",
+          "data_source": "inventory_db",
+          "evidence_type": "INVENTORY",
+          "confidence": 1.0
+        },
+        {
+          "label": "Daily Run-Rate",
+          "value": "13.0 kg/day (+32% weekend boost)",
+          "data_source": "sales_history",
+          "evidence_type": "INVENTORY",
+          "confidence": 0.95
+        },
+        {
+          "label": "Depletion Proximity",
+          "value": "2.4 days",
+          "data_source": "forecast_engine",
+          "evidence_type": "FORECAST",
+          "confidence": 0.94
+        },
+        {
+          "label": "Safety Threshold",
+          "value": "20.0 kg (Breached in 1.2 days)",
+          "data_source": "inventory_config",
+          "evidence_type": "RISK",
+          "confidence": 1.0
+        }
+      ],
+      "summary": "COFFEE-001 is projected to fall below safety threshold in ~2.4 days at current 13.0 kg/day run-rate.",
+      "what_if_insight": "With a +20% demand surge, projected depletion accelerates to ~2.1 days. Split order protects buffer while saving ₹8,672.",
+      "recommended_strategy": "Execute Scenario B (Split-Order Optimization): 40 kg Fast Delivery (2-day SLA @ Metro Wholesale) + 60 kg Farm-Direct (4-day SLA @ Malnad Planters).",
+      "risk_level": "MEDIUM",
+      "proposed_action": "Route procurement proposal PROP-2026-023 for manager approval (APPR-2026-023).",
+      "governance_state": "PENDING_HUMAN_APPROVAL",
+      "steps": [
+        {
+          "step_number": 1,
+          "agent_name": "Master Orchestrator",
+          "action_type": "INTENT_CLASSIFICATION",
+          "status": "COMPLETED",
+          "content": "Classifying operational intent for query: 'Run the Arabica Crisis demo' (Context: inventory)",
+          "correlation_id": "LH-2026-131553",
+          "tool_calls": [
+            {
+              "tool_name": "classify_operational_intent",
+              "tool_input": {
+                "prompt": "Run the Arabica Crisis demo",
+                "page_context": "inventory"
+              },
+              "tool_output": {
+                "intent": "EVALUATING",
+                "correlation_id": "LH-2026-131553"
+              },
+              "duration_ms": 15
+            }
+          ],
+          "timestamp": "2026-08-28T05:43:15.529652+00:00"
+        },
+        {
+          "step_number": 1,
+          "agent_name": "Inventory Intelligence Agent",
+          "action_type": "TOOL_CALL",
+          "content": "Evaluated store inventory health. Detected 1 critical stockout item(s).",
+          "tool_calls": [
+            {
+              "tool_name": "get_inventory_risk",
+              "tool_input": {},
+              "tool_output": {
+                "critical_count": 1,
+                "warning_count": 2
+              },
+              "duration_ms": 41.07,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:15.570787"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:15.570861",
+          "correlation_id": "LH-2026-131553"
+        },
+        {
+          "step_number": 2,
+          "agent_name": "Inventory Intelligence Agent",
+          "action_type": "REASONING",
+          "content": "Statistical Forecast for SKU COFFEE-001: Current stock is 36.0 units. Projected stockout in 2.4 days. Recommended replenishment order: 165.0 units.",
+          "tool_calls": [
+            {
+              "tool_name": "forecast_demand",
+              "tool_input": {
+                "sku": "COFFEE-001",
+                "horizon_days": 7
+              },
+              "tool_output": {
+                "daily_avg": 14.8,
+                "daily_std": 3.4,
+                "horizon_days": 7,
+                "projected_daily_demand": [
+                  18.6,
+                  18.6,
+                  14.8,
+                  14.8,
+                  14.8,
+                  14.8,
+                  14.8
+                ],
+                "total_projected_demand": 111.2,
+                "current_stock": 36.0,
+                "days_until_stockout": 2.4,
+                "projected_stockout_date": "2026-08-30",
+                "recommended_order_quantity": 190.0,
+                "confidence_score": 0.94,
+                "sku": "COFFEE-001",
+                "product_name": "Specialty Arabica Coffee Beans (AAA Grade)"
+              },
+              "duration_ms": 1.3699999999999999,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:15.572269"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:15.572306",
+          "correlation_id": "LH-2026-131553"
+        },
+        {
+          "step_number": 1,
+          "agent_name": "Procurement Agent",
+          "action_type": "TOOL_CALL",
+          "content": "Evaluated 3 suppliers for SKU COFFEE-001.",
+          "tool_calls": [
+            {
+              "tool_name": "compare_suppliers",
+              "tool_input": {
+                "sku": "COFFEE-001"
+              },
+              "tool_output": {
+                "sku": "COFFEE-001",
+                "matching_suppliers_count": 3,
+                "suppliers": [
+                  {
+                    "supplier_id": "sup_02",
+                    "supplier_name": "Malnad Coffee Planters Direct",
+                    "base_unit_price": 920.0,
+                    "lead_time_days": 4,
+                    "reliability_score": 94.5,
+                    "on_time_rate": 92.0,
+                    "invoice_accuracy_rate": 97.0,
+                    "volume_discount_tiers": [
+                      {
+                        "min_quantity": 80,
+                        "discount_percentage": 6.0,
+                        "discounted_unit_price": 864.8
+                      },
+                      {
+                        "min_quantity": 200,
+                        "discount_percentage": 9.0,
+                        "discounted_unit_price": 837.2
+                      }
+                    ]
+                  },
+                  {
+                    "supplier_id": "sup_01",
+                    "supplier_name": "Metro Wholesale Hub",
+                    "base_unit_price": 950.0,
+                    "lead_time_days": 2,
+                    "reliability_score": 91.0,
+                    "on_time_rate": 96.0,
+                    "invoice_accuracy_rate": 94.0,
+                    "volume_discount_tiers": [
+                      {
+                        "min_quantity": 50,
+                        "discount_percentage": 5.0,
+                        "discounted_unit_price": 902.5
+                      },
+                      {
+                        "min_quantity": 100,
+                        "discount_percentage": 7.5,
+                        "discounted_unit_price": 878.75
+                      },
+                      {
+                        "min_quantity": 250,
+                        "discount_percentage": 10.0,
+                        "discounted_unit_price": 855.0
+                      }
+                    ]
+                  },
+                  {
+                    "supplier_id": "sup_08",
+                    "supplier_name": "Coorg Heritage Coffee Estate",
+                    "base_unit_price": 970.0,
+                    "lead_time_days": 1,
+                    "reliability_score": 88.5,
+                    "on_time_rate": 90.0,
+                    "invoice_accuracy_rate": 92.0,
+                    "volume_discount_tiers": [
+                      {
+                        "min_quantity": 50,
+                        "discount_percentage": 4.0,
+                        "discounted_unit_price": 931.2
+                      }
+                    ]
+                  }
+                ]
+              },
+              "duration_ms": 0.285,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:15.572886"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:15.572912",
+          "correlation_id": "LH-2026-131553"
+        },
+        {
+          "step_number": 2,
+          "agent_name": "Procurement Agent",
+          "action_type": "SIMULATE",
+          "content": "Simulated 3 procurement scenarios. Scenario B (Split Order) achieves lowest risk score and maximum savings (₹12,975.60).",
+          "tool_calls": [
+            {
+              "tool_name": "simulate_procurement",
+              "tool_input": {
+                "sku": "COFFEE-001",
+                "quantity": 165.0
+              },
+              "tool_output": {
+                "scenarios_count": 6,
+                "recommended_scenario": "Scenario B: Split Order Strategy (AI Recommended)"
+              },
+              "duration_ms": 0.27,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:15.573192"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:15.573204",
+          "correlation_id": "LH-2026-131553"
+        },
+        {
+          "step_number": 1,
+          "agent_name": "Vendor Negotiation Agent",
+          "action_type": "PROPOSAL",
+          "content": "Generated Negotiation Proposal PROP-2026-023. Target price: ₹891.36/unit | Potential savings: ₹12,975.60.",
+          "tool_calls": [
+            {
+              "tool_name": "create_purchase_proposal",
+              "tool_input": {
+                "sku": "COFFEE-001",
+                "target_scenario_id": "SCENARIO-B"
+              },
+              "tool_output": {
+                "proposal_id": "PROP-2026-023",
+                "expected_savings": 12975.6,
+                "target_unit_price": 891.36
+              },
+              "duration_ms": 107.768,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:15.681149"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:15.681205",
+          "correlation_id": "LH-2026-131553"
+        }
+      ],
+      "final_response": "🚨 **Autonomous Stockout Analysis & Response Strategy**\n\n1. **Summary:** COFFEE-001 is projected to fall below safety threshold in ~2.4 days at current 13.0 kg/day run-rate.\n\n2. **Simulation:** Evaluated 6 strategies. **Scenario B (Split Order)** achieves the optimal risk-adjusted unit rate.\n   • **Fast Delivery (Metro Wholesale):** 40 kg in 2 days @ ₹902.50/kg\n   • **Direct Source (Malnad Planters):** 60 kg in 4 days @ ₹837.20/kg\n\n3. **Financials:** Total cost is **₹147,074.40** with **₹12,975.60 in savings** vs. baseline.\n\n🛡️ **Governance Status:** Action is staged and blocked under **Approval ID: APPR-2026-023** awaiting manager authorization.",
+      "recommendation_summary": "Completed STOCKOUT_PREVENTION_AND_PROCUREMENT across 6 agents.",
+      "generated_proposal_id": "PROP-2026-023",
+      "generated_approval_id": "APPR-2026-023",
+      "total_duration_ms": 398.35900000000004,
+      "tokens_used": 680,
+      "is_safe": true,
+      "created_at": "2026-08-28T05:43:15.927911+00:00",
+      "updated_at": "2026-08-28T05:43:15.927930+00:00"
+    },
+    {
+      "run_id": "RUN-20260828111314",
+      "correlation_id": "LH-2026-131460",
+      "store_id": "store_deccan_roast_01",
+      "user_id": "user_arjun_rao_01",
+      "user_prompt": "Will we run out of coffee beans this week?",
+      "primary_intent": "STOCKOUT_PREVENTION_AND_PROCUREMENT",
+      "status": "COMPLETED",
+      "agents_involved": [
+        "Master Orchestrator",
+        "Inventory Intelligence Agent",
+        "Supplier Intelligence Agent",
+        "Simulation Agent",
+        "Vendor Negotiation Agent",
+        "Governance Agent"
+      ],
+      "tools_used": [
+        {
+          "tool_name": "classify_operational_intent",
+          "result_summary": "Intent routed"
+        },
+        {
+          "tool_name": "forecast_demand",
+          "result_summary": "Depletion in 2.4 days"
+        },
+        {
+          "tool_name": "simulate_procurement",
+          "result_summary": "Evaluated 6 strategic scenarios"
+        },
+        {
+          "tool_name": "create_negotiation_proposal",
+          "result_summary": "Draft proposal PROP-2026-022"
+        },
+        {
+          "tool_name": "create_approval_request",
+          "result_summary": "Awaiting approval APPR-2026-022"
+        }
+      ],
+      "evidence": [
+        {
+          "label": "SKU Analyzed",
+          "value": "COFFEE-001",
+          "data_source": "inventory_db",
+          "evidence_type": "INVENTORY",
+          "confidence": 1.0
+        },
+        {
+          "label": "Current Stock",
+          "value": "36.0 kg",
+          "data_source": "inventory_db",
+          "evidence_type": "INVENTORY",
+          "confidence": 1.0
+        },
+        {
+          "label": "Daily Run-Rate",
+          "value": "13.0 kg/day (+32% weekend boost)",
+          "data_source": "sales_history",
+          "evidence_type": "INVENTORY",
+          "confidence": 0.95
+        },
+        {
+          "label": "Depletion Proximity",
+          "value": "2.4 days",
+          "data_source": "forecast_engine",
+          "evidence_type": "FORECAST",
+          "confidence": 0.94
+        },
+        {
+          "label": "Safety Threshold",
+          "value": "20.0 kg (Breached in 1.2 days)",
+          "data_source": "inventory_config",
+          "evidence_type": "RISK",
+          "confidence": 1.0
+        }
+      ],
+      "summary": "COFFEE-001 is projected to fall below safety threshold in ~2.4 days at current 13.0 kg/day run-rate.",
+      "what_if_insight": "With a +20% demand surge, projected depletion accelerates to ~2.1 days. Split order protects buffer while saving ₹8,672.",
+      "recommended_strategy": "Execute Scenario B (Split-Order Optimization): 40 kg Fast Delivery (2-day SLA @ Metro Wholesale) + 60 kg Farm-Direct (4-day SLA @ Malnad Planters).",
+      "risk_level": "MEDIUM",
+      "proposed_action": "Route procurement proposal PROP-2026-022 for manager approval (APPR-2026-022).",
+      "governance_state": "PENDING_HUMAN_APPROVAL",
+      "steps": [
+        {
+          "step_number": 1,
+          "agent_name": "Master Orchestrator",
+          "action_type": "INTENT_CLASSIFICATION",
+          "status": "COMPLETED",
+          "content": "Classifying operational intent for query: 'Will we run out of coffee beans this week?' (Context: general)",
+          "correlation_id": "LH-2026-131460",
+          "tool_calls": [
+            {
+              "tool_name": "classify_operational_intent",
+              "tool_input": {
+                "prompt": "Will we run out of coffee beans this week?",
+                "page_context": "general"
+              },
+              "tool_output": {
+                "intent": "EVALUATING",
+                "correlation_id": "LH-2026-131460"
+              },
+              "duration_ms": 15
+            }
+          ],
+          "timestamp": "2026-08-28T05:43:14.722564+00:00"
+        },
+        {
+          "step_number": 1,
+          "agent_name": "Inventory Intelligence Agent",
+          "action_type": "TOOL_CALL",
+          "content": "Evaluated store inventory health. Detected 1 critical stockout item(s).",
+          "tool_calls": [
+            {
+              "tool_name": "get_inventory_risk",
+              "tool_input": {},
+              "tool_output": {
+                "critical_count": 1,
+                "warning_count": 2
+              },
+              "duration_ms": 0.5609999999999999,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:14.723169"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:14.726235",
+          "correlation_id": "LH-2026-131460"
+        },
+        {
+          "step_number": 2,
+          "agent_name": "Inventory Intelligence Agent",
+          "action_type": "REASONING",
+          "content": "Statistical Forecast for SKU COFFEE-001: Current stock is 36.0 units. Projected stockout in 2.4 days. Recommended replenishment order: 165.0 units.",
+          "tool_calls": [
+            {
+              "tool_name": "forecast_demand",
+              "tool_input": {
+                "sku": "COFFEE-001",
+                "horizon_days": 7
+              },
+              "tool_output": {
+                "daily_avg": 14.8,
+                "daily_std": 3.4,
+                "horizon_days": 7,
+                "projected_daily_demand": [
+                  18.6,
+                  18.6,
+                  14.8,
+                  14.8,
+                  14.8,
+                  14.8,
+                  14.8
+                ],
+                "total_projected_demand": 111.2,
+                "current_stock": 36.0,
+                "days_until_stockout": 2.4,
+                "projected_stockout_date": "2026-08-30",
+                "recommended_order_quantity": 190.0,
+                "confidence_score": 0.94,
+                "sku": "COFFEE-001",
+                "product_name": "Specialty Arabica Coffee Beans (AAA Grade)"
+              },
+              "duration_ms": 0.8069999999999999,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:14.727087"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:14.727111",
+          "correlation_id": "LH-2026-131460"
+        },
+        {
+          "step_number": 1,
+          "agent_name": "Procurement Agent",
+          "action_type": "TOOL_CALL",
+          "content": "Evaluated 3 suppliers for SKU COFFEE-001.",
+          "tool_calls": [
+            {
+              "tool_name": "compare_suppliers",
+              "tool_input": {
+                "sku": "COFFEE-001"
+              },
+              "tool_output": {
+                "sku": "COFFEE-001",
+                "matching_suppliers_count": 3,
+                "suppliers": [
+                  {
+                    "supplier_id": "sup_02",
+                    "supplier_name": "Malnad Coffee Planters Direct",
+                    "base_unit_price": 920.0,
+                    "lead_time_days": 4,
+                    "reliability_score": 94.5,
+                    "on_time_rate": 92.0,
+                    "invoice_accuracy_rate": 97.0,
+                    "volume_discount_tiers": [
+                      {
+                        "min_quantity": 80,
+                        "discount_percentage": 6.0,
+                        "discounted_unit_price": 864.8
+                      },
+                      {
+                        "min_quantity": 200,
+                        "discount_percentage": 9.0,
+                        "discounted_unit_price": 837.2
+                      }
+                    ]
+                  },
+                  {
+                    "supplier_id": "sup_01",
+                    "supplier_name": "Metro Wholesale Hub",
+                    "base_unit_price": 950.0,
+                    "lead_time_days": 2,
+                    "reliability_score": 91.0,
+                    "on_time_rate": 96.0,
+                    "invoice_accuracy_rate": 94.0,
+                    "volume_discount_tiers": [
+                      {
+                        "min_quantity": 50,
+                        "discount_percentage": 5.0,
+                        "discounted_unit_price": 902.5
+                      },
+                      {
+                        "min_quantity": 100,
+                        "discount_percentage": 7.5,
+                        "discounted_unit_price": 878.75
+                      },
+                      {
+                        "min_quantity": 250,
+                        "discount_percentage": 10.0,
+                        "discounted_unit_price": 855.0
+                      }
+                    ]
+                  },
+                  {
+                    "supplier_id": "sup_08",
+                    "supplier_name": "Coorg Heritage Coffee Estate",
+                    "base_unit_price": 970.0,
+                    "lead_time_days": 1,
+                    "reliability_score": 88.5,
+                    "on_time_rate": 90.0,
+                    "invoice_accuracy_rate": 92.0,
+                    "volume_discount_tiers": [
+                      {
+                        "min_quantity": 50,
+                        "discount_percentage": 4.0,
+                        "discounted_unit_price": 931.2
+                      }
+                    ]
+                  }
+                ]
+              },
+              "duration_ms": 0.23,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:14.728740"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:14.728758",
+          "correlation_id": "LH-2026-131460"
+        },
+        {
+          "step_number": 2,
+          "agent_name": "Procurement Agent",
+          "action_type": "SIMULATE",
+          "content": "Simulated 3 procurement scenarios. Scenario B (Split Order) achieves lowest risk score and maximum savings (₹12,975.60).",
+          "tool_calls": [
+            {
+              "tool_name": "simulate_procurement",
+              "tool_input": {
+                "sku": "COFFEE-001",
+                "quantity": 165.0
+              },
+              "tool_output": {
+                "scenarios_count": 6,
+                "recommended_scenario": "Scenario B: Split Order Strategy (AI Recommended)"
+              },
+              "duration_ms": 0.296,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:14.729062"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:14.729079",
+          "correlation_id": "LH-2026-131460"
+        },
+        {
+          "step_number": 1,
+          "agent_name": "Vendor Negotiation Agent",
+          "action_type": "PROPOSAL",
+          "content": "Generated Negotiation Proposal PROP-2026-022. Target price: ₹891.36/unit | Potential savings: ₹12,975.60.",
+          "tool_calls": [
+            {
+              "tool_name": "create_purchase_proposal",
+              "tool_input": {
+                "sku": "COFFEE-001",
+                "target_scenario_id": "SCENARIO-B"
+              },
+              "tool_output": {
+                "proposal_id": "PROP-2026-022",
+                "expected_savings": 12975.6,
+                "target_unit_price": 891.36
+              },
+              "duration_ms": 92.39999999999999,
+              "status": "SUCCESS",
+              "error_message": null,
+              "executed_at": "2026-08-28T11:13:14.821984"
+            }
+          ],
+          "timestamp": "2026-08-28T11:13:14.822050",
+          "correlation_id": "LH-2026-131460"
+        }
+      ],
+      "final_response": "🚨 **Autonomous Stockout Analysis & Response Strategy**\n\n1. **Summary:** COFFEE-001 is projected to fall below safety threshold in ~2.4 days at current 13.0 kg/day run-rate.\n\n2. **Simulation:** Evaluated 6 strategies. **Scenario B (Split Order)** achieves the optimal risk-adjusted unit rate.\n   • **Fast Delivery (Metro Wholesale):** 40 kg in 2 days @ ₹902.50/kg\n   • **Direct Source (Malnad Planters):** 60 kg in 4 days @ ₹837.20/kg\n\n3. **Financials:** Total cost is **₹147,074.40** with **₹12,975.60 in savings** vs. baseline.\n\n🛡️ **Governance Status:** Action is staged and blocked under **Approval ID: APPR-2026-022** awaiting manager authorization.",
+      "recommendation_summary": "Completed STOCKOUT_PREVENTION_AND_PROCUREMENT across 6 agents.",
+      "generated_proposal_id": "PROP-2026-022",
+      "generated_approval_id": "APPR-2026-022",
+      "total_duration_ms": 291.574,
+      "tokens_used": 680,
+      "is_safe": true,
+      "created_at": "2026-08-28T05:43:15.014087+00:00",
+      "updated_at": "2026-08-28T05:43:15.014106+00:00"
+    },
     {
       "run_id": "RUN-20260828103901",
       "correlation_id": "LH-2026-390148",
@@ -66692,6 +68024,46 @@
     }
   ],
   "audit_logs": [
+    {
+      "audit_id": "AUD-LOG-20260828111317047",
+      "timestamp": "2026-08-28T05:43:17.047649+00:00",
+      "action": "APPROVAL_GRANTED",
+      "actor_id": "user_arjun_rao_01",
+      "actor_role": "STORE_MANAGER",
+      "resource_type": "APPROVAL",
+      "resource_id": "APPR-2026-022",
+      "details": {
+        "cost_inr": 147074.4,
+        "title": "Procurement Proposal: 165 units of COFFEE-001 (Split Order)"
+      },
+      "previous_state": {
+        "status": "PENDING"
+      },
+      "new_state": {
+        "status": "APPROVED"
+      },
+      "status": "SUCCESS"
+    },
+    {
+      "audit_id": "AUD-LOG-20260828111314126",
+      "timestamp": "2026-08-28T05:43:14.126248+00:00",
+      "action": "APPROVAL_GRANTED",
+      "actor_id": "user_arjun_rao_01",
+      "actor_role": "STORE_MANAGER",
+      "resource_type": "APPROVAL",
+      "resource_id": "APPR-2026-021",
+      "details": {
+        "cost_inr": 147074.4,
+        "title": "Procurement Proposal: 165 units of COFFEE-001 (Split Order)"
+      },
+      "previous_state": {
+        "status": "PENDING"
+      },
+      "new_state": {
+        "status": "APPROVED"
+      },
+      "status": "SUCCESS"
+    },
     {
       "audit_id": "AUD-LOG-20260828103902752",
       "timestamp": "2026-08-28T05:09:02.752106+00:00",

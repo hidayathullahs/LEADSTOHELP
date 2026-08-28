@@ -5,47 +5,50 @@ import {
   ShoppingCart,
   Users,
   FileCheck,
-  MessageSquareDiff,
   CheckSquare,
   Radar,
   Activity,
   BarChart3,
   Settings,
   Sparkles,
-  ShieldCheck,
-  Radio
+  Radio,
+  Sliders
 } from 'lucide-react';
 
-const NAV_SECTIONS = [
+const NAV_GROUPS = [
   {
-    title: 'Core Operations',
+    title: 'Monitor',
     items: [
       { id: 'overview', label: 'Control Tower', icon: LayoutDashboard, badge: null },
-      { id: 'inventory', label: 'Inventory Intelligence', icon: Package, badge: null },
-      { id: 'procurement', label: 'Procurement Optimizer', icon: ShoppingCart, badge: null },
+      { id: 'inventory', label: 'Inventory Risk', icon: Package, badge: null },
     ]
   },
   {
-    title: 'Intelligence & Partners',
+    title: 'Decide',
     items: [
+      { id: 'procurement', label: 'Procurement Decisions', icon: ShoppingCart, badge: '6 Scenarios' },
       { id: 'suppliers', label: 'Supplier Network', icon: Users, badge: null },
+    ]
+  },
+  {
+    title: 'Verify',
+    items: [
       { id: 'invoices', label: 'Invoice Vision Audit', icon: FileCheck, badge: 'OCR' },
-      { id: 'negotiations', label: 'Vendor Negotiations', icon: MessageSquareDiff, badge: null },
-    ]
-  },
-  {
-    title: 'Governance & Audit',
-    items: [
       { id: 'approvals', label: 'Approval Queue', icon: CheckSquare, badgeKey: 'pendingApprovals' },
-      { id: 'risk-radar', label: 'Supply Risk Radar', icon: Radar, badgeKey: 'riskScore' },
-      { id: 'agent-inspector', label: 'Multi-Agent Traces', icon: Activity, badge: 'Live' },
-      { id: 'analytics', label: 'Financial Analytics', icon: BarChart3, badge: null },
     ]
   },
   {
-    title: 'System',
+    title: 'Understand',
     items: [
-      { id: 'settings', label: 'Store Configuration', icon: Settings, badge: null },
+      { id: 'risk-radar', label: 'Supply Risk Radar', icon: Radar, badgeKey: 'riskScore' },
+      { id: 'agent-inspector', label: 'AI Activity', icon: Activity, badge: 'Live' },
+      { id: 'analytics', label: 'Impact & Analytics', icon: BarChart3, badge: null },
+    ]
+  },
+  {
+    title: 'Configure',
+    items: [
+      { id: 'settings', label: 'Store Settings', icon: Settings, badge: null },
     ]
   }
 ];
@@ -66,19 +69,19 @@ export default function Sidebar({ activeTab, setActiveTab, metrics }) {
                 PRO
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 font-medium mt-0.5">Autonomous Supply Chain</p>
+            <p className="text-[10px] text-slate-400 font-medium mt-0.5">Retail Operations Tower</p>
           </div>
         </div>
 
         {/* Grouped Navigation Sections */}
-        <nav className="p-3 space-y-4 overflow-y-auto max-h-[calc(100vh-140px)]">
-          {NAV_SECTIONS.map((section, sIdx) => (
-            <div key={sIdx} className="space-y-1">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 px-2.5 block mb-1">
-                {section.title}
+        <nav className="p-3 space-y-3.5 overflow-y-auto max-h-[calc(100vh-140px)]">
+          {NAV_GROUPS.map((group, gIdx) => (
+            <div key={gIdx} className="space-y-0.5">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 px-2.5 block mb-1">
+                {group.title}
               </span>
 
-              {section.items.map((item) => {
+              {group.items.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
                 

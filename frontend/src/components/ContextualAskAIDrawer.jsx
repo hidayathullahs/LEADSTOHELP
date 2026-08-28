@@ -20,7 +20,9 @@ import {
   RefreshCw,
   Info,
   Package,
-  FileCheck
+  FileCheck,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { api } from '../services/api';
 import EvidenceDrawer from './EvidenceDrawer';
@@ -87,46 +89,12 @@ export default function ContextualAskAIDrawer({
 
   // Page-aware quick prompts
   const getContextualPrompts = () => {
-    if (pageContext === 'inventory') {
-      return [
-        "Why is Arabica Coffee (COFFEE-001) at critical risk?",
-        "Project Arabica coffee run-rate for weekend peak",
-        "Run the Arabica Crisis demo"
-      ];
-    }
-    if (pageContext === 'procurement') {
-      return [
-        "Which scenario has the best risk-adjusted outcome?",
-        "Compare Scenario A (Single) vs Scenario B (Split)",
-        "Explain the ₹8,672 savings opportunity"
-      ];
-    }
-    if (pageContext === 'suppliers') {
-      return [
-        "Why is Malnad Coffee preferred over Metro?",
-        "Check Kaveri Dairy delivery discrepancy",
-        "Evaluate supplier network concentration risk"
-      ];
-    }
-    if (pageContext === 'invoices') {
-      return [
-        "Why was Kaveri Dairy invoice INV-KAV-8842 flagged?",
-        "Explain the 8L milk shortage variance",
-        "Show 3-way matching breakdown for PO-10022"
-      ];
-    }
-    if (pageContext === 'analytics') {
-      return [
-        "Explain the simulated ₹1.48L savings opportunity",
-        "Break down stockouts prevented across store",
-        "Show human approval governance compliance rate"
-      ];
-    }
     return [
-      "Run the Arabica Crisis demo",
-      "Will we run out of coffee beans this week?",
-      "Audit Kaveri Dairy invoice for shortages",
-      "Summarize supplier reliability network"
+      "Why is Arabica at risk?",
+      "What should we buy?",
+      "Which supplier is safest?",
+      "What happens if demand rises 20%?",
+      "Run the Arabica Crisis demo"
     ];
   };
 
@@ -220,68 +188,67 @@ export default function ContextualAskAIDrawer({
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-black/60 backdrop-blur-sm flex justify-end animate-in fade-in duration-200">
-      <div className="w-full max-w-2xl bg-[#0B0F19] border-l border-slate-800 flex flex-col h-full shadow-2xl">
+      <div className="w-full max-w-2xl bg-surface-0 border-l border-white/[0.08] flex flex-col h-full shadow-2xl">
         {/* Drawer Header */}
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/70">
+        <div className="p-4 border-b border-white/[0.06] flex items-center justify-between bg-surface-1">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
-              <Cpu className="w-4 h-4 animate-pulse" />
+            <div className="w-8 h-8 rounded-lg bg-brand-accent/15 border border-brand-accent/30 flex items-center justify-center text-brand-accent">
+              <Cpu className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-white">Operations Copilot</h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold">
-                  8-Part Envelope
+                <h2 className="text-sm font-bold text-white tracking-tight">Operations Copilot</h2>
+                <span className="badge-teal text-[10px]">
+                  Decision Assistant
                 </span>
-                {/* Truthful Telemetry Badge */}
                 <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
                   isGeminiLive
-                    ? 'bg-emerald-950/80 text-emerald-300 border-emerald-700'
-                    : 'bg-amber-950/80 text-amber-300 border-amber-700'
+                    ? 'badge-emerald'
+                    : 'badge-amber'
                 }`}>
                   {isGeminiLive ? 'LIVE GEMINI' : 'OFFLINE DEMO'}
                 </span>
               </div>
               <p className="text-[11px] text-slate-400">
-                Context: <strong className="text-cyan-400 capitalize">{pageContext}</strong> • SKU: <strong className="text-white font-mono">{selectedSku || 'COFFEE-001'}</strong>
+                Context: <strong className="text-brand-accent capitalize">{pageContext}</strong> • SKU: <strong className="text-white font-mono">{selectedSku || 'COFFEE-001'}</strong>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-surface-2 transition-all"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Contextual Quick Prompts Bar */}
-        <div className="p-3 border-b border-slate-800/80 bg-slate-950/60 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-          <span className="text-[10px] uppercase font-bold text-slate-500 shrink-0">Context Prompts:</span>
+        {/* Quick Prompts Bar */}
+        <div className="p-3 border-b border-white/[0.06] bg-surface-1/60 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          <span className="text-[10px] uppercase font-bold text-slate-500 shrink-0">Ask Copilot:</span>
           {getContextualPrompts().map((qp, idx) => (
             <button
               key={idx}
               onClick={() => handleSendMessage(qp)}
-              className="text-[11px] px-3 py-1 rounded-full bg-slate-900 hover:bg-cyan-950/80 hover:text-cyan-300 hover:border-cyan-700/60 border border-slate-800 text-slate-300 whitespace-nowrap transition-all flex items-center gap-1"
+              className="text-[11px] px-3 py-1 rounded-full bg-surface-2 hover:bg-brand-accent hover:text-black border border-white/[0.06] text-slate-300 whitespace-nowrap transition-all flex items-center gap-1 font-medium"
             >
-              {qp.includes('Arabica Crisis') && <Sparkles className="w-3 h-3 text-cyan-400" />}
+              {qp.includes('Arabica Crisis') && <Sparkles className="w-3 h-3 text-brand-accent" />}
               <span>{qp}</span>
             </button>
           ))}
         </div>
 
         {/* Messages Feed */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-5">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((msg, index) => {
             const isUser = msg.role === 'user';
             
             if (isUser) {
               return (
                 <div key={index} className="flex justify-end gap-2.5">
-                  <div className="max-w-[85%] rounded-xl p-3 bg-gradient-to-r from-cyan-600 to-indigo-600 text-black font-semibold text-xs shadow-md">
+                  <div className="max-w-[85%] rounded-xl p-3 bg-brand-accent text-black font-semibold text-xs shadow-glow-teal">
                     {msg.content}
                   </div>
-                  <div className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 text-cyan-400 font-bold text-xs">
+                  <div className="w-7 h-7 rounded-lg bg-surface-2 border border-white/[0.08] flex items-center justify-center shrink-0 text-brand-accent font-bold text-xs">
                     AR
                   </div>
                 </div>
@@ -291,32 +258,28 @@ export default function ContextualAskAIDrawer({
             // Structured 8-Part Assistant Envelope
             return (
               <div key={index} className="flex justify-start gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-cyan-950 border border-cyan-800/60 flex items-center justify-center shrink-0 text-cyan-400 mt-1">
+                <div className="w-7 h-7 rounded-lg bg-surface-2 border border-white/[0.08] flex items-center justify-center shrink-0 text-brand-accent mt-1">
                   <Bot className="w-4 h-4" />
                 </div>
 
-                <div className="flex-1 max-w-[92%] glass-card p-4 space-y-3.5 border-slate-800 bg-slate-900/90 text-xs">
+                <div className="flex-1 max-w-[92%] glass-card p-4 space-y-3.5 border-white/[0.08] bg-surface-1 text-xs">
                   {/* Top Bar: Risk Level, Governance State & Correlation ID */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-2.5">
                     <div className="flex items-center gap-1.5">
                       <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
-                        msg.risk_level === 'LOW' ? 'bg-emerald-950 text-emerald-300 border-emerald-800' :
-                        msg.risk_level === 'MEDIUM' ? 'bg-amber-950 text-amber-300 border-amber-800' :
-                        'bg-rose-950 text-rose-300 border-rose-800'
+                        msg.risk_level === 'LOW' ? 'badge-emerald' :
+                        msg.risk_level === 'MEDIUM' ? 'badge-amber' :
+                        'badge-rose'
                       }`}>
                         {msg.risk_level || 'LOW'} RISK
                       </span>
 
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                        msg.governance_state === 'PENDING_HUMAN_APPROVAL' || msg.governance_state === 'FLAGGED_FOR_HUMAN_REVIEW'
-                          ? 'bg-amber-950 text-amber-300 border-amber-800'
-                          : 'bg-slate-950 text-slate-400 border-slate-800'
-                      }`}>
+                      <span className="badge-teal text-[10px]">
                         {msg.governance_state || 'GOVERNED'}
                       </span>
                     </div>
 
-                    <span className="font-mono text-[10px] text-cyan-400 font-bold bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                    <span className="font-mono text-[10px] text-brand-accent font-bold bg-surface-2 px-2 py-0.5 rounded border border-white/[0.06]">
                       ID: {msg.correlation_id}
                     </span>
                   </div>
@@ -333,13 +296,13 @@ export default function ContextualAskAIDrawer({
 
                   {/* 2. GROUNDED EVIDENCE */}
                   {msg.evidence?.length > 0 && (
-                    <div className="p-2.5 bg-slate-950 rounded-lg border border-slate-800 space-y-1.5">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 block">
+                    <div className="p-2.5 bg-surface-2 rounded-lg border border-white/[0.04] space-y-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-brand-accent block">
                         2. Grounded Evidence ({msg.evidence.length} Data Points)
                       </span>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
                         {msg.evidence.map((ev, evIdx) => (
-                          <div key={evIdx} className="bg-slate-900/80 p-1.5 rounded border border-slate-800 text-[11px] flex items-center justify-between">
+                          <div key={evIdx} className="bg-surface-0 p-1.5 rounded border border-white/[0.04] text-[11px] flex items-center justify-between">
                             <span className="text-slate-400 truncate max-w-[140px]">{ev.label}:</span>
                             <span className="font-mono font-semibold text-white truncate max-w-[130px]">{String(ev.value)}</span>
                           </div>
@@ -348,13 +311,13 @@ export default function ContextualAskAIDrawer({
                     </div>
                   )}
 
-                  {/* 3. WHAT-IF / SCENARIO INSIGHT */}
+                  {/* 3. WHAT-IF INSIGHT */}
                   {msg.what_if_insight && (
-                    <div className="p-2.5 bg-indigo-950/20 border border-indigo-800/40 rounded-lg space-y-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300 flex items-center gap-1">
-                        <Sliders className="w-3 h-3 text-indigo-400" /> 3. What-If Scenario Insight
+                    <div className="p-2.5 bg-accent-violet/10 rounded-lg border border-accent-violet/25 space-y-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-accent-violet flex items-center gap-1">
+                        <Sliders className="w-3 h-3" /> 3. What-If Scenario Insight
                       </span>
-                      <p className="text-slate-300 leading-relaxed text-[11px]">
+                      <p className="text-slate-200 text-[11px] leading-relaxed">
                         {msg.what_if_insight}
                       </p>
                     </div>
@@ -362,11 +325,11 @@ export default function ContextualAskAIDrawer({
 
                   {/* 4. RECOMMENDED STRATEGY */}
                   {msg.recommended_strategy && (
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    <div className="p-2.5 bg-emerald-500/10 rounded-lg border border-emerald-500/20 space-y-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 block">
                         4. Recommended Strategy
                       </span>
-                      <p className="text-emerald-300 font-medium leading-relaxed bg-emerald-950/20 p-2.5 rounded-lg border border-emerald-800/30">
+                      <p className="text-emerald-300 font-semibold text-[11px] leading-relaxed">
                         {msg.recommended_strategy}
                       </p>
                     </div>
@@ -374,81 +337,41 @@ export default function ContextualAskAIDrawer({
 
                   {/* 5. PROPOSED ACTION */}
                   {msg.proposed_action && (
-                    <div className="space-y-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
                         5. Proposed Staged Action
                       </span>
-                      <p className="text-slate-200 text-[11px]">
+                      <p className="text-slate-300 text-[11px]">
                         {msg.proposed_action}
                       </p>
                     </div>
                   )}
 
-                  {/* 6. Action Buttons Bar */}
-                  <div className="pt-2 border-t border-slate-800 flex flex-wrap items-center gap-2">
-                    {msg.action_buttons?.map((btn) => {
-                      if (btn === 'REVIEW_EVIDENCE') {
-                        return (
-                          <button
-                            key={btn}
-                            onClick={() => handleActionClick('REVIEW_EVIDENCE', msg)}
-                            className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold flex items-center gap-1 border border-slate-700 transition-all"
-                          >
-                            <ShieldCheck className="w-3 h-3 text-cyan-400" />
-                            <span>Review Evidence</span>
-                          </button>
-                        );
-                      }
-                      if (btn === 'RUN_WHATIF') {
-                        return (
-                          <button
-                            key={btn}
-                            onClick={() => handleActionClick('RUN_WHATIF', msg)}
-                            className="px-2.5 py-1 rounded bg-indigo-950/80 hover:bg-indigo-900 text-indigo-200 text-[11px] font-semibold flex items-center gap-1 border border-indigo-700/60 transition-all"
-                          >
-                            <Sliders className="w-3 h-3 text-indigo-400" />
-                            <span>Run What-If</span>
-                          </button>
-                        );
-                      }
-                      if (btn === 'OPEN_PROCUREMENT') {
-                        return (
-                          <button
-                            key={btn}
-                            onClick={() => handleActionClick('OPEN_PROCUREMENT', msg)}
-                            className="px-2.5 py-1 rounded bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 text-[11px] font-semibold flex items-center gap-1 border border-cyan-800 transition-all"
-                          >
-                            <Layers className="w-3 h-3 text-cyan-400" />
-                            <span>Open Procurement</span>
-                          </button>
-                        );
-                      }
-                      if (btn === 'VIEW_APPROVAL' && msg.generatedApprovalId) {
-                        return (
-                          <button
-                            key={btn}
-                            onClick={() => handleActionClick('VIEW_APPROVAL', msg)}
-                            className="px-2.5 py-1 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[11px] font-bold flex items-center gap-1 border border-amber-500/40 transition-all"
-                          >
-                            <Clock className="w-3 h-3" />
-                            <span>Sign-off Approval ({msg.generatedApprovalId})</span>
-                          </button>
-                        );
-                      }
-                      if (btn === 'VIEW_TRACE') {
-                        return (
-                          <button
-                            key={btn}
-                            onClick={() => handleActionClick('VIEW_TRACE', msg)}
-                            className="px-2.5 py-1 rounded bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px] font-medium flex items-center gap-1 transition-all"
-                          >
-                            <Activity className="w-3 h-3 text-slate-400" />
-                            <span>View Action Trace</span>
-                          </button>
-                        );
-                      }
-                      return null;
-                    })}
+                  {/* Action Buttons */}
+                  <div className="pt-2 border-t border-white/[0.06] flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={() => handleActionClick('REVIEW_EVIDENCE', msg)}
+                      className="btn-secondary text-xs px-2.5 py-1 flex items-center gap-1"
+                    >
+                      <ShieldCheck className="w-3 h-3 text-brand-accent" />
+                      <span>Review Evidence</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleActionClick('RUN_WHATIF', msg)}
+                      className="btn-secondary text-xs px-2.5 py-1 text-accent-violet hover:border-accent-violet/40 flex items-center gap-1"
+                    >
+                      <Sliders className="w-3 h-3" />
+                      <span>Run What-If</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleActionClick('OPEN_PROCUREMENT', msg)}
+                      className="btn-primary text-xs px-3 py-1 flex items-center gap-1 ml-auto"
+                    >
+                      <span>Open Procurement</span>
+                      <ArrowRight className="w-3 h-3 text-black" />
+                    </button>
                   </div>
                 </div>
               </div>
@@ -456,15 +379,15 @@ export default function ContextualAskAIDrawer({
           })}
 
           {isLoading && (
-            <div className="flex items-center gap-3 p-3 text-xs text-cyan-400 bg-slate-900/60 rounded-xl border border-slate-800">
-              <Loader2 className="w-4 h-4 animate-spin text-cyan-400 shrink-0" />
-              <span>Orchestrating specialist agents, evaluating ground-truth supplier SLAs, and generating structured envelope...</span>
+            <div className="flex items-center gap-3 p-4 glass-card bg-surface-1 text-xs text-brand-accent">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Analyzing supply telemetry & evaluating scenarios...</span>
             </div>
           )}
         </div>
 
         {/* Input Bar */}
-        <div className="p-4 border-t border-slate-800 bg-slate-900/80">
+        <div className="p-3 border-t border-white/[0.06] bg-surface-1">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -477,21 +400,21 @@ export default function ContextualAskAIDrawer({
               value={inputPrompt}
               onChange={(e) => setInputPrompt(e.target.value)}
               placeholder="Ask anything (or type: 'Run the Arabica Crisis demo')..."
-              className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-all"
+              className="flex-1 bg-surface-2 border border-white/[0.08] text-xs text-white placeholder-slate-500 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-brand-accent"
             />
             <button
               type="submit"
               disabled={isLoading || !inputPrompt.trim()}
-              className="px-4 py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-black font-bold text-xs flex items-center gap-1.5 transition-all shadow-glow-cyan"
+              className="btn-primary text-xs px-4 py-2.5 flex items-center gap-1"
             >
-              <Send className="w-3.5 h-3.5" />
+              <Send className="w-3.5 h-3.5 text-black" />
               <span>Send</span>
             </button>
           </form>
         </div>
       </div>
 
-      {/* Grounded Evidence Modal Drawer */}
+      {/* Slide-out Grounding Evidence Drawer */}
       <EvidenceDrawer
         isOpen={evidenceDrawerOpen}
         onClose={() => setEvidenceDrawerOpen(false)}
@@ -499,20 +422,20 @@ export default function ContextualAskAIDrawer({
         title={evidenceDrawerTitle}
       />
 
-      {/* What-If Digital Twin Modal */}
+      {/* What-If Modal */}
       {whatIfModalOpen && (
         <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-[#0D121F] border border-indigo-500/30 p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-surface-1 border border-accent-violet/30 p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
               <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Sliders className="w-5 h-5 text-indigo-400" />
-                What-If Digital Twin Simulation ({whatIfSku})
+                <Sliders className="w-5 h-5 text-accent-violet" />
+                Supply Chain Digital Twin Simulator ({whatIfSku})
               </h2>
               <button
                 onClick={() => setWhatIfModalOpen(false)}
-                className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-lg transition-all"
+                className="btn-secondary text-xs"
               >
-                Close
+                Close Simulator
               </button>
             </div>
             <WhatIfSimulator sku={whatIfSku} onClose={() => setWhatIfModalOpen(false)} />
