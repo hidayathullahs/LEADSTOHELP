@@ -266,103 +266,110 @@ export default function LandingPage({
 
         {/* 4 Feature Cards & Integrated Telemetry Bar (Anchored at the bottom of the hero) */}
         <div className="space-y-4 pt-12 relative z-10 max-w-7xl mx-auto w-full">
-          {/* 4 Glowing Core Feature Cards */}
+          {/* 4 Glowing Core Feature Cards with Luxe Frosted Glass */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-left">
-            <div className="p-4 rounded-2xl bg-surface-0/90 backdrop-blur-xl border border-cyan-500/40 hover:border-cyan-400 transition-all shadow-[0_0_20px_rgba(0,240,255,0.15)] group">
-              <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-2.5 shadow-glow-teal">
+            <div className="p-4 rounded-3xl bg-slate-950/25 hover:bg-slate-900/40 backdrop-blur-2xl border border-white/[0.12] hover:border-cyan-400/60 transition-all duration-300 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] hover:shadow-[0_8px_32px_0_rgba(0,240,255,0.2)] group relative overflow-hidden">
+              <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent opacity-60 group-hover:opacity-100 transition-opacity" />
+              <div className="w-9 h-9 rounded-2xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 mb-2.5 shadow-glow-teal group-hover:scale-110 transition-transform">
                 <Crosshair className="w-4 h-4" />
               </div>
               <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
                 REAL-TIME VISIBILITY
               </h3>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
+              <p className="text-[11px] text-slate-200/90 leading-relaxed drop-shadow-sm">
                 Monitor every movement across your supply chain in real time.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-surface-0/90 backdrop-blur-xl border border-emerald-500/40 hover:border-emerald-400 transition-all shadow-[0_0_20px_rgba(16,185,129,0.15)] group">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-2.5 shadow-glow-emerald">
+            <div className="p-4 rounded-3xl bg-slate-950/25 hover:bg-slate-900/40 backdrop-blur-2xl border border-white/[0.12] hover:border-emerald-400/60 transition-all duration-300 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] hover:shadow-[0_8px_32px_0_rgba(16,185,129,0.2)] group relative overflow-hidden">
+              <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400/60 to-transparent opacity-60 group-hover:opacity-100 transition-opacity" />
+              <div className="w-9 h-9 rounded-2xl bg-emerald-500/15 border border-emerald-400/30 flex items-center justify-center text-emerald-300 mb-2.5 shadow-glow-emerald group-hover:scale-110 transition-transform">
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
                 RISK PREDICTION
               </h3>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
+              <p className="text-[11px] text-slate-200/90 leading-relaxed drop-shadow-sm">
                 AI models predict disruptions before they impact your business.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-surface-0/90 backdrop-blur-xl border border-cyan-500/40 hover:border-cyan-400 transition-all shadow-[0_0_20px_rgba(0,240,255,0.15)] group">
-              <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-2.5 shadow-glow-teal">
+            <div className="p-4 rounded-3xl bg-slate-950/25 hover:bg-slate-900/40 backdrop-blur-2xl border border-white/[0.12] hover:border-cyan-400/60 transition-all duration-300 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] hover:shadow-[0_8px_32px_0_rgba(0,240,255,0.2)] group relative overflow-hidden">
+              <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent opacity-60 group-hover:opacity-100 transition-opacity" />
+              <div className="w-9 h-9 rounded-2xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 mb-2.5 shadow-glow-teal group-hover:scale-110 transition-transform">
                 <Brain className="w-4 h-4" />
               </div>
               <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
                 SMART RECOMMENDATIONS
               </h3>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
+              <p className="text-[11px] text-slate-200/90 leading-relaxed drop-shadow-sm">
                 Get AI-powered recommendations with explainable insights you can trust.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-surface-0/90 backdrop-blur-xl border border-cyan-500/40 hover:border-cyan-400 transition-all shadow-[0_0_20px_rgba(0,240,255,0.15)] group">
-              <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-2.5 shadow-glow-teal">
+            <div className="p-4 rounded-3xl bg-slate-950/25 hover:bg-slate-900/40 backdrop-blur-2xl border border-white/[0.12] hover:border-cyan-400/60 transition-all duration-300 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] hover:shadow-[0_8px_32px_0_rgba(0,240,255,0.2)] group relative overflow-hidden">
+              <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent opacity-60 group-hover:opacity-100 transition-opacity" />
+              <div className="w-9 h-9 rounded-2xl bg-cyan-500/15 border border-cyan-400/30 flex items-center justify-center text-cyan-300 mb-2.5 shadow-glow-teal group-hover:scale-110 transition-transform">
                 <UserCheck className="w-4 h-4" />
               </div>
               <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
                 HUMAN-IN-THE-LOOP
               </h3>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
+              <p className="text-[11px] text-slate-200/90 leading-relaxed drop-shadow-sm">
                 Collaborate, review, and take action with confidence.
               </p>
             </div>
           </div>
 
-          {/* Integrated Telemetry & Analytics Bar */}
-          <div className="p-5 rounded-3xl bg-surface-0/95 border border-cyan-500/30 shadow-[0_0_30px_rgba(0,240,255,0.2)] backdrop-blur-2xl">
+          {/* Integrated Telemetry & Analytics Bar with Transparent Frosted Glass */}
+          <div className="p-5 rounded-3xl bg-slate-950/30 border border-cyan-500/35 hover:border-cyan-400/60 shadow-[0_8px_32px_0_rgba(0,240,255,0.15)] ring-1 ring-white/10 backdrop-blur-2xl relative overflow-hidden transition-all duration-300">
+            {/* Top Cyan Glowing Line */}
+            <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-cyan-400 via-teal-300 to-indigo-500 opacity-80" />
+            
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 text-left font-mono">
               <div className="space-y-0.5">
-                <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                <div className="flex items-center gap-1.5 text-slate-300 text-[10px] uppercase font-bold tracking-wider">
                   <Package className="w-3.5 h-3.5 text-cyan-400" />
                   <span>ACTIVE SHIPMENTS</span>
                 </div>
-                <div className="text-xl font-black text-white">1,250</div>
-                <div className="text-[10px] text-emerald-400 flex items-center gap-1">
+                <div className="text-xl font-black text-white drop-shadow-md">1,250</div>
+                <div className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
                   <TrendingUp className="w-3 h-3" />
                   <span>↑ 12.5% vs last 24h</span>
                 </div>
               </div>
 
               <div className="space-y-0.5">
-                <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                <div className="flex items-center gap-1.5 text-slate-300 text-[10px] uppercase font-bold tracking-wider">
                   <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
                   <span>AT-RISK ORDERS</span>
                 </div>
-                <div className="text-xl font-black text-amber-400">87</div>
-                <div className="text-[10px] text-emerald-400 flex items-center gap-1">
+                <div className="text-xl font-black text-amber-400 drop-shadow-md">87</div>
+                <div className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
                   <TrendingDown className="w-3 h-3" />
                   <span>↓ 8.2% vs last 24h</span>
                 </div>
               </div>
 
               <div className="space-y-0.5">
-                <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                <div className="flex items-center gap-1.5 text-slate-300 text-[10px] uppercase font-bold tracking-wider">
                   <Clock className="w-3.5 h-3.5 text-rose-400" />
                   <span>PREDICTED DELAYS</span>
                 </div>
-                <div className="text-xl font-black text-rose-400">24</div>
-                <div className="text-[10px] text-emerald-400 flex items-center gap-1">
+                <div className="text-xl font-black text-rose-400 drop-shadow-md">24</div>
+                <div className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
                   <TrendingDown className="w-3 h-3" />
                   <span>↓ 15.1% vs last 24h</span>
                 </div>
               </div>
 
               <div className="space-y-0.5">
-                <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                <div className="flex items-center gap-1.5 text-slate-300 text-[10px] uppercase font-bold tracking-wider">
                   <BarChart3 className="w-3.5 h-3.5 text-emerald-400" />
                   <span>FILL RATE</span>
                 </div>
-                <div className="text-xl font-black text-emerald-400">98.7%</div>
-                <div className="text-[10px] text-emerald-400 flex items-center gap-1">
+                <div className="text-xl font-black text-emerald-400 drop-shadow-md">98.7%</div>
+                <div className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
                   <TrendingUp className="w-3 h-3" />
                   <span>↑ 2.3% vs last 24h</span>
                 </div>
@@ -371,8 +378,8 @@ export default function LandingPage({
               {/* Sparkline Graph */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-[10px]">
-                  <span className="text-slate-400 font-bold uppercase text-[9px]">HEALTH</span>
-                  <span className="badge-emerald text-[8px] font-bold py-0">EXCELLENT</span>
+                  <span className="text-slate-300 font-bold uppercase text-[9px]">HEALTH</span>
+                  <span className="badge-emerald text-[8px] font-bold py-0.5 px-2 bg-emerald-500/20">EXCELLENT</span>
                 </div>
                 <div className="h-6 w-full">
                   <svg className="w-full h-full overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
@@ -386,7 +393,7 @@ export default function LandingPage({
                     <path
                       d="M 0,22 Q 15,10 30,18 T 60,8 T 85,15 T 100,5 L 100,30 L 0,30 Z"
                       fill="url(#cyanGlowGradHero)"
-                      opacity="0.2"
+                      opacity="0.3"
                     />
                     <defs>
                       <linearGradient id="cyanGlowGradHero" x1="0" y1="0" x2="0" y2="1">
@@ -396,15 +403,15 @@ export default function LandingPage({
                     </defs>
                   </svg>
                 </div>
-                <div className="flex justify-between text-[8px] text-slate-500">
+                <div className="flex justify-between text-[8px] text-slate-400">
                   <span>00:00</span>
                   <span>12:00</span>
                   <span>24:00</span>
                 </div>
               </div>
 
-              {/* Overview Mini Box */}
-              <div className="p-2 rounded-xl bg-surface-1 border border-white/[0.06] text-[9px] space-y-0.5">
+              {/* Overview Mini Box with Glass Surface */}
+              <div className="p-2.5 rounded-2xl bg-slate-900/40 border border-white/[0.1] text-[9px] space-y-0.5 backdrop-blur-md shadow-inner">
                 <div className="flex items-center justify-between text-cyan-400 font-bold">
                   <span>OVERVIEW</span>
                   <Activity className="w-2.5 h-2.5" />
