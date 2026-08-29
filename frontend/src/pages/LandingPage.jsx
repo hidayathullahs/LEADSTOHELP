@@ -188,15 +188,17 @@ export default function LandingPage({
       </header>
 
       {/* 2. FULL-BLEED HERO BANNER (Directly matching user image) */}
-      <section
-        className="relative w-full min-h-[92vh] flex flex-col justify-between px-6 sm:px-12 pt-12 pb-8 overflow-hidden bg-cover bg-right lg:bg-center"
-        style={{ backgroundImage: `url(${heroBannerImg})` }}
-      >
-        {/* Layered Gradient Mask Over Hero Image */}
-        <div className="absolute inset-0 pointer-events-none z-0">
-          {/* Subtle horizontal gradient to keep left text crisp while keeping map & port bright */}
-          <div className="absolute inset-0 bg-gradient-to-r from-surface-0/95 via-surface-0/60 to-transparent lg:w-3/5"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-surface-0 via-transparent to-surface-0/40"></div>
+      <section className="relative w-full min-h-[92vh] flex flex-col justify-between px-6 sm:px-12 pt-10 pb-8 overflow-hidden bg-surface-0">
+        {/* Glowing Global Supply Chain Digital Twin Hero Visual on Right */}
+        <div className="absolute top-0 right-0 w-full lg:w-3/5 h-full pointer-events-none z-0 overflow-hidden">
+          <img
+            src={heroBannerImg}
+            alt="LEADSTOHELP AI Global Supply Chain Digital Twin"
+            className="w-full h-full object-cover object-right opacity-95 filter saturate-125 contrast-105 drop-shadow-2xl"
+          />
+          {/* Subtle soft feather gradient on the left edge */}
+          <div className="absolute inset-y-0 left-0 w-36 bg-gradient-to-r from-surface-0 to-transparent hidden lg:block"></div>
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-surface-0 to-transparent"></div>
         </div>
 
         {/* Hero Top Content Area */}
