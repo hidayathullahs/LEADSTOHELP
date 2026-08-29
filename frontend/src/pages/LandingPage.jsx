@@ -188,16 +188,14 @@ export default function LandingPage({
       </header>
 
       {/* 2. FULL-BLEED HERO BANNER (Directly matching user image) */}
-      <section className="relative w-full min-h-[92vh] flex flex-col justify-between px-6 sm:px-12 pt-12 pb-8 overflow-hidden">
-        {/* High-Resolution Full-Bleed Background Visual */}
-        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-          <img
-            src={heroBannerImg}
-            alt="LEADSTOHELP AI Global Supply Chain Digital Twin"
-            className="w-full h-full object-cover object-right lg:object-center opacity-85 filter saturate-125 contrast-110"
-          />
-          {/* Selective Left Gradient Mask to guarantee pristine headline legibility */}
-          <div className="absolute inset-0 bg-gradient-to-r from-surface-0/95 via-surface-0/70 to-transparent lg:w-3/5"></div>
+      <section
+        className="relative w-full min-h-[92vh] flex flex-col justify-between px-6 sm:px-12 pt-12 pb-8 overflow-hidden bg-cover bg-right lg:bg-center"
+        style={{ backgroundImage: `url(${heroBannerImg})` }}
+      >
+        {/* Layered Gradient Mask Over Hero Image */}
+        <div className="absolute inset-0 pointer-events-none z-0">
+          {/* Subtle horizontal gradient to keep left text crisp while keeping map & port bright */}
+          <div className="absolute inset-0 bg-gradient-to-r from-surface-0/95 via-surface-0/60 to-transparent lg:w-3/5"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-surface-0 via-transparent to-surface-0/40"></div>
         </div>
 
