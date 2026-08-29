@@ -54,9 +54,17 @@ export default function LoginPage({ onLoginSuccess, onExploreLanding }) {
   return (
     <div className="min-h-screen w-screen bg-surface-0 flex flex-col lg:flex-row text-slate-100 font-sans selection:bg-brand-accent selection:text-black">
       {/* Left Brand & Product Value Story (60% width on Desktop) */}
-      <div className="lg:w-7/12 p-8 lg:p-16 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/[0.06] bg-gradient-to-br from-surface-0 via-surface-1 to-surface-0 relative overflow-hidden">
-        {/* Ambient subtle glow */}
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-brand-accent/5 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="lg:w-7/12 p-8 lg:p-16 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/[0.08] bg-surface-0 relative overflow-hidden">
+        {/* Layered Cinematic Backdrop Visual */}
+        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+          <img
+            src="/assets/hero_bg.jpg"
+            alt="Supply Chain Control Room"
+            className="w-full h-full object-cover object-center opacity-25 scale-105 filter saturate-150 contrast-125"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-surface-0/70 via-surface-0/90 to-surface-0"></div>
+          <div className="absolute inset-0 bg-radial-ambient"></div>
+        </div>
 
         {/* Top Brand Logo */}
         <div className="relative z-10 flex items-center justify-between">
@@ -78,7 +86,7 @@ export default function LoginPage({ onLoginSuccess, onExploreLanding }) {
           {onExploreLanding && (
             <button
               onClick={onExploreLanding}
-              className="text-xs text-brand-accent hover:underline font-semibold flex items-center gap-1"
+              className="text-xs text-brand-accent hover:underline font-semibold flex items-center gap-1 bg-surface-2/80 px-3 py-1.5 rounded-xl border border-white/[0.08]"
             >
               <span>Explore Overview</span>
               <ArrowRight className="w-3 h-3" />
@@ -88,25 +96,25 @@ export default function LoginPage({ onLoginSuccess, onExploreLanding }) {
 
         {/* Center Hero Story */}
         <div className="my-12 lg:my-0 space-y-6 max-w-xl relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-2 border border-white/[0.08] text-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-2/90 border border-white/[0.1] text-xs shadow-md">
             <span className="w-2 h-2 rounded-full bg-brand-accent animate-pulse"></span>
-            <span className="text-slate-300 font-medium text-[11px] uppercase tracking-wide">
+            <span className="text-slate-200 font-medium text-[11px] uppercase tracking-wide">
               Autonomous Supply Chain Intelligence
             </span>
           </div>
 
-          <h1 className="text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
+          <h1 className="text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight drop-shadow-md">
             From supply-chain signals to verified business action.
           </h1>
 
-          <p className="text-sm text-slate-300 leading-relaxed">
+          <p className="text-sm text-slate-300 leading-relaxed drop-shadow">
             LEADSTOHELP unifies retail inventory run-rates, supplier reliability, and invoice verification to help teams detect operational risks early and execute human-governed actions.
           </p>
 
           {/* 3 Core Capability Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
             {/* 1. Detect */}
-            <div className="p-4 bg-surface-2/60 rounded-xl border border-white/[0.06] space-y-1.5">
+            <div className="p-4 bg-surface-1/90 rounded-2xl border border-white/[0.08] space-y-1.5 shadow-lg backdrop-blur-md">
               <div className="w-7 h-7 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
                 <Package className="w-4 h-4" />
               </div>
@@ -117,7 +125,7 @@ export default function LoginPage({ onLoginSuccess, onExploreLanding }) {
             </div>
 
             {/* 2. Decide */}
-            <div className="p-4 bg-surface-2/60 rounded-xl border border-white/[0.06] space-y-1.5">
+            <div className="p-4 bg-surface-1/90 rounded-2xl border border-white/[0.08] space-y-1.5 shadow-lg backdrop-blur-md">
               <div className="w-7 h-7 rounded-lg bg-brand-accent/10 border border-brand-accent/20 flex items-center justify-center text-brand-accent">
                 <Sliders className="w-4 h-4" />
               </div>
@@ -128,7 +136,7 @@ export default function LoginPage({ onLoginSuccess, onExploreLanding }) {
             </div>
 
             {/* 3. Act */}
-            <div className="p-4 bg-surface-2/60 rounded-xl border border-white/[0.06] space-y-1.5">
+            <div className="p-4 bg-surface-1/90 rounded-2xl border border-white/[0.08] space-y-1.5 shadow-lg backdrop-blur-md">
               <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
                 <ShieldCheck className="w-4 h-4" />
               </div>
@@ -141,7 +149,7 @@ export default function LoginPage({ onLoginSuccess, onExploreLanding }) {
         </div>
 
         {/* Bottom Store Hub Telemetry Footer */}
-        <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-slate-400 pt-6 border-t border-white/[0.04] relative z-10">
+        <div className="flex flex-wrap items-center justify-between gap-4 text-xs text-slate-400 pt-6 border-t border-white/[0.06] relative z-10">
           <div className="flex items-center gap-2 font-mono">
             <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
             <span>Store Hub: <strong>Deccan Roast Specialty Hub (BLR-01)</strong></span>
@@ -151,7 +159,7 @@ export default function LoginPage({ onLoginSuccess, onExploreLanding }) {
       </div>
 
       {/* Right Login Panel (50% / 5 Cols on Desktop) */}
-      <div className="lg:w-5/12 p-8 lg:p-16 flex flex-col justify-center bg-surface-1/50 relative">
+      <div className="lg:w-5/12 p-8 lg:p-16 flex flex-col justify-center bg-surface-1/60 relative">
         <div className="max-w-md w-full mx-auto space-y-6">
           <div className="space-y-1">
             <h2 className="text-2xl font-bold text-white tracking-tight">Welcome Back</h2>
@@ -231,7 +239,7 @@ export default function LoginPage({ onLoginSuccess, onExploreLanding }) {
           <button
             onClick={handleEnterDemo}
             disabled={loading}
-            className="w-full p-4 rounded-xl bg-surface-2 hover:bg-surface-3 border border-brand-accent/30 hover:border-brand-accent text-left transition-all group"
+            className="w-full p-4 rounded-2xl bg-surface-2 hover:bg-surface-3 border border-brand-accent/30 hover:border-brand-accent text-left transition-all group shadow-lg"
           >
             <div className="flex items-center justify-between mb-1">
               <span className="badge-teal text-[10px] font-mono">
@@ -248,7 +256,7 @@ export default function LoginPage({ onLoginSuccess, onExploreLanding }) {
           </button>
 
           {/* Truthful Demo Environment Telemetry Status */}
-          <div className="p-3 bg-surface-2/40 rounded-xl border border-white/[0.04] text-[11px] text-slate-400 space-y-1.5">
+          <div className="p-3 bg-surface-2/40 rounded-2xl border border-white/[0.04] text-[11px] text-slate-400 space-y-1.5">
             <div className="flex items-center justify-between">
               <span className="text-slate-300 font-semibold flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
