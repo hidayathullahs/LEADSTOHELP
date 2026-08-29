@@ -272,23 +272,22 @@ export default function LoginPage({
   return (
     <div className="min-h-screen w-screen bg-[#05070E] flex flex-col lg:flex-row text-slate-100 font-sans selection:bg-cyan-400 selection:text-black select-none relative overflow-hidden">
       
-      {/* Full-Bleed High-Res Cinematic Supply Chain Background */}
+      {/* Full-Bleed High-Res Cinematic Supply Chain Background (100% Crisp & Sharp, No Blur) */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
         <img
           src={loginBgImg}
           alt="LEADSTOHELP AI Operations Backdrop"
-          className="w-full h-full object-cover object-center filter saturate-125 contrast-105"
+          className="w-full h-full object-cover object-center filter contrast-105"
         />
-        {/* Translucent ambient gradient overlay for crisp legibility */}
-        <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[1px]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-slate-950/80" />
+        {/* Soft edge darkening for readable text */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/60" />
       </div>
 
       {/* ========================================================================= */}
       {/* LEFT COLUMN: INTERACTIVE VISUAL COMMAND CONSOLE (58% Desktop Width)       */}
       {/* ========================================================================= */}
       <div 
-        className="lg:w-7/12 p-8 lg:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/[0.12] bg-slate-950/30 backdrop-blur-xl relative z-10 overflow-hidden"
+        className="lg:w-7/12 p-8 lg:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/[0.12] bg-black/25 relative z-10 overflow-hidden"
         onMouseEnter={() => setIsAutoPlaying(false)}
         onMouseLeave={() => setIsAutoPlaying(true)}
       >
@@ -370,7 +369,7 @@ export default function LoginPage({
           {/* ============================================================== */}
           {/* HIGH-TECH INTERACTIVE VISUAL CARD PER SLIDE                    */}
           {/* ============================================================== */}
-          <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-b from-slate-900/90 via-slate-950/95 to-[#060812] border border-white/[0.14] shadow-[0_0_50px_-10px_rgba(0,240,255,0.15)] backdrop-blur-xl space-y-4 relative overflow-hidden">
+          <div className="p-5 sm:p-6 rounded-3xl bg-slate-950/85 border border-white/[0.14] shadow-2xl space-y-4 relative overflow-hidden">
             
             {/* Top Multi-Color Neon Accent Bar */}
             <div className="absolute top-0 inset-x-0 h-[2.5px] bg-gradient-to-r from-cyan-400 via-indigo-500 to-emerald-400" />
@@ -633,19 +632,19 @@ export default function LoginPage({
 
         {/* Bottom Proof Metric Ribbon */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-white/[0.08] text-left">
-          <div className="p-3 rounded-2xl bg-slate-900/60 border border-white/[0.06] backdrop-blur-sm">
+          <div className="p-3 rounded-2xl bg-slate-900/80 border border-white/[0.08]">
             <div className="text-[10px] uppercase font-mono text-slate-400">Monthly Managed</div>
             <div className="text-sm font-bold text-white font-mono mt-0.5">₹1.4M+ Spend</div>
           </div>
-          <div className="p-3 rounded-2xl bg-slate-900/60 border border-white/[0.06] backdrop-blur-sm">
+          <div className="p-3 rounded-2xl bg-slate-900/80 border border-white/[0.08]">
             <div className="text-[10px] uppercase font-mono text-slate-400">Stockout Loss</div>
             <div className="text-sm font-bold text-emerald-400 font-mono mt-0.5">0.0% Loss</div>
           </div>
-          <div className="p-3 rounded-2xl bg-slate-900/60 border border-white/[0.06] backdrop-blur-sm">
+          <div className="p-3 rounded-2xl bg-slate-900/80 border border-white/[0.08]">
             <div className="text-[10px] uppercase font-mono text-slate-400">Decision Speed</div>
             <div className="text-sm font-bold text-cyan-400 font-mono mt-0.5">&lt; 100 ms</div>
           </div>
-          <div className="p-3 rounded-2xl bg-slate-900/60 border border-white/[0.06] backdrop-blur-sm">
+          <div className="p-3 rounded-2xl bg-slate-900/80 border border-white/[0.08]">
             <div className="text-[10px] uppercase font-mono text-slate-400">Human Governance</div>
             <div className="text-sm font-bold text-white font-mono mt-0.5">Zero Rogue Spend</div>
           </div>
@@ -655,12 +654,12 @@ export default function LoginPage({
       {/* ========================================================================= */}
       {/* RIGHT COLUMN: HIGH-CONVERTING GLASSMORPHIC AUTH CONTAINER (42% Desktop)   */}
       {/* ========================================================================= */}
-      <div className="lg:w-5/12 p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-slate-950/70 backdrop-blur-2xl border-l border-white/[0.1] shadow-2xl relative z-10 overflow-y-auto custom-scrollbar">
+      <div className="lg:w-5/12 p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-slate-950/80 border-l border-white/[0.1] shadow-2xl relative z-10 overflow-y-auto custom-scrollbar">
         <div className="max-w-md w-full mx-auto space-y-5">
           
           {/* Mode Switcher Segmented Control */}
           <div className="space-y-4">
-            <div className="p-1 rounded-2xl bg-slate-900/90 border border-white/[0.12] flex items-center relative shadow-2xl backdrop-blur-xl">
+            <div className="p-1 rounded-2xl bg-slate-900/95 border border-white/[0.12] flex items-center relative shadow-2xl">
               <button
                 type="button"
                 onClick={() => {
