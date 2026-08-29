@@ -40,8 +40,17 @@ export default function App() {
     };
   });
 
-  const [activeTab, setActiveTab] = useState('overview');
-  const [isLandingMode, setIsLandingMode] = useState(false);
+  const [activeTab, setActiveTab] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('tab') || 'overview';
+  });
+
+  const [isLandingMode, setIsLandingMode] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    // If URL specifies ?app=1 or ?tab=, go directly to app; otherwise show landing page
+    if (params.get('app') === '1' || params.get('tab')) return false;
+    return true;
+  });
   const [overviewData, setOverviewData] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   
