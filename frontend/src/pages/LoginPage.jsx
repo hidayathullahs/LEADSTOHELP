@@ -272,34 +272,26 @@ export default function LoginPage({
   return (
     <div className="min-h-screen w-screen bg-[#05070E] flex flex-col lg:flex-row text-slate-100 font-sans selection:bg-cyan-400 selection:text-black select-none relative overflow-hidden">
       
-      {/* Background Animated Cyber Ambient Lights */}
+      {/* Full-Bleed High-Res Cinematic Supply Chain Background */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Subtle grid pattern */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-25" />
-        
-        {/* Radial ambient gradient orbs */}
-        <div className="absolute -top-32 -left-32 w-[650px] h-[650px] bg-gradient-to-br from-cyan-500/20 via-blue-600/10 to-transparent rounded-full blur-[140px] animate-pulse" style={{ animationDuration: '6s' }} />
-        <div className="absolute top-1/2 left-1/3 w-[550px] h-[550px] bg-gradient-to-tr from-purple-600/15 via-indigo-600/10 to-transparent rounded-full blur-[150px]" />
-        <div className="absolute -bottom-32 right-1/4 w-[700px] h-[700px] bg-gradient-to-tl from-cyan-600/15 via-teal-600/10 to-transparent rounded-full blur-[160px]" />
+        <img
+          src={loginBgImg}
+          alt="LEADSTOHELP AI Operations Backdrop"
+          className="w-full h-full object-cover object-center filter saturate-125 contrast-105"
+        />
+        {/* Translucent ambient gradient overlay for crisp legibility */}
+        <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-slate-950/80" />
       </div>
 
       {/* ========================================================================= */}
       {/* LEFT COLUMN: INTERACTIVE VISUAL COMMAND CONSOLE (58% Desktop Width)       */}
       {/* ========================================================================= */}
       <div 
-        className="lg:w-7/12 p-8 lg:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/[0.08] bg-[#070A14]/70 backdrop-blur-2xl relative z-10 overflow-hidden"
+        className="lg:w-7/12 p-8 lg:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/[0.12] bg-slate-950/30 backdrop-blur-xl relative z-10 overflow-hidden"
         onMouseEnter={() => setIsAutoPlaying(false)}
         onMouseLeave={() => setIsAutoPlaying(true)}
       >
-        {/* Layered Cinematic Background from user asset */}
-        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
-          <img
-            src={loginBgImg}
-            alt="LEADSTOHELP AI Operations Backdrop"
-            className="w-full h-full object-cover object-center opacity-35 scale-105 filter saturate-150 contrast-110"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#070A14]/85 via-[#070A14]/95 to-[#070A14]" />
-        </div>
         {/* Top Header Row with High-End Glowing Brand Badge */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3.5">
@@ -663,7 +655,7 @@ export default function LoginPage({
       {/* ========================================================================= */}
       {/* RIGHT COLUMN: HIGH-CONVERTING GLASSMORPHIC AUTH CONTAINER (42% Desktop)   */}
       {/* ========================================================================= */}
-      <div className="lg:w-5/12 p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-[#05070E] relative z-10 overflow-y-auto custom-scrollbar">
+      <div className="lg:w-5/12 p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-slate-950/70 backdrop-blur-2xl border-l border-white/[0.1] shadow-2xl relative z-10 overflow-y-auto custom-scrollbar">
         <div className="max-w-md w-full mx-auto space-y-5">
           
           {/* Mode Switcher Segmented Control */}
