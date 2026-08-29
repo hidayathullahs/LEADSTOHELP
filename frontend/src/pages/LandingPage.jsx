@@ -30,7 +30,11 @@ import {
   Eye,
   FileSpreadsheet,
   Scan,
-  AlertCircle
+  AlertCircle,
+  TrendingUp,
+  Brain,
+  Crosshair,
+  UserCheck
 } from 'lucide-react';
 
 const SCENARIOS = [
@@ -126,29 +130,49 @@ export default function LandingPage({
 
   return (
     <div className="min-h-screen w-full bg-surface-0 text-slate-100 font-sans selection:bg-brand-accent selection:text-black overflow-x-hidden bg-grid-pattern">
-      {/* 1. TOP STICKY NAVIGATION */}
-      <header className="h-16 border-b border-white/[0.08] bg-surface-0/80 backdrop-blur-xl sticky top-0 z-50 px-6 sm:px-12 flex items-center justify-between">
+      {/* 1. TOP NAVIGATION (Exact layout from user visual design) */}
+      <header className="h-18 border-b border-white/[0.08] bg-surface-0/85 backdrop-blur-xl sticky top-0 z-50 px-6 sm:px-12 flex items-center justify-between">
+        {/* Brand Logo with 3D Hexagonal Icon */}
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-teal-400 flex items-center justify-center shadow-glow-teal">
-            <Sparkles className="w-5 h-5 text-black fill-black" />
-          </div>
+          <img
+            src="/assets/logo.png"
+            alt="LEADSTOHELP AI"
+            className="w-10 h-10 object-contain drop-shadow-[0_0_12px_rgba(0,240,255,0.7)]"
+          />
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-sm tracking-wider text-white">LEADSTOHELP</span>
-              <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-brand-accent/15 text-brand-accent border border-brand-accent/30">
+              <span className="font-black text-base tracking-wider text-white">LEADSTOHELP</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">
                 AI CONTROL TOWER
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 font-medium">Retail Operations Intelligence</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        {/* Center Nav Links */}
+        <nav className="hidden lg:flex items-center gap-8 text-xs font-semibold uppercase tracking-wider text-slate-300">
+          <button onClick={onEnterApp} className="hover:text-cyan-400 transition-colors">DASHBOARD</button>
+          <a href="#whatif-simulator" className="hover:text-cyan-400 transition-colors">SOLUTIONS</a>
+          <a href="#matrix-compare" className="hover:text-cyan-400 transition-colors">INTEGRATIONS</a>
+          <a href="#invoice-audit" className="hover:text-cyan-400 transition-colors">RESOURCES</a>
+          <a href="#farm-flow" className="hover:text-cyan-400 transition-colors">COMPANY</a>
+        </nav>
+
+        {/* Right Action Group */}
+        <div className="flex items-center gap-3.5">
+          {/* Operational Status Capsule */}
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-1 border border-white/[0.08] text-xs font-mono">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="text-slate-300 text-[11px]">System Status: <strong className="text-emerald-400">Operational</strong></span>
+          </div>
+
           <button
             onClick={onStartDemoTour}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-1 hover:bg-surface-2 border border-white/[0.08] text-xs font-semibold text-slate-300 hover:text-white transition-all"
+            className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-1 hover:bg-surface-2 border border-white/[0.08] text-xs font-semibold text-slate-200 hover:text-white transition-all shadow-md"
           >
-            <Play className="w-3.5 h-3.5 text-brand-accent fill-brand-accent" />
+            <Play className="w-3.5 h-3.5 text-cyan-400 fill-cyan-400" />
             <span>3-Minute Demo</span>
           </button>
 
@@ -162,82 +186,239 @@ export default function LandingPage({
         </div>
       </header>
 
-      {/* 2. CINEMATIC HERO SECTION WITH RICH BACKGROUND GRAPHICS */}
-      <section className="relative px-6 sm:px-12 pt-16 pb-24 max-w-7xl mx-auto text-center space-y-8 overflow-hidden rounded-b-3xl">
-        {/* Layered Cinematic Backdrop Visual */}
+      {/* 2. CINEMATIC HERO BANNER SECTION (MATCHING HOME SCREEN DESIGN) */}
+      <section className="relative px-6 sm:px-12 pt-16 pb-20 max-w-7xl mx-auto space-y-12 overflow-hidden rounded-b-3xl">
+        {/* Layered High-Res Cinematic Backdrop Visual */}
         <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none rounded-3xl">
           <img
-            src="/assets/hero_bg.jpg"
+            src="/assets/home_hero_banner.png"
             alt="Futuristic Supply Chain Control Center"
-            className="w-full h-full object-cover object-center opacity-30 scale-105 filter saturate-150 contrast-125"
+            className="w-full h-full object-cover object-center opacity-45 scale-105 filter saturate-150 contrast-125"
           />
-          {/* Multi-layer gradient overlays for seamless deep obsidian blend */}
-          <div className="absolute inset-0 bg-gradient-to-b from-surface-0/60 via-surface-0/85 to-surface-0"></div>
+          {/* Gradient vignettes for seamless typography contrast */}
+          <div className="absolute inset-0 bg-gradient-to-b from-surface-0/70 via-surface-0/85 to-surface-0"></div>
           <div className="absolute inset-0 bg-radial-ambient"></div>
         </div>
 
-        {/* Live Operational Health Bar */}
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-1/90 backdrop-blur-md border border-white/[0.1] text-xs shadow-lg">
-            <span className="w-2 h-2 rounded-full bg-brand-accent animate-pulse"></span>
-            <span className="text-slate-200 font-semibold tracking-wide uppercase text-[11px]">
-              AI-Powered Retail Operations Platform
+        {/* Hero Top Content Block */}
+        <div className="max-w-4xl space-y-6 text-left">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-cyan-950/70 border border-cyan-500/40 text-xs shadow-lg backdrop-blur-md">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+            <span className="text-cyan-200 font-bold tracking-wider uppercase text-[11px]">
+              ◆ AI-POWERED RETAIL OPERATIONS PLATFORM
             </span>
           </div>
 
-          <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-2/80 backdrop-blur-md border border-white/[0.08] text-[11px] font-mono text-slate-300">
-            <Radio className="w-3 h-3 text-emerald-400 animate-pulse" />
-            <span>Store Hub: <strong>Deccan Roast #BLR-01</strong></span>
-          </div>
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.08] drop-shadow-lg">
+            From supply-chain <br />
+            signals to <span className="text-cyan-400 drop-shadow-[0_0_25px_rgba(0,240,255,0.7)]">verified</span> <br />
+            <span className="text-cyan-400 drop-shadow-[0_0_25px_rgba(0,240,255,0.7)]">business action.</span>
+          </h1>
 
-          <div className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-2/80 backdrop-blur-md border border-white/[0.08] text-[11px] font-mono text-emerald-400">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Zero Hallucination Guarantee</span>
+          <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed drop-shadow">
+            LEADSTOHELP helps retail teams detect inventory stockouts and supplier risks early, simulate smarter procurement decisions, and turn AI recommendations into human-approved business action.
+          </p>
+
+          {/* Hero CTAs */}
+          <div className="flex flex-wrap items-center gap-3.5 pt-2">
+            <button
+              onClick={onEnterApp}
+              className="btn-primary text-sm py-3 px-6 flex items-center gap-2 shadow-glow-teal font-bold"
+            >
+              <span>Enter Control Tower</span>
+              <ArrowRight className="w-4 h-4 text-black" />
+            </button>
+
+            <button
+              onClick={onStartDemoTour}
+              className="btn-secondary text-sm py-3 px-5 flex items-center gap-2 backdrop-blur-md font-semibold"
+            >
+              <Play className="w-4 h-4 text-cyan-400 fill-cyan-400" />
+              <span>Run 3-Minute Demo</span>
+            </button>
+
+            <button
+              onClick={() => onOpenAskAI("Why is Arabica coffee at risk and what should we buy?")}
+              className="btn-secondary text-sm py-3 px-5 flex items-center gap-2 text-accent-violet hover:border-accent-violet/40 backdrop-blur-md font-semibold"
+            >
+              <Sparkles className="w-4 h-4 text-accent-violet" />
+              <span>Ask AI Copilot</span>
+            </button>
           </div>
         </div>
 
-        {/* Main Headline */}
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.08] max-w-5xl mx-auto drop-shadow-md">
-          From supply-chain signals <br className="hidden sm:block" />
-          <span className="bg-gradient-to-r from-brand-accent via-cyan-200 to-teal-400 bg-clip-text text-transparent">
-            to verified business action.
-          </span>
-        </h1>
+        {/* 4 Glowing Core Feature Cards (Exact layout from user visual design) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
+          {/* Card 1: Real-time visibility */}
+          <div className="p-5 rounded-2xl bg-surface-1/90 backdrop-blur-xl border border-cyan-500/30 hover:border-cyan-400/70 transition-all shadow-[0_0_20px_rgba(0,240,255,0.1)] group">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-3 group-hover:scale-105 transition-transform shadow-glow-teal">
+              <Crosshair className="w-5 h-5" />
+            </div>
+            <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
+              REAL-TIME VISIBILITY
+            </h3>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Monitor every movement across your supply chain in real time.
+            </p>
+          </div>
 
-        {/* Supporting Statement */}
-        <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed drop-shadow">
-          LEADSTOHELP helps retail teams detect inventory stockouts and supplier risks early, simulate smarter procurement decisions, and turn AI recommendations into human-approved business action.
-        </p>
+          {/* Card 2: Risk Prediction */}
+          <div className="p-5 rounded-2xl bg-surface-1/90 backdrop-blur-xl border border-emerald-500/30 hover:border-emerald-400/70 transition-all shadow-[0_0_20px_rgba(16,185,129,0.1)] group">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-3 group-hover:scale-105 transition-transform shadow-glow-emerald">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
+              RISK PREDICTION
+            </h3>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              AI models predict disruptions before they impact your business.
+            </p>
+          </div>
 
-        {/* Hero CTAs */}
-        <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
-          <button
-            onClick={onEnterApp}
-            className="btn-primary text-sm py-3 px-6 flex items-center gap-2 shadow-glow-teal"
-          >
-            <span>Enter Control Tower</span>
-            <ArrowRight className="w-4 h-4 text-black" />
-          </button>
+          {/* Card 3: Smart Recommendations */}
+          <div className="p-5 rounded-2xl bg-surface-1/90 backdrop-blur-xl border border-cyan-500/30 hover:border-cyan-400/70 transition-all shadow-[0_0_20px_rgba(0,240,255,0.1)] group">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-3 group-hover:scale-105 transition-transform shadow-glow-teal">
+              <Brain className="w-5 h-5" />
+            </div>
+            <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
+              SMART RECOMMENDATIONS
+            </h3>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Get AI-powered recommendations with explainable insights you can trust.
+            </p>
+          </div>
 
-          <button
-            onClick={onStartDemoTour}
-            className="btn-secondary text-sm py-3 px-5 flex items-center gap-2 backdrop-blur-md"
-          >
-            <Play className="w-4 h-4 text-brand-accent fill-brand-accent" />
-            <span>Run 3-Minute Demo</span>
-          </button>
-
-          <button
-            onClick={() => onOpenAskAI("Why is Arabica coffee at risk and what should we buy?")}
-            className="btn-secondary text-sm py-3 px-5 flex items-center gap-2 text-accent-violet hover:border-accent-violet/40 backdrop-blur-md"
-          >
-            <Sparkles className="w-4 h-4 text-accent-violet" />
-            <span>Ask AI Copilot</span>
-          </button>
+          {/* Card 4: Human-in-the-loop */}
+          <div className="p-5 rounded-2xl bg-surface-1/90 backdrop-blur-xl border border-cyan-500/30 hover:border-cyan-400/70 transition-all shadow-[0_0_20px_rgba(0,240,255,0.1)] group">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-3 group-hover:scale-105 transition-transform shadow-glow-teal">
+              <UserCheck className="w-5 h-5" />
+            </div>
+            <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
+              HUMAN-IN-THE-LOOP
+            </h3>
+            <p className="text-[11px] text-slate-400 leading-relaxed">
+              Collaborate, review, and take action with confidence.
+            </p>
+          </div>
         </div>
 
-        {/* Interactive Supply Chain Intelligence Circuit Map */}
-        <div className="pt-6 max-w-5xl mx-auto text-left">
+        {/* 5. LIVE INTEGRATED TELEMETRY & ANALYTICS BAR (Exact layout from user visual design) */}
+        <div className="p-6 rounded-3xl bg-surface-1/95 border border-cyan-500/30 shadow-[0_0_30px_rgba(0,240,255,0.15)] backdrop-blur-2xl">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 text-left font-mono">
+            {/* Metric 1 */}
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                <Package className="w-3.5 h-3.5 text-cyan-400" />
+                <span>ACTIVE SHIPMENTS</span>
+              </div>
+              <div className="text-2xl font-black text-white">1,250</div>
+              <div className="text-[10px] text-emerald-400 flex items-center gap-1">
+                <TrendingUp className="w-3 h-3" />
+                <span>↑ 12.5% vs last 24h</span>
+              </div>
+            </div>
+
+            {/* Metric 2 */}
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                <span>AT-RISK ORDERS</span>
+              </div>
+              <div className="text-2xl font-black text-amber-400">87</div>
+              <div className="text-[10px] text-emerald-400 flex items-center gap-1">
+                <TrendingDown className="w-3 h-3" />
+                <span>↓ 8.2% vs last 24h</span>
+              </div>
+            </div>
+
+            {/* Metric 3 */}
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                <Clock className="w-3.5 h-3.5 text-rose-400" />
+                <span>PREDICTED DELAYS</span>
+              </div>
+              <div className="text-2xl font-black text-rose-400">24</div>
+              <div className="text-[10px] text-emerald-400 flex items-center gap-1">
+                <TrendingDown className="w-3 h-3" />
+                <span>↓ 15.1% vs last 24h</span>
+              </div>
+            </div>
+
+            {/* Metric 4 */}
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                <BarChart3 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>FILL RATE</span>
+              </div>
+              <div className="text-2xl font-black text-emerald-400">98.7%</div>
+              <div className="text-[10px] text-emerald-400 flex items-center gap-1">
+                <TrendingUp className="w-3 h-3" />
+                <span>↑ 2.3% vs last 24h</span>
+              </div>
+            </div>
+
+            {/* Metric 5: Supply Chain Health Sparkline */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-[10px]">
+                <span className="text-slate-400 font-bold uppercase">SUPPLY CHAIN HEALTH</span>
+                <span className="badge-emerald text-[9px] font-bold">EXCELLENT</span>
+              </div>
+              {/* Dynamic SVG Sparkline Graph */}
+              <div className="h-8 w-full">
+                <svg className="w-full h-full overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+                  <path
+                    d="M 0,22 Q 15,10 30,18 T 60,8 T 85,15 T 100,5"
+                    fill="none"
+                    stroke="#00F0FF"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M 0,22 Q 15,10 30,18 T 60,8 T 85,15 T 100,5 L 100,30 L 0,30 Z"
+                    fill="url(#cyanGlowGrad)"
+                    opacity="0.2"
+                  />
+                  <defs>
+                    <linearGradient id="cyanGlowGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#00F0FF" />
+                      <stop offset="100%" stopColor="#00F0FF" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+              <div className="flex justify-between text-[8px] text-slate-500">
+                <span>00:00</span>
+                <span>06:00</span>
+                <span>12:00</span>
+                <span>18:00</span>
+                <span>24:00</span>
+              </div>
+            </div>
+
+            {/* Metric 6: Operation Overview Mini Card */}
+            <div className="p-2.5 rounded-xl bg-surface-2/80 border border-white/[0.06] text-[10px] space-y-1">
+              <div className="flex items-center justify-between text-cyan-400 font-bold">
+                <span>OPERATION OVERVIEW</span>
+                <Activity className="w-3 h-3" />
+              </div>
+              <div className="flex justify-between text-slate-300">
+                <span>EFFICIENCY</span>
+                <span className="font-bold text-white">98.7%</span>
+              </div>
+              <div className="flex justify-between text-slate-300">
+                <span>DELIVERIES</span>
+                <span className="font-bold text-white">24,532</span>
+              </div>
+              <div className="flex justify-between text-slate-300">
+                <span>ACTIVE SHIPS</span>
+                <span className="font-bold text-cyan-400">1,250</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 6. INTERACTIVE SUPPLY CHAIN TOPOLOGY CIRCUIT */}
+        <div className="pt-4 max-w-5xl mx-auto text-left">
           <div className="glass-card p-6 sm:p-8 bg-surface-1/95 border-white/[0.12] rounded-3xl space-y-6 shadow-2xl backdrop-blur-xl relative">
             <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
               <div className="flex items-center gap-2">
@@ -256,7 +437,6 @@ export default function LandingPage({
 
             {/* 5 Interactive Connected Nodes */}
             <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 relative z-10 text-xs">
-              {/* Node 1 */}
               <div
                 onClick={() => setSelectedCircuitNode(1)}
                 className={`p-4 rounded-2xl border cursor-pointer transition-all ${
@@ -271,7 +451,6 @@ export default function LandingPage({
                 <p className="text-[11px] text-slate-400">13kg/day coffee run-rate</p>
               </div>
 
-              {/* Node 2 */}
               <div
                 onClick={() => setSelectedCircuitNode(2)}
                 className={`p-4 rounded-2xl border cursor-pointer transition-all ${
@@ -286,7 +465,6 @@ export default function LandingPage({
                 <p className="text-[11px] text-rose-400/80">48% menu exposure</p>
               </div>
 
-              {/* Node 3 */}
               <div
                 onClick={() => setSelectedCircuitNode(3)}
                 className={`p-4 rounded-2xl border cursor-pointer transition-all ${
@@ -301,7 +479,6 @@ export default function LandingPage({
                 <p className="text-[11px] text-slate-400">Split-Order Optimal</p>
               </div>
 
-              {/* Node 4 */}
               <div
                 onClick={() => setSelectedCircuitNode(4)}
                 className={`p-4 rounded-2xl border cursor-pointer transition-all ${
@@ -316,7 +493,6 @@ export default function LandingPage({
                 <p className="text-[11px] text-amber-400/80">Zero spend bypass</p>
               </div>
 
-              {/* Node 5 */}
               <div
                 onClick={() => setSelectedCircuitNode(5)}
                 className={`p-4 rounded-2xl border cursor-pointer transition-all ${
@@ -357,7 +533,7 @@ export default function LandingPage({
       </section>
 
       {/* 3. INTERACTIVE "WHAT-IF" DIGITAL TWIN PLAYGROUND */}
-      <section className="px-6 sm:px-12 py-16 border-t border-white/[0.08] bg-surface-1/40">
+      <section id="whatif-simulator" className="px-6 sm:px-12 py-16 border-t border-white/[0.08] bg-surface-1/40">
         <div className="max-w-5xl mx-auto space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -385,7 +561,7 @@ export default function LandingPage({
 
           <div className="glass-card p-6 sm:p-8 bg-surface-1 border-white/[0.08] rounded-3xl space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              {/* Left Slider Controls (5 Cols) */}
+              {/* Left Slider Controls */}
               <div className="lg:col-span-5 space-y-5 text-xs">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -424,9 +600,8 @@ export default function LandingPage({
                 </div>
               </div>
 
-              {/* Right Output Dashboard (7 Cols) */}
+              {/* Right Output Dashboard */}
               <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
-                {/* Metric 1 */}
                 <div className="p-4 bg-surface-2 rounded-2xl border border-white/[0.06] space-y-1 text-center">
                   <Clock className="w-5 h-5 text-rose-400 mx-auto" />
                   <span className="text-[10px] text-slate-400 block">Stockout Window</span>
@@ -434,7 +609,6 @@ export default function LandingPage({
                   <span className="text-[10px] text-rose-400/80 block">Critical Threshold</span>
                 </div>
 
-                {/* Metric 2 */}
                 <div className="p-4 bg-surface-2 rounded-2xl border border-white/[0.06] space-y-1 text-center">
                   <Radar className="w-5 h-5 text-amber-400 mx-auto" />
                   <span className="text-[10px] text-slate-400 block">Stockout Risk</span>
@@ -442,7 +616,6 @@ export default function LandingPage({
                   <span className="text-[10px] text-amber-400/80 block">High Probability</span>
                 </div>
 
-                {/* Metric 3 */}
                 <div className="p-4 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 space-y-1 text-center">
                   <Package className="w-5 h-5 text-emerald-400 mx-auto" />
                   <span className="text-[10px] text-emerald-400 block">Recommended Order</span>
@@ -456,7 +629,7 @@ export default function LandingPage({
       </section>
 
       {/* 4. INTERACTIVE 6-SCENARIO PROCUREMENT COMPARISON */}
-      <section className="px-6 sm:px-12 py-16 max-w-6xl mx-auto space-y-8">
+      <section id="matrix-compare" className="px-6 sm:px-12 py-16 max-w-6xl mx-auto space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -554,8 +727,8 @@ export default function LandingPage({
         </div>
       </section>
 
-      {/* 5. MULTIMODAL INVOICE OCR VISION AUDIT SHOWCASE (NEW RICH VISUAL SECTION) */}
-      <section className="px-6 sm:px-12 py-16 border-t border-white/[0.08] bg-surface-1/40">
+      {/* 5. MULTIMODAL INVOICE OCR VISION AUDIT SHOWCASE */}
+      <section id="invoice-audit" className="px-6 sm:px-12 py-16 border-t border-white/[0.08] bg-surface-1/40">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -584,7 +757,7 @@ export default function LandingPage({
 
           <div className="glass-card p-6 sm:p-8 bg-surface-1 border-white/[0.08] rounded-3xl space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              {/* Left: OCR Image Scan (6 Cols) */}
+              {/* Left: OCR Image Scan */}
               <div className="lg:col-span-6 space-y-3">
                 <div className="relative rounded-2xl overflow-hidden border border-white/[0.1] shadow-xl group">
                   <img
@@ -606,7 +779,7 @@ export default function LandingPage({
                 </div>
               </div>
 
-              {/* Right: Discrepancy Breakdown & Action (6 Cols) */}
+              {/* Right: Discrepancy Breakdown & Action */}
               <div className="lg:col-span-6 space-y-4 text-xs">
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
@@ -668,7 +841,7 @@ export default function LandingPage({
       </section>
 
       {/* 6. VISUAL "FARM-TO-CUP" REAL PHYSICAL SUPPLY CHAIN SHOWCASE */}
-      <section className="px-6 sm:px-12 py-16 max-w-6xl mx-auto space-y-8">
+      <section id="farm-flow" className="px-6 sm:px-12 py-16 max-w-6xl mx-auto space-y-8">
         <div className="text-center space-y-2 max-w-xl mx-auto">
           <span className="badge-teal text-[10px] uppercase font-bold tracking-wider">
             Physical Supply Chain Flow
@@ -683,7 +856,6 @@ export default function LandingPage({
 
         {/* 3 Real Photography Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Card 1 */}
           <div className="glass-card overflow-hidden rounded-3xl border-white/[0.08] bg-surface-1 group flex flex-col justify-between hover:border-white/[0.18] transition-all">
             <div>
               <div className="h-48 overflow-hidden relative">
@@ -709,7 +881,6 @@ export default function LandingPage({
             </div>
           </div>
 
-          {/* Card 2 */}
           <div className="glass-card overflow-hidden rounded-3xl border-white/[0.08] bg-surface-1 group flex flex-col justify-between hover:border-white/[0.18] transition-all">
             <div>
               <div className="h-48 overflow-hidden relative">
@@ -735,7 +906,6 @@ export default function LandingPage({
             </div>
           </div>
 
-          {/* Card 3 */}
           <div className="glass-card overflow-hidden rounded-3xl border-white/[0.08] bg-surface-1 group flex flex-col justify-between hover:border-white/[0.18] transition-all">
             <div>
               <div className="h-48 overflow-hidden relative">
@@ -859,6 +1029,13 @@ export default function LandingPage({
 
       {/* 9. FINAL HIGH-IMPACT CTA */}
       <section className="px-6 sm:px-12 py-20 text-center space-y-6 max-w-4xl mx-auto">
+        <div className="flex justify-center">
+          <img
+            src="/assets/logo.png"
+            alt="LEADSTOHELP AI Logo"
+            className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(0,240,255,0.8)]"
+          />
+        </div>
         <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
           Turn operational signals <br />
           <span className="bg-gradient-to-r from-brand-accent to-emerald-400 bg-clip-text text-transparent">
@@ -872,14 +1049,14 @@ export default function LandingPage({
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           <button
             onClick={onEnterApp}
-            className="btn-primary text-sm py-3 px-6 flex items-center gap-2 shadow-glow-teal"
+            className="btn-primary text-sm py-3 px-6 flex items-center gap-2 shadow-glow-teal font-bold"
           >
             <span>Enter Control Tower →</span>
           </button>
 
           <button
             onClick={onStartDemoTour}
-            className="btn-secondary text-sm py-3 px-5 flex items-center gap-2"
+            className="btn-secondary text-sm py-3 px-5 flex items-center gap-2 font-semibold"
           >
             <Play className="w-4 h-4 text-brand-accent fill-brand-accent" />
             <span>Run 3-Minute Demo</span>
@@ -888,8 +1065,11 @@ export default function LandingPage({
       </section>
 
       {/* FOOTER */}
-      <footer className="h-14 border-t border-white/[0.06] px-6 sm:px-12 flex items-center justify-between text-xs text-slate-500 font-mono">
-        <span>LEADSTOHELP AI • Autonomous Retail Operations Platform</span>
+      <footer className="h-16 border-t border-white/[0.06] px-6 sm:px-12 flex items-center justify-between text-xs text-slate-400 font-mono">
+        <div className="flex items-center gap-2">
+          <img src="/assets/logo.png" alt="LEADSTOHELP AI" className="w-5 h-5 object-contain" />
+          <span>LEADSTOHELP AI • Autonomous Retail Operations Platform</span>
+        </div>
         <span>Store Hub: Deccan Roast #BLR-01</span>
       </footer>
     </div>

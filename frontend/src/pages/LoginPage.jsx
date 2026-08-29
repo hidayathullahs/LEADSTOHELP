@@ -58,9 +58,9 @@ export default function LoginPage({ onLoginSuccess, onExploreLanding }) {
         {/* Layered Cinematic Backdrop Visual */}
         <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
           <img
-            src="/assets/hero_bg.jpg"
+            src="/assets/home_hero_banner.png"
             alt="Supply Chain Control Room"
-            className="w-full h-full object-cover object-center opacity-25 scale-105 filter saturate-150 contrast-125"
+            className="w-full h-full object-cover object-center opacity-30 scale-105 filter saturate-150 contrast-125"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-surface-0/70 via-surface-0/90 to-surface-0"></div>
           <div className="absolute inset-0 bg-radial-ambient"></div>
@@ -69,9 +69,11 @@ export default function LoginPage({ onLoginSuccess, onExploreLanding }) {
         {/* Top Brand Logo */}
         <div className="relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-teal-400 flex items-center justify-center shadow-glow-teal">
-              <Sparkles className="w-5 h-5 text-black fill-black" />
-            </div>
+            <img
+              src="/assets/logo.png"
+              alt="LEADSTOHELP Logo"
+              className="w-10 h-10 object-contain drop-shadow-[0_0_12px_rgba(0,240,255,0.6)]"
+            />
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-sm tracking-wider text-white">LEADSTOHELP</span>

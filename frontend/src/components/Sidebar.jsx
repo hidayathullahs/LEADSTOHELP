@@ -66,9 +66,11 @@ export default function Sidebar({ activeTab, setActiveTab, metrics, onOpenAskAI 
             onClick={() => setActiveTab('overview')}
             className="flex items-center gap-2.5 text-left group"
           >
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-teal-400 flex items-center justify-center shadow-glow-teal group-hover:scale-105 transition-transform">
-              <Sparkles className="w-4 h-4 text-black fill-black" />
-            </div>
+            <img
+              src="/assets/logo.png"
+              alt="LEADSTOHELP AI Logo"
+              className="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(0,240,255,0.6)] group-hover:scale-105 transition-transform"
+            />
             <div>
               <div className="flex items-center gap-1.5 leading-none">
                 <span className="font-extrabold text-xs tracking-wider text-white">LEADSTOHELP</span>
