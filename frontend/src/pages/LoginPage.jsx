@@ -41,7 +41,7 @@ import {
   ChevronDown
 } from 'lucide-react';
 import logoImg from '../assets/logo.png';
-import heroBgImg from '../assets/hero_bg.png';
+import loginBgImg from '../assets/login_bg.png';
 
 const SHOWCASE_SLIDES = [
   {
@@ -291,6 +291,15 @@ export default function LoginPage({
         onMouseEnter={() => setIsAutoPlaying(false)}
         onMouseLeave={() => setIsAutoPlaying(true)}
       >
+        {/* Layered Cinematic Background from user asset */}
+        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+          <img
+            src={loginBgImg}
+            alt="LEADSTOHELP AI Operations Backdrop"
+            className="w-full h-full object-cover object-center opacity-35 scale-105 filter saturate-150 contrast-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#070A14]/85 via-[#070A14]/95 to-[#070A14]" />
+        </div>
         {/* Top Header Row with High-End Glowing Brand Badge */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3.5">
