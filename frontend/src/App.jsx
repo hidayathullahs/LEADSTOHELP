@@ -5,6 +5,15 @@ import ContextualAskAIDrawer from './components/ContextualAskAIDrawer';
 import CommandPalette from './components/CommandPalette';
 import GuidedDemoTour from './components/GuidedDemoTour';
 import OnboardingModal from './components/OnboardingModal';
+import ShortcutsModal from './components/ShortcutsModal';
+import NotificationCenterDrawer from './components/NotificationCenterDrawer';
+import EvidenceDrawer from './components/EvidenceDrawer';
+import RiskDetailDrawer from './components/RiskDetailDrawer';
+import InventoryDetailDrawer from './components/InventoryDetailDrawer';
+import ProcurementStrategyDrawer from './components/ProcurementStrategyDrawer';
+import SupplierDetailDrawer from './components/SupplierDetailDrawer';
+import ApprovalConfirmModal from './components/ApprovalConfirmModal';
+import { ToastProvider, useToast } from './components/ToastContext';
 
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
@@ -23,14 +32,14 @@ import SettingsPage from './pages/SettingsPage';
 
 import { api } from './services/api';
 
-export default function App() {
+function MainApp() {
   // Authentication & Session State
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('lead_user_session');
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
-    // Default authenticated demo user for seamless direct evaluation
+    // Default authenticated demo user
     return {
       name: 'Arjun Rao',
       email: 'arjun.rao@deccanroast.in',
@@ -47,23 +56,44 @@ export default function App() {
 
   const [isLandingMode, setIsLandingMode] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    // If URL specifies ?app=1 or ?tab=, go directly to app; otherwise show landing page
     if (params.get('app') === '1' || params.get('tab')) return false;
     return true;
   });
+  const [isLoginPage, setIsLoginPage] = useState(false);
+  const [authInitialMode, setAuthInitialMode] = useState('login');
+
   const [overviewData, setOverviewData] = useState(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   
-  // Contextual Ask AI State
+  // Drawers & Modals State
   const [isAskAIOpen, setIsAskAIOpen] = useState(false);
   const [askAISku, setAskAISku] = useState(null);
   const [procurementInitialSku, setProcurementInitialSku] = useState('COFFEE-001');
 
-  // Command Palette & Onboarding Modal & Guided Demo Tour
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [demoTourOpen, setDemoTourOpen] = useState(false);
   const [demoTourStep, setDemoTourStep] = useState(0);
+  const [shortcutsModalOpen, setShortcutsModalOpen] = useState(false);
+  const [notificationDrawerOpen, setNotificationDrawerOpen] = useState(false);
+
+  // Detail Drawer States
+  const [evidenceDrawerOpen, setEvidenceDrawerOpen] = useState(false);
+  const [evidenceSku, setEvidenceSku] = useState('COFFEE-001');
+  const [riskDrawerOpen, setRiskDrawerOpen] = useState(false);
+  const [riskDrawerData, setRiskDrawerData] = useState(null);
+  const [inventoryDrawerOpen, setInventoryDrawerOpen] = useState(false);
+  const [inventoryDrawerItem, setInventoryDrawerItem] = useState(null);
+  const [strategyDrawerOpen, setStrategyDrawerOpen] = useState(false);
+  const [strategyDrawerItem, setStrategyDrawerItem] = useState(null);
+  const [supplierDrawerOpen, setSupplierDrawerOpen] = useState(false);
+  const [supplierDrawerItem, setSupplierDrawerItem] = useState(null);
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
+  const [approvalModalItem, setApprovalModalItem] = useState(null);
+
+  const { addToast } = useToast();
 
   const loadOverview = async () => {
     setIsRefreshing(true);
@@ -81,63 +111,131 @@ export default function App() {
     loadOverview();
   }, []);
 
+  // Global Keyboard Shortcuts Listener (⌘K, ⌘J, ?, Esc)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // ⌘K / Ctrl+K
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+      // ⌘J / Ctrl+J
+      else if ((e.metaKey || e.ctrlKey) && e.key === 'j') {
+        e.preventDefault();
+        setIsAskAIOpen((prev) => !prev);
+      }
+      // ? (Shift + /)
+      else if (e.key === '?' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+        e.preventDefault();
+        setShortcutsModalOpen(true);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleLoginSuccess = (userData) => {
     setUser(userData);
     localStorage.setItem('lead_user_session', JSON.stringify(userData));
+    setIsLoginPage(false);
     setIsLandingMode(false);
-    // Check if first-run onboarding seen
-    const seen = localStorage.getItem('lead_onboarding_seen');
-    if (!seen) {
-      setOnboardingOpen(true);
-      localStorage.setItem('lead_onboarding_seen', 'true');
-    }
+    addToast({
+      title: `Welcome, ${userData.name}!`,
+      message: 'Authenticated to Deccan Roast Hub BLR-01 under Strict RBAC governance.',
+      type: 'success'
+    });
   };
 
   const handleSignOut = () => {
     setUser(null);
     localStorage.removeItem('lead_user_session');
+    setAuthInitialMode('login');
+    setIsLoginPage(true);
+    setIsLandingMode(false);
+    addToast({
+      title: 'Signed Out',
+      message: 'Operator session terminated safely.',
+      type: 'info'
+    });
   };
 
-  const handleOpenAskAI = (skuOrPrompt = null) => {
-    if (typeof skuOrPrompt === 'string' && (skuOrPrompt.startsWith('COFFEE') || skuOrPrompt.startsWith('DAIRY') || skuOrPrompt.startsWith('PACK'))) {
-      setAskAISku(skuOrPrompt);
+  const handleQuickApprove = async (proposalId, notes) => {
+    try {
+      await api.approveProposal(proposalId, notes || 'Approved by Operations Lead');
+      addToast({
+        title: 'Purchase Order Approved & Sealed',
+        message: 'Cryptographic authorization receipt stored in ledger.',
+        type: 'success',
+        action: {
+          label: 'View Trace',
+          onClick: () => setActiveTab('agent-inspector')
+        }
+      });
+      loadOverview();
+    } catch (err) {
+      addToast({
+        title: 'Approval Failed',
+        message: err.message,
+        type: 'error'
+      });
+    }
+  };
+
+  const handleOpenAskAI = (promptOrSku) => {
+    if (typeof promptOrSku === 'string' && promptOrSku.startsWith('COFFEE-')) {
+      setAskAISku(promptOrSku);
     } else {
-      setAskAISku(null);
+      setAskAISku('COFFEE-001');
     }
     setIsAskAIOpen(true);
   };
 
-  const handleNavigateToProcurement = (sku = 'COFFEE-001') => {
-    setProcurementInitialSku(sku);
+  const handleNavigateToProcurement = (sku) => {
+    setProcurementInitialSku(sku || 'COFFEE-001');
     setIsLandingMode(false);
     setActiveTab('procurement');
   };
 
-  const handleQuickApprove = async (approvalId, decision = 'APPROVED') => {
-    try {
-      await api.submitApprovalDecision(approvalId, decision, 'Quick approved from Control Tower Overview.');
-      loadOverview();
-    } catch (err) {
-      alert(`Approval failed: ${err.message}`);
-    }
-  };
-
   const handleStartDemoTour = () => {
     setIsLandingMode(false);
+    setIsLoginPage(false);
     setDemoTourStep(0);
     setDemoTourOpen(true);
     setActiveTab('overview');
   };
 
+  // If user requests login page mode
+  if (isLoginPage) {
+    return (
+      <LoginPage
+        initialMode={authInitialMode}
+        onLoginSuccess={handleLoginSuccess}
+        onExploreLanding={() => {
+          setIsLoginPage(false);
+          setIsLandingMode(true);
+        }}
+      />
+    );
+  }
+
   // If user requests landing page mode
   if (isLandingMode) {
     return (
       <LandingPage
-        onEnterApp={() => setIsLandingMode(false)}
+        onEnterApp={() => {
+          setIsLandingMode(false);
+          setIsLoginPage(false);
+        }}
         onStartDemoTour={handleStartDemoTour}
         onOpenAskAI={(prompt) => {
           setIsLandingMode(false);
           handleOpenAskAI(prompt);
+        }}
+        onNavigateToLogin={(mode = 'login') => {
+          setAuthInitialMode(mode);
+          setIsLandingMode(false);
+          setIsLoginPage(true);
         }}
       />
     );
@@ -147,8 +245,12 @@ export default function App() {
   if (!user) {
     return (
       <LoginPage
+        initialMode={authInitialMode}
         onLoginSuccess={handleLoginSuccess}
-        onExploreLanding={() => setIsLandingMode(true)}
+        onExploreLanding={() => {
+          setIsLoginPage(false);
+          setIsLandingMode(true);
+        }}
       />
     );
   }
@@ -163,7 +265,12 @@ export default function App() {
           setActiveTab(tab);
         }}
         metrics={overviewData?.metrics}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        isMobileOpen={isMobileSidebarOpen}
+        onCloseMobile={() => setIsMobileSidebarOpen(false)}
         onOpenAskAI={() => handleOpenAskAI(null)}
+        onOpenProcurement={handleNavigateToProcurement}
       />
 
       {/* Main Content Area */}
@@ -182,6 +289,9 @@ export default function App() {
           }}
           user={user}
           onSignOut={handleSignOut}
+          onOpenNotifications={() => setNotificationDrawerOpen(true)}
+          onOpenMobileSidebar={() => setIsMobileSidebarOpen(true)}
+          activeSku={procurementInitialSku}
         />
 
         {/* Scrollable Page Views */}
@@ -193,6 +303,15 @@ export default function App() {
               onNavigateTo={(tab) => setActiveTab(tab)}
               onOpenAskAI={(prompt) => handleOpenAskAI(prompt || null)}
               onQuickApprove={handleQuickApprove}
+              onOpenEvidence={(sku) => {
+                setEvidenceSku(sku || 'COFFEE-001');
+                setEvidenceDrawerOpen(true);
+              }}
+              onOpenRiskDetail={(data) => {
+                setRiskDrawerData(data);
+                setRiskDrawerOpen(true);
+              }}
+              onOpenProcurement={handleNavigateToProcurement}
             />
           )}
 
@@ -202,6 +321,7 @@ export default function App() {
               overviewData={overviewData}
               onNavigateTo={(tab) => setActiveTab(tab)}
               onOpenAskAI={(prompt) => handleOpenAskAI(prompt || null)}
+              onOpenProcurement={handleNavigateToProcurement}
             />
           )}
 
@@ -209,6 +329,10 @@ export default function App() {
             <InventoryPage
               onOpenAskAIWithSku={(sku) => handleOpenAskAI(sku)}
               onNavigateToProcurement={handleNavigateToProcurement}
+              onOpenInventoryDetail={(item) => {
+                setInventoryDrawerItem(item);
+                setInventoryDrawerOpen(true);
+              }}
             />
           )}
 
@@ -217,12 +341,25 @@ export default function App() {
               initialSku={procurementInitialSku}
               onNavigateToApprovals={() => setActiveTab('approvals')}
               onOpenAskAI={(prompt) => handleOpenAskAI(prompt)}
+              onOpenStrategyDetail={(strategy) => {
+                setStrategyDrawerItem(strategy);
+                setStrategyDrawerOpen(true);
+              }}
+              onOpenEvidence={(sku) => {
+                setEvidenceSku(sku || 'COFFEE-001');
+                setEvidenceDrawerOpen(true);
+              }}
             />
           )}
 
           {activeTab === 'suppliers' && (
             <SuppliersPage
               onOpenAskAI={(prompt) => handleOpenAskAI(prompt)}
+              onOpenSupplierDetail={(supplier) => {
+                setSupplierDrawerItem(supplier);
+                setSupplierDrawerOpen(true);
+              }}
+              onOpenProcurement={handleNavigateToProcurement}
             />
           )}
 
@@ -242,6 +379,10 @@ export default function App() {
           {activeTab === 'approvals' && (
             <ApprovalCenterPage
               onOpenAskAI={(prompt) => handleOpenAskAI(prompt)}
+              onRequestApprovalModal={(item) => {
+                setApprovalModalItem(item);
+                setApprovalModalOpen(true);
+              }}
             />
           )}
 
@@ -249,6 +390,7 @@ export default function App() {
             <RiskRadarPage
               onNavigateTo={(tab) => setActiveTab(tab)}
               onOpenAskAI={(prompt) => handleOpenAskAI(prompt)}
+              onOpenProcurement={handleNavigateToProcurement}
             />
           )}
 
@@ -265,12 +407,12 @@ export default function App() {
           )}
 
           {activeTab === 'settings' && (
-            <SettingsPage />
+            <SettingsPage user={user} />
           )}
         </main>
       </div>
 
-      {/* Track 1 / Contextual Ask AI Copilot Drawer */}
+      {/* Global Drawers & Modals */}
       <ContextualAskAIDrawer
         isOpen={isAskAIOpen}
         onClose={() => setIsAskAIOpen(false)}
@@ -280,9 +422,84 @@ export default function App() {
           setIsLandingMode(false);
           setActiveTab(tab);
         }}
+        onOpenProcurement={handleNavigateToProcurement}
       />
 
-      {/* Global ⌘K Command Palette */}
+      <NotificationCenterDrawer
+        isOpen={notificationDrawerOpen}
+        onClose={() => setNotificationDrawerOpen(false)}
+        onNavigateTo={(tab) => {
+          setIsLandingMode(false);
+          setActiveTab(tab);
+        }}
+        onOpenProcurement={handleNavigateToProcurement}
+      />
+
+      <EvidenceDrawer
+        isOpen={evidenceDrawerOpen}
+        onClose={() => setEvidenceDrawerOpen(false)}
+        sku={evidenceSku}
+        onOpenProcurement={handleNavigateToProcurement}
+      />
+
+      <RiskDetailDrawer
+        isOpen={riskDrawerOpen}
+        onClose={() => setRiskDrawerOpen(false)}
+        riskData={riskDrawerData}
+        onOpenProcurement={handleNavigateToProcurement}
+        onOpenWhatIf={(sku) => handleNavigateToProcurement(sku)}
+      />
+
+      <InventoryDetailDrawer
+        isOpen={inventoryDrawerOpen}
+        onClose={() => setInventoryDrawerOpen(false)}
+        item={inventoryDrawerItem}
+        onOpenProcurement={handleNavigateToProcurement}
+        onOpenAskAI={(prompt) => handleOpenAskAI(prompt)}
+      />
+
+      <ProcurementStrategyDrawer
+        isOpen={strategyDrawerOpen}
+        onClose={() => setStrategyDrawerOpen(false)}
+        strategy={strategyDrawerItem}
+        sku={procurementInitialSku}
+        onSubmitProposal={async (strat) => {
+          try {
+            await api.createProposal(procurementInitialSku, strat.id, 100);
+            addToast({
+              title: 'Replenishment Proposal Created',
+              message: `${strat.name || strat.title} submitted to Human Approval Queue.`,
+              type: 'success',
+              action: {
+                label: 'View in Approvals',
+                onClick: () => setActiveTab('approvals')
+              }
+            });
+          } catch (err) {
+            addToast({
+              title: 'Proposal Submission Error',
+              message: err.message,
+              type: 'error'
+            });
+          }
+        }}
+      />
+
+      <SupplierDetailDrawer
+        isOpen={supplierDrawerOpen}
+        onClose={() => setSupplierDrawerOpen(false)}
+        supplier={supplierDrawerItem}
+        onOpenProcurement={handleNavigateToProcurement}
+        onOpenAskAI={(prompt) => handleOpenAskAI(prompt)}
+      />
+
+      <ApprovalConfirmModal
+        isOpen={approvalModalOpen}
+        onClose={() => setApprovalModalOpen(false)}
+        approvalItem={approvalModalItem}
+        onConfirm={handleQuickApprove}
+      />
+
       <CommandPalette
         isOpen={commandPaletteOpen}
         onClose={() => setCommandPaletteOpen(false)}
@@ -293,14 +510,17 @@ export default function App() {
         onOpenAskAI={(prompt) => handleOpenAskAI(prompt)}
       />
 
-      {/* First-Run Onboarding Modal */}
+      <ShortcutsModal
+        isOpen={shortcutsModalOpen}
+        onClose={() => setShortcutsModalOpen(false)}
+      />
+
       <OnboardingModal
         isOpen={onboardingOpen}
         onClose={() => setOnboardingOpen(false)}
         onStartDemo={handleStartDemoTour}
       />
 
-      {/* Interactive 3-Minute Guided Demo Tour */}
       <GuidedDemoTour
         isOpen={demoTourOpen}
         onClose={() => setDemoTourOpen(false)}
@@ -311,12 +531,23 @@ export default function App() {
           setActiveTab(tab);
         }}
         onOpenAskAI={(prompt) => handleOpenAskAI(prompt)}
-        onOpenEvidence={() => handleOpenAskAI("Show evidence for COFFEE-001")}
+        onOpenEvidence={() => {
+          setEvidenceSku('COFFEE-001');
+          setEvidenceDrawerOpen(true);
+        }}
         onOpenWhatIf={() => {
           setIsLandingMode(false);
           setActiveTab('overview');
         }}
       />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ToastProvider>
+      <MainApp />
+    </ToastProvider>
   );
 }

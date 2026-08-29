@@ -26,648 +26,785 @@ import {
   Eye,
   Info,
   MapPin,
-  Check
+  Check,
+  Play,
+  Search,
+  Filter,
+  BarChart3,
+  Receipt,
+  FileCheck,
+  Zap,
+  PanelLeftClose,
+  PanelLeftOpen,
+  ChevronDown
 } from 'lucide-react';
-import ImpactCard from '../components/ImpactCard';
-import EvidenceDrawer from '../components/EvidenceDrawer';
-import WhatIfSimulator from '../components/WhatIfSimulator';
-import { api } from '../services/api';
+import { useToast } from '../components/ToastContext';
+
+// 5 Key SKUs for the Left Data Rail Watchlist
+const WATCHLIST_SKUS = [
+  {
+    sku: 'COFFEE-001',
+    name: 'Specialty Arabica Coffee Beans',
+    category: 'Coffee & Espresso',
+    current_stock: 36.0,
+    unit: 'kg',
+    reorder_point: 50.0,
+    daily_run_rate: 13.0,
+    days_runway: 2.77,
+    status: 'CRITICAL',
+    statusLabel: 'Critical 2.8d',
+    statusColor: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
+    dotColor: 'bg-rose-400',
+    exposure: '48% of daily beverage revenue (₹14,500/day)',
+    supplier: 'Malnad Coffee Planters (Primary)',
+    depletionSchedule: [
+      { day: 'Wed (Today)', stock: 36.0, status: 'Active' },
+      { day: 'Thu', stock: 23.0, status: 'Depleting' },
+      { day: 'Fri (Rush)', stock: 10.0, status: 'Cliff' },
+      { day: 'Sat', stock: 0.0, status: 'Stockout' },
+      { day: 'Sun', stock: 0.0, status: 'Loss' }
+    ]
+  },
+  {
+    sku: 'DAIRY-001',
+    name: 'Farm Fresh Barista Milk (3.5% Fat)',
+    category: 'Dairy & Alternatives',
+    current_stock: 12.0,
+    unit: 'L',
+    reorder_point: 30.0,
+    daily_run_rate: 22.0,
+    days_runway: 3.8,
+    status: 'VARIANCE',
+    statusLabel: '8L Shortage',
+    statusColor: 'text-amber-400 bg-amber-500/10 border-amber-500/30',
+    dotColor: 'bg-amber-400',
+    exposure: 'Variance on Invoice #KD-8839 (₹486.40 debit required)',
+    supplier: 'Kaveri Dairy Collective',
+    depletionSchedule: [
+      { day: 'Wed (Today)', stock: 12.0, status: 'Active' },
+      { day: 'Thu', stock: 2.0, status: 'Critical' },
+      { day: 'Fri', stock: 0.0, status: 'Stockout' }
+    ]
+  },
+  {
+    sku: 'PACK-001',
+    name: '12oz Eco Kraft Double-Wall Cups',
+    category: 'Packaging & Consumables',
+    current_stock: 1240,
+    unit: 'units',
+    reorder_point: 800,
+    daily_run_rate: 88,
+    days_runway: 14.1,
+    status: 'HEALTHY',
+    statusLabel: 'Healthy 14d',
+    statusColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+    dotColor: 'bg-emerald-400',
+    exposure: 'Adequate stock covering next 2 weekend cycles',
+    supplier: 'GreenPack India Solutions',
+    depletionSchedule: [
+      { day: 'Week 1', stock: 1240, status: 'Healthy' },
+      { day: 'Week 2', stock: 624, status: 'Healthy' }
+    ]
+  },
+  {
+    sku: 'SYRUP-001',
+    name: 'Artisan Madagascar Vanilla Syrup',
+    category: 'Flavors & Syrups',
+    current_stock: 45,
+    unit: 'bottles',
+    reorder_point: 20,
+    daily_run_rate: 2.1,
+    days_runway: 21.4,
+    status: 'HEALTHY',
+    statusLabel: 'Healthy 21d',
+    statusColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+    dotColor: 'bg-emerald-400',
+    exposure: 'Optimal inventory level',
+    supplier: 'Monin Specialty Imports',
+    depletionSchedule: []
+  },
+  {
+    sku: 'TEA-001',
+    name: 'Single Estate Imperial Earl Grey',
+    category: 'Tea & Tisanes',
+    current_stock: 18.5,
+    unit: 'kg',
+    reorder_point: 10.0,
+    daily_run_rate: 0.6,
+    days_runway: 30.8,
+    status: 'HEALTHY',
+    statusLabel: 'Healthy 30d',
+    statusColor: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+    dotColor: 'bg-emerald-400',
+    exposure: 'Optimal inventory level',
+    supplier: 'Darjeeling Estate Teas',
+    depletionSchedule: []
+  }
+];
+
+const TELEMETRY_FEED = [
+  { id: 1, time: '14:22:10', type: 'POS_SURGE', text: 'POS Register 02 logged +4.2kg Arabica bean depletion during lunch rush.' },
+  { id: 2, time: '14:15:05', type: 'INVOICE_VARIANCE', text: 'Vision OCR flagged 8L Milk shortfall on Invoice #KD-8839 (Kaveri Dairy).' },
+  { id: 3, time: '14:02:40', type: 'SIMULATION_OPTIMIZED', text: '6-scenario digital twin generated optimal Split-Order (70kg Malnad + 30kg Metro).' },
+  { id: 4, time: '13:45:12', type: 'SLA_VERIFIED', text: 'Malnad Coffee Planters SLA confirmed at 94% on-time delivery across 18 shipments.' }
+];
 
 export default function OverviewPage({
   overviewData,
   onNavigateTo,
   onOpenAskAI,
-  onQuickApprove
+  onQuickApprove,
+  onOpenEvidence,
+  onOpenRiskDetail,
+  onOpenProcurement
 }) {
-  const [evidenceDrawerOpen, setEvidenceDrawerOpen] = useState(false);
-  const [evidenceItems, setEvidenceItems] = useState([]);
-  const [evidenceTitle, setEvidenceTitle] = useState('SKU Evidence & Grounding Trace');
-  const [evidenceLoading, setEvidenceLoading] = useState(false);
-  const [whatIfModalOpen, setWhatIfModalOpen] = useState(false);
-  const [activeWhatIfSku, setActiveWhatIfSku] = useState('COFFEE-001');
-  const [activeStoryTab, setActiveStoryTab] = useState('triage'); // 'triage' | 'journey'
-
-  const handleOpenEvidence = async (sku = 'COFFEE-001', title = 'SKU Evidence & Decision Trace') => {
-    setEvidenceTitle(title);
-    setEvidenceLoading(true);
-    setEvidenceDrawerOpen(true);
-    try {
-      const data = await api.getSkuEvidence(sku);
-      setEvidenceItems(data?.evidence || []);
-    } catch (err) {
-      console.error('Failed to load SKU evidence:', err);
-      // Fallback evidence items if offline
-      setEvidenceItems([
-        { label: 'Current Stock', value: '36.0 kg', data_source: 'inventory_db', evidence_type: 'INVENTORY' },
-        { label: 'Daily Run-Rate', value: '13.0 kg/day', data_source: 'sales_history', evidence_type: 'INVENTORY' },
-        { label: 'Depletion Forecast', value: '2.8 days', data_source: 'forecast_engine', evidence_type: 'FORECAST' },
-        { label: 'Stockout Risk Level', value: 'HIGH', data_source: 'risk_engine', evidence_type: 'RISK' },
-        { label: 'Menu Exposure', value: '48% of all beverage orders', data_source: 'pos_analytics', evidence_type: 'INVENTORY' },
-        { label: 'Primary Supplier Lead Time', value: '2.0 days', data_source: 'supplier_db', evidence_type: 'SUPPLIER' }
-      ]);
-    } finally {
-      setEvidenceLoading(false);
-    }
+  const [selectedSku, setSelectedSku] = useState('COFFEE-001');
+  const [skuSearch, setSkuSearch] = useState('');
+  const [skuFilter, setSkuFilter] = useState('ALL'); // 'ALL' | 'CRITICAL' | 'VARIANCE' | 'HEALTHY'
+  const [activeTab, setActiveTab] = useState('triage'); // 'triage' | 'scenarios' | 'suppliers' | 'invoices'
+  const [isRailExpanded, setIsRailExpanded] = useState(true);
+  const safeData = overviewData || {
+    metrics: {
+      total_skus: 65,
+      critical_count: 1,
+      low_stock_count: 3,
+      healthy_count: 61,
+      pending_approvals: 1,
+      potential_savings: 8672.0,
+      active_suppliers: 10,
+      avg_supplier_sla: 91.4
+    },
+    risk_radar: { overall_score: 84.5, risk_level: 'HIGH' }
   };
 
-  const handleOpenWhatIf = (sku = 'COFFEE-001') => {
-    setActiveWhatIfSku(sku);
-    setWhatIfModalOpen(true);
-  };
+  const activeSkuData = WATCHLIST_SKUS.find(s => s.sku === selectedSku) || WATCHLIST_SKUS[0];
 
-  if (!overviewData) {
-    return (
-      <div className="p-12 text-center text-slate-400">
-        <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-brand-accent" />
-        <p className="text-sm font-medium">Synchronizing Supply Chain Control Tower...</p>
-      </div>
-    );
-  }
-
-  const { metrics, risk_radar, critical_stockout_items, recent_timeline, pending_approvals } = overviewData;
+  const filteredSkus = WATCHLIST_SKUS.filter(item => {
+    const matchesSearch = item.sku.toLowerCase().includes(skuSearch.toLowerCase()) ||
+      item.name.toLowerCase().includes(skuSearch.toLowerCase());
+    const matchesFilter = skuFilter === 'ALL' || item.status === skuFilter;
+    return matchesSearch && matchesFilter;
+  });
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      {/* 1. Executive Headline & Brand Definition Banner */}
-      <div className="glass-card p-6 bg-gradient-to-r from-surface-1 via-surface-1 to-surface-2 border-white/[0.08] relative overflow-hidden">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative z-10">
-          <div className="max-w-2xl space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="badge-teal text-[10px] uppercase font-bold tracking-wider">
-                Autonomous Supply Chain
-              </span>
-              <span className="text-xs text-slate-400 font-medium">Deccan Roast Specialty Hub • Bangalore</span>
-            </div>
-
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
-              From supply-chain signals to verified business action.
-            </h1>
-
-            <p className="text-xs text-slate-300 leading-relaxed max-w-xl">
-              LEADSTOHELP continuously detects inventory and supplier risk, investigates the evidence, simulates alternatives, and helps teams make faster, safer procurement decisions with human approval.
-            </p>
-
-            {/* 3 Core Capabilities Mini Strip */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 text-[11px]">
-              <div className="flex items-center gap-2 text-slate-300 bg-surface-2/60 p-2 rounded-lg border border-white/[0.04]">
-                <span className="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0"></span>
-                <span><strong>1. Detect</strong> risks early</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-300 bg-surface-2/60 p-2 rounded-lg border border-white/[0.04]">
-                <span className="w-1.5 h-1.5 rounded-full bg-brand-accent shrink-0"></span>
-                <span><strong>2. Simulate</strong> better options</span>
-              </div>
-              <div className="flex items-center gap-2 text-slate-300 bg-surface-2/60 p-2 rounded-lg border border-white/[0.04]">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
-                <span><strong>3. Execute</strong> with human control</span>
-              </div>
-            </div>
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto select-none">
+      
+      {/* 1. Header Command Ribbon */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between pb-4 border-b border-white/[0.08] gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
+            <span className="badge-teal text-[10px] uppercase font-bold tracking-wider font-mono">
+              Live Operations Control Tower
+            </span>
+            <span className="text-xs text-slate-400">Hub BLR-01 • Deccan Roast Specialty Hub</span>
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              All Engines Synchronized
+            </span>
           </div>
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            Supply Chain Command Center & Decision Console
+          </h1>
+        </div>
 
-          {/* Quick Action Launcher */}
-          <div className="flex flex-col sm:flex-row lg:flex-col gap-2.5 shrink-0 w-full lg:w-auto">
-            <button
-              onClick={() => onOpenAskAI("Run the Arabica Crisis demo")}
-              className="btn-primary text-xs py-2.5 px-4 flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-4 h-4 text-black fill-black" />
-              <span>Triage Arabica Risk (⌘J)</span>
-            </button>
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Rail Slide/Toggle Button */}
+          <button
+            onClick={() => setIsRailExpanded(!isRailExpanded)}
+            className="btn-secondary text-xs py-2 px-3 flex items-center gap-1.5"
+            title={isRailExpanded ? 'Collapse Left Data Rail' : 'Expand Left Data Rail'}
+          >
+            {isRailExpanded ? <PanelLeftClose className="w-3.5 h-3.5 text-brand-accent" /> : <PanelLeftOpen className="w-3.5 h-3.5 text-brand-accent" />}
+            <span className="hidden sm:inline">{isRailExpanded ? 'Hide Data Rail' : 'Show Data Rail'}</span>
+          </button>
 
-            <button
-              onClick={() => handleOpenWhatIf('COFFEE-001')}
-              className="btn-secondary text-xs py-2 px-4 flex items-center justify-center gap-2"
-            >
-              <Sliders className="w-3.5 h-3.5 text-accent-violet" />
-              <span>Run What-If Simulation</span>
-            </button>
-          </div>
+          <button
+            onClick={() => onOpenAskAI("Analyze current store risks and summarize recommended replenishment actions.")}
+            className="btn-secondary text-xs py-2 px-3.5 flex items-center gap-1.5"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-accent-violet" />
+            <span>Ask Copilot (⌘J)</span>
+          </button>
+
+          <button
+            onClick={() => onOpenProcurement('COFFEE-001')}
+            className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-glow-teal"
+          >
+            <span>Review & Approve PO</span>
+            <ArrowRight className="w-3.5 h-3.5 text-black" />
+          </button>
         </div>
       </div>
 
-      {/* 2. Executive 4-KPI Metric Strip */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Metric 1: Critical Supply Risks */}
+      {/* 2. Top 4 High-Density KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* KPI 1: Active Critical Risks */}
         <div 
-          onClick={() => onNavigateTo('inventory')}
-          className="glass-card-interactive p-4 cursor-pointer group border-rose-500/20 bg-surface-1"
+          onClick={() => onOpenRiskDetail && onOpenRiskDetail(activeSkuData)}
+          className="glass-card-interactive p-4 border-rose-500/30 bg-rose-500/[0.03] space-y-1.5 cursor-pointer"
         >
-          <div className="flex items-center justify-between text-slate-400 mb-1.5">
-            <span className="text-xs font-semibold text-slate-300">Critical Risks</span>
-            <div className="p-1.5 rounded-lg bg-rose-500/10 border border-rose-500/20">
-              <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-            </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase font-bold text-slate-400">Critical Risks</span>
+            <span className="badge-rose text-[9px] font-mono font-bold">1 ACTION REQ</span>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-rose-400 tabular-nums">
-              {metrics?.critical_stockout_count || 1}
-            </span>
-            <span className="text-xs text-slate-500 font-mono">requires action</span>
+          <div className="text-2xl font-black text-rose-400 font-mono flex items-center gap-2">
+            <span>1 SKU</span>
+            <span className="text-xs font-normal text-slate-400 font-sans">at stockout risk</span>
           </div>
-          <p className="mt-2 text-[11px] text-rose-300/90 font-medium truncate">
-            COFFEE-001 Arabica at risk
+          <p className="text-[11px] text-slate-300 truncate">
+            COFFEE-001 Arabica depletion in ~2.8 days
           </p>
         </div>
 
-        {/* Metric 2: Stockout Exposure */}
+        {/* KPI 2: Stockout Exposure Runway */}
         <div 
-          onClick={() => onNavigateTo('inventory')}
-          className="glass-card-interactive p-4 cursor-pointer group border-amber-500/20 bg-surface-1"
+          onClick={() => onOpenProcurement('COFFEE-001')}
+          className="glass-card-interactive p-4 border-amber-500/30 bg-amber-500/[0.03] space-y-1.5 cursor-pointer"
         >
-          <div className="flex items-center justify-between text-slate-400 mb-1.5">
-            <span className="text-xs font-semibold text-slate-300">Stockout Exposure</span>
-            <div className="p-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20">
-              <Clock className="w-3.5 h-3.5 text-amber-400" />
-            </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase font-bold text-slate-400">Stockout Runway</span>
+            <span className="badge-amber text-[9px] font-mono font-bold">CLIFF: FRIDAY</span>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-amber-300 tabular-nums">
-              2.8 <span className="text-base font-normal">days</span>
-            </span>
+          <div className="text-2xl font-black text-amber-300 font-mono flex items-center gap-2">
+            <span>2.77 Days</span>
           </div>
-          <p className="mt-2 text-[11px] text-slate-400 font-medium truncate">
-            Nearest depletion coverage
+          <p className="text-[11px] text-slate-300 truncate">
+            Velocity: 13.0 kg/day across 48% menu orders
           </p>
         </div>
 
-        {/* Metric 3: Savings Opportunity */}
+        {/* KPI 3: Savings Captured */}
         <div 
-          onClick={() => onNavigateTo('procurement')}
-          className="glass-card-interactive p-4 cursor-pointer group border-emerald-500/20 bg-surface-1"
+          onClick={() => onNavigateTo('analytics')}
+          className="glass-card-interactive p-4 border-emerald-500/30 bg-emerald-500/[0.03] space-y-1.5 cursor-pointer"
         >
-          <div className="flex items-center justify-between text-slate-400 mb-1.5">
-            <span className="text-xs font-semibold text-slate-300">Savings Opportunity</span>
-            <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-              <TrendingDown className="w-3.5 h-3.5 text-emerald-400" />
-            </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase font-bold text-slate-400">Procurement Savings</span>
+            <span className="badge-emerald text-[9px] font-mono font-bold">+10.1% SAVINGS</span>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-emerald-400 tabular-nums">
-              ₹8,672
-            </span>
+          <div className="text-2xl font-black text-emerald-400 font-mono flex items-center gap-2">
+            <span>+₹8,672</span>
           </div>
-          <p className="mt-2 text-[11px] text-emerald-400/90 font-medium truncate">
-            Via Split-Order strategy
+          <p className="text-[11px] text-slate-300 truncate">
+            Captured via 70/30 Split-Order allocation
           </p>
         </div>
 
-        {/* Metric 4: Supplier Resilience */}
+        {/* KPI 4: Supplier Reliability SLA */}
         <div 
           onClick={() => onNavigateTo('suppliers')}
-          className="glass-card-interactive p-4 cursor-pointer group bg-surface-1"
+          className="glass-card-interactive p-4 border-brand-accent/30 bg-brand-accent/[0.03] space-y-1.5 cursor-pointer"
         >
-          <div className="flex items-center justify-between text-slate-400 mb-1.5">
-            <span className="text-xs font-semibold text-slate-300">Supplier Resilience</span>
-            <div className="p-1.5 rounded-lg bg-surface-2 border border-white/[0.06]">
-              <ShieldCheck className="w-3.5 h-3.5 text-brand-accent" />
-            </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono uppercase font-bold text-slate-400">Partner Network SLA</span>
+            <span className="badge-teal text-[9px] font-mono font-bold">10 VETTED</span>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-white tabular-nums">
-              {metrics?.average_supplier_reliability || 88}%
-            </span>
+          <div className="text-2xl font-black text-brand-accent font-mono flex items-center gap-2">
+            <span>91.4%</span>
+            <span className="text-xs font-normal text-slate-400 font-sans">on-time avg</span>
           </div>
-          <p className="mt-2 text-[11px] text-slate-400 font-medium truncate">
-            10 Active vetted partners
+          <p className="text-[11px] text-slate-300 truncate">
+            Malnad Planters: 94% • Metro Hub: 92%
           </p>
         </div>
       </div>
 
-      {/* 3. Central Story Card & Decision Matrix (The Hero of the Product) */}
-      <div className="glass-card p-6 border-white/[0.1] bg-surface-1 relative overflow-hidden space-y-6">
-        {/* Top Header Tag */}
-        <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
-            <span className="text-xs font-bold uppercase tracking-wider text-rose-400">
-              Immediate Issue Requiring Attention
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setActiveStoryTab('triage')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
-                activeStoryTab === 'triage'
-                  ? 'bg-surface-2 text-white border border-white/[0.1]'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Operations Triage
-            </button>
-            <button
-              onClick={() => setActiveStoryTab('journey')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
-                activeStoryTab === 'journey'
-                  ? 'bg-surface-2 text-white border border-white/[0.1]'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Visual Farm-to-Cup Flow
-            </button>
-          </div>
-        </div>
-
-        {activeStoryTab === 'triage' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left: What Happened & Why it matters (6 Cols) */}
-            <div className="lg:col-span-6 space-y-4">
-              <div className="space-y-1.5">
+      {/* 3. Master 2-Column Command Workspace (Left Data Rail + Right Console) */}
+      <div className={`grid grid-cols-1 ${isRailExpanded ? 'lg:grid-cols-12' : 'lg:grid-cols-1'} gap-6 items-start transition-all duration-200`}>
+        
+        {/* ========================================================================= */}
+        {/* LEFT COLUMN: Slide-Out / Collapsible Operational Data Rail (4 Cols) */}
+        {/* ========================================================================= */}
+        {isRailExpanded && (
+          <div className="lg:col-span-4 space-y-4 animate-in slide-in-from-left duration-150">
+            
+            {/* Data Rail Container */}
+            <div className="glass-card p-4 border-white/[0.08] space-y-4">
+              
+              {/* Rail Header */}
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-brand-accent bg-brand-accent/10 px-2 py-0.5 rounded border border-brand-accent/20">
-                    COFFEE-001
-                  </span>
-                  <h2 className="text-lg font-bold text-white">Specialty Arabica Coffee Beans (AAA Grade)</h2>
+                  <Package className="w-4 h-4 text-brand-accent" />
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                    Inventory Watchlist
+                  </h3>
                 </div>
-                <p className="text-xs text-rose-300 font-medium">
-                  ⚠️ Estimated stockout in ~2.8 days at current run-rate (13.0 kg/day).
-                </p>
-              </div>
-
-              {/* Why it matters callout */}
-              <div className="p-3.5 bg-surface-2 rounded-xl border border-white/[0.06] space-y-1">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                  Why This Matters to Store Operations:
+                <span className="text-[10px] font-mono text-slate-400 bg-surface-2 px-2 py-0.5 rounded-full border border-white/[0.06]">
+                  {filteredSkus.length} of {WATCHLIST_SKUS.length} SKUs
                 </span>
-                <p className="text-xs text-slate-200 leading-relaxed">
-                  Specialty Arabica is the foundational raw material for <strong>48% of store beverage orders</strong> (Flat Whites, Americanos, Cold Brews). Depleting before Friday night rush directly triggers customer churn and estimated revenue leakage of <strong>₹32,400/day</strong>.
-                </p>
               </div>
 
-              {/* Grounded Data Points Strip */}
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                <div className="p-2.5 bg-surface-2/60 rounded-lg border border-white/[0.04]">
-                  <span className="text-slate-400 block text-[10px]">Current Stock</span>
-                  <strong className="text-white font-mono">36.0 kg</strong>
+              {/* Search & Filter Toolbar */}
+              <div className="space-y-2">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Filter SKUs by code, name..."
+                    value={skuSearch}
+                    onChange={(e) => setSkuSearch(e.target.value)}
+                    className="w-full bg-surface-2 border border-white/[0.08] text-xs text-white placeholder-slate-500 rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:border-brand-accent transition-colors"
+                  />
                 </div>
-                <div className="p-2.5 bg-surface-2/60 rounded-lg border border-white/[0.04]">
-                  <span className="text-slate-400 block text-[10px]">Usage Run-Rate</span>
-                  <strong className="text-white font-mono">13.0 kg/day</strong>
-                </div>
-                <div className="p-2.5 bg-surface-2/60 rounded-lg border border-white/[0.04]">
-                  <span className="text-slate-400 block text-[10px]">Lead Time</span>
-                  <strong className="text-white font-mono">2.2 days</strong>
+
+                {/* Status Filter Pills */}
+                <div className="flex items-center gap-1 overflow-x-auto pb-1 text-[10px] font-mono">
+                  {['ALL', 'CRITICAL', 'VARIANCE', 'HEALTHY'].map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => setSkuFilter(f)}
+                      className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                        skuFilter === f
+                          ? 'bg-brand-accent text-black shadow-sm'
+                          : 'bg-surface-2 text-slate-400 hover:text-white hover:bg-surface-3'
+                      }`}
+                    >
+                      {f}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Progress Burn-Down Bar */}
-              <div className="p-3 bg-surface-0 rounded-xl border border-white/[0.04] space-y-2">
-                <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-slate-400">Stock Coverage: 36kg / 120kg target</span>
-                  <span className="text-rose-400 font-bold">2.8 Days Left</span>
-                </div>
-                <div className="w-full bg-surface-3 rounded-full h-2 overflow-hidden flex">
-                  <div className="bg-rose-500 h-full rounded-full" style={{ width: '30%' }}></div>
-                </div>
+              {/* Scrollable SKU Cards List */}
+              <div className="space-y-2.5 max-h-[460px] overflow-y-auto pr-1">
+                {filteredSkus.map((item) => {
+                  const isSelected = selectedSku === item.sku;
+                  const stockPercent = Math.min(100, Math.round((item.current_stock / item.reorder_point) * 100));
+
+                  return (
+                    <div
+                      key={item.sku}
+                      onClick={() => setSelectedSku(item.sku)}
+                      className={`p-3 rounded-xl border transition-all cursor-pointer space-y-2 ${
+                        isSelected
+                          ? 'bg-surface-2/95 border-brand-accent shadow-glow-teal ring-1 ring-brand-accent/50'
+                          : 'bg-surface-2/50 border-white/[0.04] hover:bg-surface-2 hover:border-white/[0.12]'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="space-y-0.5 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className={`w-2 h-2 rounded-full ${item.dotColor} shrink-0 animate-pulse`} />
+                            <span className="font-mono font-bold text-xs text-white truncate">
+                              {item.sku}
+                            </span>
+                          </div>
+                          <h4 className="text-[11px] font-semibold text-slate-200 truncate">
+                            {item.name}
+                          </h4>
+                        </div>
+
+                        <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full border shrink-0 ${item.statusColor}`}>
+                          {item.statusLabel}
+                        </span>
+                      </div>
+
+                      {/* Stock vs Reorder Bar */}
+                      <div className="space-y-1 text-[10px]">
+                        <div className="flex justify-between text-slate-400 font-mono">
+                          <span>Stock: <strong className="text-white">{item.current_stock} {item.unit}</strong></span>
+                          <span>Reorder: {item.reorder_point} {item.unit}</span>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full bg-surface-3 overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-300 ${
+                              item.status === 'CRITICAL' ? 'bg-rose-400' : item.status === 'VARIANCE' ? 'bg-amber-400' : 'bg-emerald-400'
+                            }`}
+                            style={{ width: `${stockPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Right: AI Recommendation & Expected Impact (6 Cols) */}
-            <div className="lg:col-span-6 space-y-4 bg-surface-2/40 p-5 rounded-2xl border border-white/[0.06]">
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="badge-emerald font-mono text-[10px]">
-                    AI RECOMMENDED STRATEGY
-                  </span>
-                  <span className="text-xs text-brand-accent font-semibold">Scenario B (Optimal)</span>
+            {/* Live Telemetry Feed */}
+            <div className="glass-card p-4 border-white/[0.08] space-y-3">
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
+                <div className="flex items-center gap-2">
+                  <Radio className="w-3.5 h-3.5 text-brand-accent animate-pulse" />
+                  <h4 className="text-[11px] font-bold text-white uppercase tracking-wider font-mono">
+                    Live Event Stream
+                  </h4>
                 </div>
-                <h3 className="text-base font-bold text-white">Split-Order Replenishment Strategy</h3>
-                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                  <strong>Why?</strong> Relying on a single supplier creates elevated dependency risk. Splitting volume across <strong>Metro Wholesale (40 units)</strong> for immediate 24h buffer + <strong>Malnad Planters (60 units)</strong> captures tiered volume pricing while guaranteeing stockout resilience.
-                </p>
+                <span className="text-[9px] font-mono text-emerald-400 font-bold">REALTIME</span>
               </div>
 
-              {/* Expected Impact Matrix */}
-              <div className="grid grid-cols-3 gap-2.5 pt-1">
-                <div className="p-3 bg-surface-1 rounded-xl border border-white/[0.04]">
-                  <span className="text-[10px] text-slate-400 block mb-0.5">Stockout Risk</span>
-                  <div className="flex items-center gap-1 font-mono">
-                    <span className="text-xs text-rose-400 line-through">88%</span>
-                    <span className="text-slate-500">→</span>
-                    <span className="text-xs text-emerald-400 font-bold">8%</span>
+              <div className="space-y-2 text-[11px]">
+                {TELEMETRY_FEED.map((feed) => (
+                  <div key={feed.id} className="p-2 rounded-lg bg-surface-2/60 border border-white/[0.04] space-y-0.5">
+                    <div className="flex items-center justify-between text-[9px] font-mono text-slate-500">
+                      <span className="text-brand-accent font-semibold">{feed.type}</span>
+                      <span>{feed.time}</span>
+                    </div>
+                    <p className="text-slate-300 text-[10px] leading-snug">
+                      {feed.text}
+                    </p>
                   </div>
-                </div>
-
-                <div className="p-3 bg-surface-1 rounded-xl border border-white/[0.04]">
-                  <span className="text-[10px] text-slate-400 block mb-0.5">Concentration</span>
-                  <div className="flex items-center gap-1 font-mono">
-                    <span className="text-xs text-amber-400 line-through">100%</span>
-                    <span className="text-slate-500">→</span>
-                    <span className="text-xs text-brand-accent font-bold">50%</span>
-                  </div>
-                </div>
-
-                <div className="p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-                  <span className="text-[10px] text-emerald-400 block mb-0.5">Simulated Savings</span>
-                  <span className="text-sm font-bold text-emerald-400 font-mono">
-                    +₹8,672
-                  </span>
-                </div>
-              </div>
-
-              {/* Action Buttons Hierarchy */}
-              <div className="flex flex-wrap items-center gap-2.5 pt-2">
-                <button
-                  onClick={() => handleOpenEvidence('COFFEE-001', 'Grounded Evidence: Arabica Coffee Beans')}
-                  className="btn-secondary text-xs px-3 py-2"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5 text-brand-accent" />
-                  <span>Review Evidence (8)</span>
-                </button>
-
-                <button
-                  onClick={() => handleOpenWhatIf('COFFEE-001')}
-                  className="btn-secondary text-xs px-3 py-2 text-accent-violet hover:border-accent-violet/40"
-                >
-                  <Sliders className="w-3.5 h-3.5 text-accent-violet" />
-                  <span>Run What-If</span>
-                </button>
-
-                <button
-                  onClick={() => onNavigateTo('approvals')}
-                  className="btn-primary text-xs px-4 py-2 ml-auto"
-                >
-                  <Lock className="w-3.5 h-3.5 text-black" />
-                  <span>Approve & Authorize PO</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* Visual Story & Farm-to-Cup Supply Flow with Generated Assets */
-          <div className="space-y-4 animate-in fade-in duration-200">
-            <p className="text-xs text-slate-300">
-              LEADSTOHELP AI monitors the full physical supply journey from Chikmagalur coffee harvest to Bangalore roastery fulfillment:
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Asset 1: Coffee Harvest */}
-              <div className="glass-card overflow-hidden rounded-xl border-white/[0.08] group bg-surface-2">
-                <div className="h-36 overflow-hidden relative">
-                  <img
-                    src="/assets/coffee_estate.jpg"
-                    alt="Chikmagalur Malnad Coffee Harvest"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-surface-0 to-transparent"></div>
-                  <span className="absolute bottom-2 left-2 badge-emerald text-[9px]">
-                    1. Origin: Malnad Estate
-                  </span>
-                </div>
-                <div className="p-3 text-xs space-y-1">
-                  <h4 className="font-bold text-white">Chikmagalur Direct Sourcing</h4>
-                  <p className="text-[11px] text-slate-400">
-                    60kg bulk allocation from Malnad Coffee Planters (₹840/kg) with 94% SLA compliance.
-                  </p>
-                </div>
-              </div>
-
-              {/* Asset 2: Logistics Transport */}
-              <div className="glass-card overflow-hidden rounded-xl border-white/[0.08] group bg-surface-2">
-                <div className="h-36 overflow-hidden relative">
-                  <img
-                    src="/assets/supply_logistics.jpg"
-                    alt="Deccan Roast Supply Chain Logistics Hub"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-surface-0 to-transparent"></div>
-                  <span className="absolute bottom-2 left-2 badge-teal text-[9px]">
-                    2. Transit: Hub Delivery
-                  </span>
-                </div>
-                <div className="p-3 text-xs space-y-1">
-                  <h4 className="font-bold text-white">Metro Wholesale Fast Buffer</h4>
-                  <p className="text-[11px] text-slate-400">
-                    40kg rapid 24h replenishment buffer to eliminate the immediate 2.8d stockout cliff.
-                  </p>
-                </div>
-              </div>
-
-              {/* Asset 3: Café Operations */}
-              <div className="glass-card overflow-hidden rounded-xl border-white/[0.08] group bg-surface-2">
-                <div className="h-36 overflow-hidden relative">
-                  <img
-                    src="/assets/retail_cafe.jpg"
-                    alt="Deccan Roast Roastery & Cafe"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-surface-0 to-transparent"></div>
-                  <span className="absolute bottom-2 left-2 badge-violet text-[9px]">
-                    3. Retail: Barista Hub
-                  </span>
-                </div>
-                <div className="p-3 text-xs space-y-1">
-                  <h4 className="font-bold text-white">Specialty Roastery & Espresso Bar</h4>
-                  <p className="text-[11px] text-slate-400">
-                    Guaranteed service continuity for 48% of high-margin retail beverage menu items.
-                  </p>
-                </div>
+                ))}
               </div>
             </div>
           </div>
         )}
-      </div>
 
-      {/* 4. Split Work Surface: 7-Factor Risk Radar (Left) + Governance & Live Stream (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: 7-Factor Supply Risk Radar (7 Cols) */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="glass-card p-5 space-y-4 bg-surface-1">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Radar className="w-4 h-4 text-brand-accent" />
-                  Supply Risk Radar Breakdown
-                </h2>
-                <p className="text-xs text-slate-400">7-dimension operational risk assessment engine</p>
-              </div>
-              <button
-                onClick={() => onNavigateTo('risk-radar')}
-                className="text-xs text-brand-accent hover:text-brand-300 font-semibold flex items-center gap-1"
-              >
-                Deep-Dive Radar <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <div className="space-y-2.5">
-              {risk_radar?.dimensions?.map((dim) => (
-                <div key={dim.dimension_name} className="p-3 bg-surface-2/60 rounded-lg border border-white/[0.04] space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-slate-200">{dim.dimension_name}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-slate-400">{dim.score.toFixed(0)}/100</span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.2 rounded-full ${
-                          dim.score >= 50
-                            ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
-                            : dim.score >= 25
-                            ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                            : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
-                        }`}
-                      >
-                        {dim.level}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Micro Progress bar */}
-                  <div className="w-full bg-surface-3 rounded-full h-1.5 overflow-hidden">
-                    <div
-                      className={`h-full rounded-full transition-all duration-300 ${
-                        dim.score >= 50 ? 'bg-rose-500' : dim.score >= 25 ? 'bg-amber-500' : 'bg-emerald-500'
-                      }`}
-                      style={{ width: `${Math.min(100, Math.max(6, dim.score))}%` }}
-                    ></div>
-                  </div>
-
-                  <p className="text-[11px] text-slate-400">{dim.explanation}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Governance Queue & Live Timeline (5 Cols) */}
-        <div className="lg:col-span-5 space-y-6">
-          {/* Human Approval Queue */}
-          <div className="glass-card p-5 border-amber-500/20 bg-surface-1">
-            <div className="flex items-center justify-between mb-3.5">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                  <Lock className="w-3.5 h-3.5" />
-                </div>
-                <div>
-                  <h2 className="text-sm font-bold text-white leading-tight">Human Approval Queue</h2>
-                  <span className="text-[10px] text-slate-400 font-medium">Cryptographic Governance Barrier</span>
-                </div>
-              </div>
-              <span className="badge-amber">{pending_approvals?.length || 0} Pending</span>
-            </div>
-
-            {pending_approvals && pending_approvals.length > 0 ? (
-              <div className="space-y-3">
-                {pending_approvals.map((appr) => (
-                  <div
-                    key={appr.approval_id}
-                    className="p-3.5 bg-surface-2 rounded-xl border border-white/[0.06] space-y-2.5"
+        {/* ========================================================================= */}
+        {/* RIGHT COLUMN: Master Multi-View Operations Workspace (8 or 12 Cols) */}
+        {/* ========================================================================= */}
+        <div className={`${isRailExpanded ? 'lg:col-span-8' : 'lg:col-span-12'} space-y-4 transition-all duration-200`}>
+          
+          {/* View Mode Tabs */}
+          <div className="glass-card p-2 border-white/[0.08] flex items-center justify-between gap-2 overflow-x-auto">
+            <div className="flex items-center gap-1 text-xs">
+              {[
+                { id: 'triage', label: 'Incident Triage & Split-Order', icon: AlertTriangle },
+                { id: 'scenarios', label: '6-Scenario Digital Twin', icon: Sliders },
+                { id: 'suppliers', label: 'Supplier Reliability (10)', icon: Users },
+                { id: 'invoices', label: '3-Way Invoice Match', icon: Receipt }
+              ].map((t) => {
+                const Icon = t.icon;
+                const isActive = activeTab === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setActiveTab(t.id)}
+                    className={`px-3 py-2 rounded-xl font-bold flex items-center gap-2 whitespace-nowrap transition-all ${
+                      isActive
+                        ? 'bg-brand-accent text-black shadow-glow-teal'
+                        : 'text-slate-400 hover:text-white hover:bg-surface-2'
+                    }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-[10px] text-brand-accent font-bold">{appr.approval_id}</span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                        {appr.type}
+                    <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-black' : 'text-slate-400'}`} />
+                    <span>{t.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => onOpenEvidence && onOpenEvidence(activeSkuData.sku)}
+              className="text-[11px] font-semibold text-brand-accent hover:underline flex items-center gap-1 shrink-0 px-2"
+            >
+              <FileCheck className="w-3.5 h-3.5" />
+              <span>Evidence Trace (8 Sources)</span>
+            </button>
+          </div>
+
+          {/* TAB 1: INCIDENT TRIAGE & REPLENISHMENT STRATEGY */}
+          {activeTab === 'triage' && (
+            <div className="space-y-4">
+              
+              {/* Active SKU Triage Card */}
+              <div className="glass-card p-5 sm:p-6 border-white/[0.08] space-y-5">
+                
+                {/* Status Bar */}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/[0.06] pb-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="badge-rose text-[10px] font-mono font-bold">
+                        {activeSkuData.status} RISK SIGNAL
                       </span>
+                      <span className="text-xs font-mono text-slate-400">{activeSkuData.sku}</span>
+                    </div>
+                    <h2 className="text-lg sm:text-xl font-extrabold text-white">
+                      {activeSkuData.name}
+                    </h2>
+                  </div>
+
+                  <div className="text-left sm:text-right font-mono">
+                    <span className="text-[10px] text-slate-400 block uppercase">Stockout Window</span>
+                    <span className="text-xl font-black text-rose-400">
+                      {activeSkuData.days_runway} Days
+                    </span>
+                  </div>
+                </div>
+
+                {/* 7-Day Stock Runway Interactive Visual Curve */}
+                <div className="p-4 rounded-2xl bg-surface-2/70 border border-white/[0.06] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-xs font-bold text-white">
+                      <BarChart3 className="w-4 h-4 text-brand-accent" />
+                      <span>7-Day Depletion Velocity & Stockout Cliff Analysis</span>
+                    </div>
+                    <span className="text-[10px] font-mono text-rose-400 font-bold">13.0 kg/day burn rate</span>
+                  </div>
+
+                  {/* Horizontal Visual Timeline Gauge */}
+                  <div className="grid grid-cols-5 gap-2 pt-1 font-mono text-xs">
+                    {[
+                      { day: 'Wed (Today)', stock: '36.0 kg', color: 'bg-brand-accent/20 border-brand-accent text-brand-accent', note: 'Active' },
+                      { day: 'Thu', stock: '23.0 kg', color: 'bg-amber-500/20 border-amber-500 text-amber-300', note: 'Depleting' },
+                      { day: 'Fri (Rush)', stock: '10.0 kg', color: 'bg-rose-500/20 border-rose-500 text-rose-400', note: 'Cliff Risk' },
+                      { day: 'Sat', stock: '0.0 kg', color: 'bg-rose-900/40 border-rose-600 text-rose-500', note: 'STOCKOUT' },
+                      { day: 'Sun', stock: '0.0 kg', color: 'bg-rose-900/40 border-rose-600 text-rose-500', note: 'REVENUE LOSS' }
+                    ].map((step, idx) => (
+                      <div key={idx} className={`p-2.5 rounded-xl border ${step.color} space-y-1 text-center`}>
+                        <span className="text-[10px] text-slate-400 block">{step.day}</span>
+                        <div className="font-bold text-xs">{step.stock}</div>
+                        <span className="text-[9px] uppercase font-bold block opacity-80">{step.note}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="text-[11px] text-slate-400 leading-tight pt-1">
+                    Without replenishment before Friday 18:00, store runs out of Arabica coffee for peak weekend traffic.
+                  </p>
+                </div>
+
+                {/* Why This Matters Section */}
+                <div className="p-4 rounded-xl bg-surface-2/60 border border-white/[0.04] space-y-1.5 text-xs">
+                  <div className="flex items-center gap-2 text-brand-accent font-bold">
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>OPERATIONAL & REVENUE IMPACT</span>
+                  </div>
+                  <p className="text-slate-300 leading-relaxed">
+                    {activeSkuData.exposure}. Stockout before Friday night peak traffic will cause immediate customer churn and an estimated <strong className="text-white font-mono">₹32,400 weekend revenue loss</strong> across flat whites, americanos, and cold brews.
+                  </p>
+                </div>
+
+                {/* 5-Node Reasoning Chain */}
+                <div className="space-y-2">
+                  <span className="text-[10px] font-mono uppercase font-bold text-slate-400 block">
+                    AI Decision Reasoning Circuit (Grounded in Verified Telemetry)
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-[11px]">
+                    {[
+                      { step: '1. POS Signal', val: '36.0 kg on hand', sub: 'Safety threshold: 50kg', icon: Package },
+                      { step: '2. Velocity', val: '13.0 kg/day', sub: 'Depletion in ~2.8d', icon: Activity },
+                      { step: '3. Menu Exposure', val: '48% of Sales', sub: '₹14,500 daily risk', icon: DollarSign },
+                      { step: '4. Supplier SLA', val: '94% SLA', sub: 'Malnad: 3d lead time', icon: Users },
+                      { step: '5. Optimal PO', val: '70kg + 30kg', sub: 'Split-Order allocation', icon: CheckCircle2 }
+                    ].map((node, nIdx) => {
+                      const NodeIcon = node.icon;
+                      return (
+                        <div key={nIdx} className="p-2.5 rounded-xl bg-surface-2/80 border border-white/[0.04] space-y-1">
+                          <div className="flex items-center gap-1 text-[10px] font-bold text-brand-accent">
+                            <NodeIcon className="w-3 h-3" />
+                            <span>{node.step}</span>
+                          </div>
+                          <div className="font-bold text-white font-mono text-xs">{node.val}</div>
+                          <div className="text-[9px] text-slate-400">{node.sub}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Recommended Split-Order Allocation */}
+                <div className="p-5 rounded-2xl bg-emerald-500/[0.03] border border-emerald-500/25 space-y-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="badge-emerald text-[10px] font-mono font-bold">
+                        RECOMMENDED ACTION: SPLIT-ORDER (OPTIMAL)
+                      </span>
+                      <h3 className="text-base font-bold text-white mt-1">
+                        100 kg Total Replenishment Split Across 2 Partners
+                      </h3>
+                    </div>
+                    <div className="text-right font-mono">
+                      <span className="text-[10px] text-slate-400 block uppercase">Total Cost</span>
+                      <span className="text-xl font-black text-emerald-400">₹86,328</span>
+                      <span className="text-[10px] text-emerald-400 font-bold block">+₹8,672 Savings</span>
+                    </div>
+                  </div>
+
+                  {/* Supplier Allocation Breakdown */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-3.5 rounded-xl bg-surface-1 border border-white/[0.08] space-y-2">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-bold text-white">Malnad Coffee Planters</span>
+                        <span className="badge-teal text-[9px] font-mono">70 kg (Bulk Tier)</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 leading-snug">
+                        Unit Cost: <strong className="text-white">₹850.00/kg</strong> • Lead Time: <strong className="text-white">3 Days</strong>. Captures bulk volume discount.
+                      </p>
                     </div>
 
-                    <h4 className="text-xs font-bold text-white leading-tight">{appr.title}</h4>
-                    <p className="text-[11px] text-slate-400">{appr.why_recommended}</p>
+                    <div className="p-3.5 rounded-xl bg-surface-1 border border-white/[0.08] space-y-2">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="font-bold text-white">Metro Wholesale Hub</span>
+                        <span className="badge-teal text-[9px] font-mono">30 kg (Buffer Tier)</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 leading-snug">
+                        Unit Cost: <strong className="text-white">₹894.27/kg</strong> • Lead Time: <strong className="text-white">24 Hours</strong>. Guarantees safety buffer for Friday.
+                      </p>
+                    </div>
+                  </div>
 
-                    <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-xs">
-                      <div>
-                        <span className="text-slate-500 text-[10px]">Net Commitment: </span>
-                        <strong className="text-white font-mono font-bold">₹{appr.cost_inr.toLocaleString()}</strong>
-                      </div>
+                  {/* Action Footer */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-emerald-500/20">
+                    <div className="flex items-center gap-2 text-xs text-slate-300">
+                      <Lock className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Governance: Human approval required before purchase order dispatch.</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => onOpenRiskDetail && onOpenRiskDetail(activeSkuData)}
+                        className="btn-secondary text-xs py-2 px-3.5"
+                      >
+                        Risk Breakdown
+                      </button>
+                      <button
+                        onClick={() => onOpenProcurement('COFFEE-001')}
+                        className="btn-success text-xs py-2 px-4 shadow-glow-emerald"
+                      >
+                        Submit for Human Approval
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: 6-SCENARIO DIGITAL TWIN */}
+          {activeTab === 'scenarios' && (
+            <div className="glass-card p-6 border-white/[0.08] space-y-4">
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+                <div>
+                  <h3 className="text-sm font-bold text-white">
+                    6-Scenario Deterministic Procurement Matrix
+                  </h3>
+                  <p className="text-xs text-slate-400">Comparing lead time, unit economics, and stockout probability.</p>
+                </div>
+                <span className="badge-teal text-[10px] font-mono font-bold">ZERO HALLUCINATION</span>
+              </div>
+
+              <div className="space-y-3">
+                {[
+                  { name: 'B. Split-Order Strategy (AI Recommended)', alloc: '70kg Malnad + 30kg Metro', cost: '₹86,328', time: '24h / 3d', risk: '8%', savings: '+₹8,672', rec: true },
+                  { name: 'A. Single Supplier (Malnad Only)', alloc: '100kg Malnad Planters', cost: '₹84,000', time: '3.5 Days', risk: '72%', savings: '+₹11,000', rec: false },
+                  { name: 'C. Emergency Metro Wholesale', alloc: '100kg Metro Hub', cost: '₹95,000', time: '24 Hours', risk: '4%', savings: '₹0', rec: false },
+                  { name: 'D. Cheapest Option (Aura Commodities)', alloc: '100kg Aura Raw', cost: '₹79,500', time: '4.0 Days', risk: '85%', savings: '+₹15,500', rec: false }
+                ].map((sc, sIdx) => (
+                  <div
+                    key={sIdx}
+                    className={`p-4 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs ${
+                      sc.rec
+                        ? 'bg-emerald-500/[0.04] border-emerald-500/30'
+                        : 'bg-surface-2/60 border-white/[0.04]'
+                    }`}
+                  >
+                    <div>
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => onQuickApprove(appr.approval_id, 'APPROVED')}
-                          className="btn-success text-xs px-3 py-1"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => onNavigateTo('approvals')}
-                          className="btn-secondary text-xs px-2.5 py-1"
-                        >
-                          Inspect
-                        </button>
+                        <span className="font-bold text-white">{sc.name}</span>
+                        {sc.rec && <span className="badge-emerald text-[9px] font-mono font-bold">RECOMMENDED</span>}
                       </div>
+                      <p className="text-[11px] text-slate-400 mt-0.5 font-mono">{sc.alloc} • Lead Time: {sc.time}</p>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-right font-mono">
+                      <div>
+                        <span className="text-[10px] text-slate-500 block">COST</span>
+                        <span className="font-bold text-white text-sm">{sc.cost}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-slate-500 block">RISK</span>
+                        <span className={`font-bold ${sc.risk === '8%' || sc.risk === '4%' ? 'text-emerald-400' : 'text-rose-400'}`}>{sc.risk}</span>
+                      </div>
+                      <button
+                        onClick={() => onOpenProcurement('COFFEE-001')}
+                        className="btn-secondary text-[11px] py-1.5 px-3"
+                      >
+                        Simulate
+                      </button>
                     </div>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-6 text-slate-400 text-xs space-y-1">
-                <CheckCircle2 className="w-7 h-7 mx-auto text-emerald-400/80 mb-1" />
-                <span className="font-semibold text-slate-300 block">All Actions Approved</span>
-                <span className="text-[11px] text-slate-400">Zero pending governance barriers in queue.</span>
-              </div>
-            )}
-          </div>
-
-          {/* Realtime Operations Timeline */}
-          <div className="glass-card p-5 space-y-4 bg-surface-1">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-brand-accent" />
-                  Operations Activity Feed
-                </h2>
-                <p className="text-xs text-slate-400">Multi-agent execution & telemetry trace</p>
-              </div>
-              <button
-                onClick={() => onNavigateTo('agent-inspector')}
-                className="text-xs text-brand-accent hover:text-brand-300 font-semibold flex items-center gap-1"
-              >
-                Inspect Telemetry <ChevronRight className="w-3.5 h-3.5" />
-              </button>
             </div>
+          )}
 
-            <div className="relative pl-4 space-y-4 border-l border-white/[0.08]">
-              {recent_timeline?.slice(0, 5).map((evt) => (
-                <div key={evt.event_id} className="relative group">
-                  <span
-                    className={`absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full ring-4 ring-surface-0 ${
-                      evt.badge_type === 'rose'
-                        ? 'bg-rose-500'
-                        : evt.badge_type === 'amber'
-                        ? 'bg-amber-500'
-                        : evt.badge_type === 'emerald'
-                        ? 'bg-emerald-500'
-                        : 'bg-brand-accent'
-                    }`}
-                  ></span>
+          {/* TAB 3: SUPPLIER RELIABILITY */}
+          {activeTab === 'suppliers' && (
+            <div className="glass-card p-6 border-white/[0.08] space-y-4">
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+                <h3 className="text-sm font-bold text-white">Partner Network Performance</h3>
+                <span className="text-xs text-slate-400">10 Vetted Suppliers</span>
+              </div>
 
-                  <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono mb-0.5">
-                    <span>{evt.timestamp_display}</span>
-                    <span className="uppercase font-bold text-brand-accent">{evt.stage}</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                {[
+                  { name: 'Malnad Coffee Planters', score: '94%', orders: 18, lead: '3 Days', status: 'Optimal' },
+                  { name: 'Metro Wholesale Hub', score: '92%', orders: 34, lead: '24 Hours', status: 'Rapid Buffer' },
+                  { name: 'Kaveri Dairy Collective', score: '78%', orders: 22, lead: '1 Day', status: '1 Discrepancy Flagged' },
+                  { name: 'GreenPack India', score: '96%', orders: 12, lead: '2 Days', status: 'Healthy' }
+                ].map((sup, idx) => (
+                  <div key={idx} className="p-4 rounded-xl bg-surface-2/60 border border-white/[0.04] space-y-2">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-bold text-white">{sup.name}</h4>
+                      <span className="badge-teal font-mono text-[10px] font-bold">{sup.score} SLA</span>
+                    </div>
+                    <div className="flex justify-between text-[11px] text-slate-400 font-mono">
+                      <span>{sup.orders} Completed Orders</span>
+                      <span>Lead: {sup.lead}</span>
+                    </div>
+                    <p className="text-[10px] text-slate-400 border-t border-white/[0.04] pt-1">
+                      Status: <strong className="text-slate-200">{sup.status}</strong>
+                    </p>
                   </div>
-
-                  <h4 className="text-xs font-semibold text-slate-200 group-hover:text-white transition-colors">{evt.title}</h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">{evt.description}</p>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* TAB 4: 3-WAY INVOICE AUDIT */}
+          {activeTab === 'invoices' && (
+            <div className="glass-card p-6 border-white/[0.08] space-y-4">
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+                <div>
+                  <h3 className="text-sm font-bold text-white">3-Way Match Discrepancy Detection</h3>
+                  <p className="text-xs text-slate-400">PO vs Supplier Invoice vs Physical GRN Receipt</p>
+                </div>
+                <span className="badge-amber text-[10px] font-mono font-bold">1 VARIANCE FOUND</span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-surface-2/60 border border-white/[0.04] space-y-3 text-xs">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h4 className="font-bold text-white">Invoice #KD-8839 (Kaveri Dairy Collective)</h4>
+                    <p className="text-[11px] text-slate-400">DAIRY-001 Barista Fresh Milk (3.5% Fat)</p>
+                  </div>
+                  <span className="badge-amber font-mono text-[10px] font-bold">8L SHORTAGE</span>
+                </div>
+
+                <div className="grid grid-cols-4 gap-2 text-[11px] font-mono text-center">
+                  <div className="p-2 rounded bg-surface-1">
+                    <span className="text-slate-500 block text-[9px]">ORDERED</span>
+                    <span className="font-bold text-white">20 L</span>
+                  </div>
+                  <div className="p-2 rounded bg-surface-1">
+                    <span className="text-slate-500 block text-[9px]">BILLED</span>
+                    <span className="font-bold text-white">20 L</span>
+                  </div>
+                  <div className="p-2 rounded bg-surface-1 border border-amber-500/30">
+                    <span className="text-amber-400 block text-[9px]">RECEIVED</span>
+                    <span className="font-bold text-amber-300">12 L</span>
+                  </div>
+                  <div className="p-2 rounded bg-surface-1 border border-rose-500/30">
+                    <span className="text-rose-400 block text-[9px]">SHORTFALL</span>
+                    <span className="font-bold text-rose-400">8 L (₹486.40)</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center pt-2 border-t border-white/[0.04]">
+                  <span className="text-[11px] text-slate-300 font-medium">Automatic Resolution: Generate debit note to recover shortage.</span>
+                  <button
+                    onClick={() => onNavigateTo('invoices')}
+                    className="btn-primary text-xs py-1.5 px-3"
+                  >
+                    Generate ₹486.40 Debit Note
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
-
-      {/* Slide-out Evidence & Grounding Trace Drawer */}
-      <EvidenceDrawer
-        isOpen={evidenceDrawerOpen}
-        onClose={() => setEvidenceDrawerOpen(false)}
-        evidence={evidenceItems}
-        title={evidenceTitle}
-      />
-
-      {/* What-If Digital Twin Modal */}
-      {whatIfModalOpen && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-surface-1 border border-accent-violet/30 p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <Sliders className="w-5 h-5 text-accent-violet" />
-                Supply Chain Digital Twin Simulator ({activeWhatIfSku})
-              </h2>
-              <button
-                onClick={() => setWhatIfModalOpen(false)}
-                className="btn-secondary text-xs"
-              >
-                Close Simulator
-              </button>
-            </div>
-            <WhatIfSimulator sku={activeWhatIfSku} onClose={() => setWhatIfModalOpen(false)} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -95,9 +95,9 @@ export default function OnboardingModal({ isOpen, onClose, onStartDemo }) {
 
           <button
             onClick={onClose}
-            className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5"
+            className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-glow-teal font-bold"
           >
-            <span>Enter Control Tower</span>
+            <span>Access Operations Workspace</span>
             <ArrowRight className="w-3.5 h-3.5 text-black" />
           </button>
         </div>

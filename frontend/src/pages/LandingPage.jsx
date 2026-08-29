@@ -114,7 +114,8 @@ const AGENT_PIPELINE = [
 export default function LandingPage({
   onEnterApp,
   onStartDemoTour,
-  onOpenAskAI
+  onOpenAskAI,
+  onNavigateToLogin
 }) {
   const [selectedScenario, setSelectedScenario] = useState(SCENARIOS[0]);
   const [demandSurge, setDemandSurge] = useState(20);
@@ -143,13 +144,13 @@ export default function LandingPage({
           />
           <div>
             <div className="flex items-center gap-2 leading-none">
-              <span className="font-extrabold text-sm tracking-wider text-white">LEADSTOHELP</span>
-            </div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">
-                AI CONTROL TOWER
+              <span className="font-extrabold tracking-wider text-base text-white">
+                LEADSTOHELP
               </span>
             </div>
+            <span className="text-[10px] font-mono tracking-widest text-cyan-400 font-bold block mt-0.5">
+              AI CONTROL TOWER
+            </span>
           </div>
         </div>
 
@@ -178,10 +179,17 @@ export default function LandingPage({
           </button>
 
           <button
-            onClick={onEnterApp}
+            onClick={() => onNavigateToLogin ? onNavigateToLogin('login') : onEnterApp()}
+            className="text-xs font-bold text-slate-300 hover:text-white px-3 py-2 rounded-xl hover:bg-surface-1 transition-all"
+          >
+            <span>Sign In</span>
+          </button>
+
+          <button
+            onClick={() => onNavigateToLogin ? onNavigateToLogin('signup') : onEnterApp()}
             className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-glow-teal font-bold"
           >
-            <span>Enter Control Tower</span>
+            <span>Sign Up Free</span>
             <ArrowRight className="w-3.5 h-3.5 text-black" />
           </button>
         </div>
@@ -223,11 +231,19 @@ export default function LandingPage({
           {/* Hero Action Buttons */}
           <div className="flex flex-wrap items-center gap-3.5 pt-2">
             <button
-              onClick={onEnterApp}
+              onClick={() => onNavigateToLogin ? onNavigateToLogin('signup') : onEnterApp()}
               className="btn-primary text-sm py-3 px-6 flex items-center gap-2 shadow-glow-teal font-bold"
             >
-              <span>Enter Control Tower</span>
+              <span>Sign Up Free</span>
               <ArrowRight className="w-4 h-4 text-black" />
+            </button>
+
+            <button
+              onClick={() => onNavigateToLogin ? onNavigateToLogin('login') : onEnterApp()}
+              className="btn-secondary text-sm py-3 px-5 flex items-center gap-2 font-semibold bg-surface-1/90"
+            >
+              <UserCheck className="w-4 h-4 text-cyan-400" />
+              <span>Sign In</span>
             </button>
 
             <button
@@ -235,7 +251,7 @@ export default function LandingPage({
               className="btn-secondary text-sm py-3 px-5 flex items-center gap-2 backdrop-blur-md font-semibold bg-surface-1/90"
             >
               <Play className="w-4 h-4 text-cyan-400 fill-cyan-400" />
-              <span>Run 3-Minute Demo</span>
+              <span>3-Min Demo</span>
             </button>
 
             <button
@@ -1027,17 +1043,26 @@ export default function LandingPage({
 
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           <button
-            onClick={onEnterApp}
+            onClick={() => onNavigateToLogin ? onNavigateToLogin('signup') : onEnterApp()}
             className="btn-primary text-sm py-3 px-6 flex items-center gap-2 shadow-glow-teal font-bold"
           >
-            <span>Enter Control Tower →</span>
+            <span>Sign Up Free</span>
+            <ArrowRight className="w-4 h-4 text-black" />
+          </button>
+
+          <button
+            onClick={() => onNavigateToLogin ? onNavigateToLogin('login') : onEnterApp()}
+            className="btn-secondary text-sm py-3 px-5 flex items-center gap-2 font-semibold"
+          >
+            <UserCheck className="w-4 h-4 text-cyan-400" />
+            <span>Sign In to Control Tower</span>
           </button>
 
           <button
             onClick={onStartDemoTour}
             className="btn-secondary text-sm py-3 px-5 flex items-center gap-2 font-semibold"
           >
-            <Play className="w-4 h-4 text-brand-accent fill-brand-accent" />
+            <Play className="w-4 h-4 text-cyan-400 fill-cyan-400" />
             <span>Run 3-Minute Demo</span>
           </button>
         </div>

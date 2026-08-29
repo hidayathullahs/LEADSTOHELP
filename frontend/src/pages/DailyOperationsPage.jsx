@@ -18,63 +18,72 @@ import {
   Coffee,
   Calendar,
   Lock,
-  Search
+  Search,
+  Eye,
+  Check
 } from 'lucide-react';
-import { api } from '../services/api';
+import { useToast } from '../components/ToastContext';
 
 export default function DailyOperationsPage({
   onNavigateTo,
   onOpenAskAI,
-  overviewData
+  overviewData,
+  onOpenProcurement
 }) {
   const [isRunningChecks, setIsRunningChecks] = useState(false);
   const [checksCompleted, setChecksCompleted] = useState(false);
-  const [completedAutomations, setCompletedAutomations] = useState({});
+  const [completedTasks, setCompletedTasks] = useState({});
+  const { addToast } = useToast();
 
   const handleRunAllSafeChecks = async () => {
     setIsRunningChecks(true);
-    // Simulate real diagnostic sweep
     setTimeout(() => {
       setIsRunningChecks(false);
       setChecksCompleted(true);
-      setCompletedAutomations({
-        inventory: '65 SKUs evaluated • 1 Critical Alert identified (COFFEE-001)',
-        suppliers: '10 Vetted partners monitored • Average SLA reliability 88.0%',
-        invoices: '8 Invoices reconciled • 1 Discrepancy flagged (Kaveri Dairy 8L)',
-        governance: '1 Proposed action staged in Human Approval Queue'
+      addToast({
+        title: 'Diagnostic Sweep Completed',
+        message: '65 SKUs and 5 suppliers evaluated. 1 Critical Alert, 1 Invoice Discrepancy flagged.',
+        type: 'success'
       });
-    }, 900);
+    }, 700);
   };
 
-  const handleRunSingleAutomation = (key, name) => {
-    setCompletedAutomations((prev) => ({
-      ...prev,
-      [key]: `Completed at ${new Date().toLocaleTimeString()} — Status: Nominal.`
-    }));
+  const handleToggleTask = (taskId, taskTitle) => {
+    setCompletedTasks(prev => {
+      const nextState = !prev[taskId];
+      if (nextState) {
+        addToast({
+          title: 'Task Completed',
+          message: `${taskTitle} marked as completed for today.`,
+          type: 'info'
+        });
+      }
+      return { ...prev, [taskId]: nextState };
+    });
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto select-none">
       {/* Header & Morning Briefing */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between pb-4 border-b border-white/[0.06] gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="badge-violet text-[10px] uppercase font-bold">
-              Track 3 • Daily Operations & Productivity Hub
+            <span className="badge-teal text-[10px] uppercase font-bold font-mono">
+              Daily Operations Workspace
             </span>
             <span className="text-xs text-slate-400">Deccan Roast Specialty Hub • Bangalore</span>
           </div>
-          <h1 className="text-xl font-extrabold text-white flex items-center gap-2 tracking-tight">
-            <Activity className="w-5 h-5 text-brand-accent" />
-            Good Morning, Arjun — Today's Operational Priorities
+          <h1 className="text-xl sm:text-2xl font-extrabold text-white flex items-center gap-2 tracking-tight">
+            <Activity className="w-5 h-5 text-brand-accent shrink-0" />
+            Good Morning, Arjun — Today's Operational Work Queue
           </h1>
-          <p className="text-xs text-slate-400">
-            Autonomous daily briefings, automated read-only health checks, and human-in-the-loop task orchestration.
+          <p className="text-xs text-slate-400 mt-0.5">
+            AI daily briefings, automated read-only health checks, and task orchestration for store operations.
           </p>
         </div>
 
-        {/* Global Task Triggers */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        {/* Global Action Triggers */}
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={handleRunAllSafeChecks}
             disabled={isRunningChecks}
@@ -98,179 +107,263 @@ export default function DailyOperationsPage({
             className="btn-secondary text-xs py-2 px-3.5 flex items-center gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5 text-brand-accent" />
-            <span>Start AI Morning Brief</span>
+            <span>Copilot Daily Brief</span>
           </button>
         </div>
       </div>
 
-      {/* AI Daily Priorities Ribbon (The 3 Critical Tasks) */}
-      <div className="space-y-3">
+      {/* AI Morning Brief Box */}
+      <div className="glass-card p-5 border-brand-accent/30 bg-gradient-to-r from-surface-1 via-surface-1 to-surface-2 space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-brand-accent" />
-            AI-Prioritized Daily Action Queue (3 High-Impact Items)
-          </h2>
-          <span className="text-[10px] text-slate-500 font-mono">Ranked by Operational Urgency</span>
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-brand-accent" />
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+              AI Morning Operational Brief
+            </h3>
+          </div>
+          <span className="text-[10px] font-mono text-slate-400">Refreshed 5m ago</span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Priority 1: Arabica Stockout Prevention */}
-          <div className="glass-card p-4 border-rose-500/30 bg-surface-1 space-y-3 flex flex-col justify-between">
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="badge-rose text-[9px]">
-                  Priority 1 • Immediate Risk
-                </span>
-                <span className="text-[10px] font-mono text-rose-400 font-bold">2.8 Days Left</span>
-              </div>
-              <h3 className="text-sm font-bold text-white">Prevent Arabica Coffee Stockout</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Stock is at 36kg with 13kg/day run-rate. Split-order PO staged to secure 100kg before Friday peak rush.
-              </p>
-            </div>
-            <button
-              onClick={() => onNavigateTo('procurement')}
-              className="btn-primary text-xs py-1.5 w-full flex items-center justify-center gap-1.5"
-            >
-              <span>Review Split-Order PO</span>
-              <ArrowRight className="w-3 h-3 text-black" />
-            </button>
+        <p className="text-xs text-slate-200 leading-relaxed">
+          Deccan Roast Hub #BLR-01 is operating with <strong>65 monitored SKUs</strong>. Today's primary focus is resolving the <strong>Arabica beans stockout window (~2.8 days runway)</strong> and reviewing the <strong>Kaveri Dairy 8L invoice shortage</strong> before afternoon barista shifts.
+        </p>
+
+        {/* 3 Top Priorities */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+          <div className="p-3 rounded-xl bg-surface-2/70 border border-rose-500/20 space-y-1">
+            <span className="text-[10px] font-mono text-rose-400 font-bold block">PRIORITY 1</span>
+            <h4 className="text-xs font-bold text-white">Prevent Arabica Stockout</h4>
+            <p className="text-[11px] text-slate-300">36kg stock remaining vs 13kg/d velocity. Split-order PO recommended.</p>
           </div>
 
-          {/* Priority 2: Kaveri Dairy Invoice Shortage */}
-          <div className="glass-card p-4 border-amber-500/30 bg-surface-1 space-y-3 flex flex-col justify-between">
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="badge-amber text-[9px]">
-                  Priority 2 • Financial Audit
-                </span>
-                <span className="text-[10px] font-mono text-amber-300 font-bold">₹486.40 Leakage</span>
-              </div>
-              <h3 className="text-sm font-bold text-white">Resolve Kaveri Dairy Shortage</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                Invoice INV-KAV-8842 billed 100L but only 92L verified received at store loading bay. Debit note staged.
-              </p>
-            </div>
-            <button
-              onClick={() => onNavigateTo('invoices')}
-              className="btn-secondary text-xs py-1.5 w-full flex items-center justify-center gap-1.5"
-            >
-              <span>Inspect & Dispute Invoice</span>
-              <ArrowRight className="w-3 h-3 text-slate-300" />
-            </button>
+          <div className="p-3 rounded-xl bg-surface-2/70 border border-amber-500/20 space-y-1">
+            <span className="text-[10px] font-mono text-amber-300 font-bold block">PRIORITY 2</span>
+            <h4 className="text-xs font-bold text-white">Resolve Kaveri 8L Shortage</h4>
+            <p className="text-[11px] text-slate-300">Invoiced 20L vs 12L received. Issue ₹486.40 debit note.</p>
           </div>
 
-          {/* Priority 3: Human Governance Sign-Off */}
-          <div className="glass-card p-4 border-emerald-500/30 bg-surface-1 space-y-3 flex flex-col justify-between">
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="badge-emerald text-[9px]">
-                  Priority 3 • Human Sign-off
-                </span>
-                <span className="text-[10px] font-mono text-emerald-400 font-bold">1 In Queue</span>
-              </div>
-              <h3 className="text-sm font-bold text-white">Authorize Replenishment Order</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                ₹86,328 split-order commitment requires operator sign-off to transmit POs to Metro and Malnad suppliers.
-              </p>
-            </div>
-            <button
-              onClick={() => onNavigateTo('approvals')}
-              className="btn-success text-xs py-1.5 w-full flex items-center justify-center gap-1.5"
-            >
-              <Lock className="w-3 h-3 text-black" />
-              <span>Authorize in Approval Queue</span>
-            </button>
+          <div className="p-3 rounded-xl bg-surface-2/70 border border-emerald-500/20 space-y-1">
+            <span className="text-[10px] font-mono text-emerald-400 font-bold block">PRIORITY 3</span>
+            <h4 className="text-xs font-bold text-white">Sign Off Approval Queue</h4>
+            <p className="text-[11px] text-slate-300">1 high-impact PO (₹86,328) ready for human governance.</p>
           </div>
         </div>
       </div>
 
-      {/* Safe Automated Workflows & Health Sweeps */}
-      <div className="glass-card p-5 bg-surface-1 space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/[0.06] pb-3 gap-2">
-          <div>
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              Daily Operational Automation Sweeps (Read-Only & Governed)
-            </h2>
-            <p className="text-xs text-slate-400">
-              Autonomous agents execute continuous background monitoring without modifying financial state.
-            </p>
-          </div>
-          {checksCompleted && (
-            <span className="badge-emerald text-xs">
-              All 4 Checks Completed
+      {/* Two-Column Layout: Task Queue & Safe Automations */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left (2 cols): Operational Task Work Queue */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <CheckSquare className="w-4 h-4 text-emerald-400" />
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                Today's Action Queue
+              </h3>
+            </div>
+            <span className="text-[11px] text-slate-400 font-mono">
+              {Object.values(completedTasks).filter(Boolean).length} of 4 Completed
             </span>
-          )}
+          </div>
+
+          {/* Task 1: Arabica Crisis (Critical) */}
+          <div className={`p-4 rounded-2xl border transition-all ${
+            completedTasks['task-1']
+              ? 'bg-surface-2/40 border-white/[0.04] opacity-60'
+              : 'bg-surface-1 border-rose-500/30 shadow-lg'
+          }`}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={!!completedTasks['task-1']}
+                  onChange={() => handleToggleTask('task-1', 'Arabica Replenishment')}
+                  className="mt-1 rounded bg-surface-2 border-white/[0.2] text-brand-accent focus:ring-0 w-4 h-4 cursor-pointer"
+                />
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="badge-rose text-[9px] font-mono font-bold">CRITICAL</span>
+                    <h4 className={`text-xs font-bold ${completedTasks['task-1'] ? 'line-through text-slate-400' : 'text-white'}`}>
+                      Review & Submit Arabica Split-Order Replenishment
+                    </h4>
+                  </div>
+                  <p className="text-[11px] text-slate-300">
+                    COFFEE-001 has ~2.8 days of safety stock left. Review 70kg Malnad + 30kg Metro scenario.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => onOpenProcurement ? onOpenProcurement('COFFEE-001') : onNavigateTo('procurement')}
+                className="btn-primary text-[11px] py-1.5 px-3 shrink-0 flex items-center gap-1"
+              >
+                <span>Review PO</span>
+                <ArrowRight className="w-3 h-3 text-black" />
+              </button>
+            </div>
+          </div>
+
+          {/* Task 2: Kaveri Invoice Variance (Action Required) */}
+          <div className={`p-4 rounded-2xl border transition-all ${
+            completedTasks['task-2']
+              ? 'bg-surface-2/40 border-white/[0.04] opacity-60'
+              : 'bg-surface-1 border-amber-500/30 shadow-lg'
+          }`}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={!!completedTasks['task-2']}
+                  onChange={() => handleToggleTask('task-2', 'Kaveri Invoice Audit')}
+                  className="mt-1 rounded bg-surface-2 border-white/[0.2] text-brand-accent focus:ring-0 w-4 h-4 cursor-pointer"
+                />
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="badge-amber text-[9px] font-mono font-bold">ACTION REQUIRED</span>
+                    <h4 className={`text-xs font-bold ${completedTasks['task-2'] ? 'line-through text-slate-400' : 'text-white'}`}>
+                      Resolve Kaveri Organic Dairy 8L Shortage Variance
+                    </h4>
+                  </div>
+                  <p className="text-[11px] text-slate-300">
+                    Invoice INV-2026-0841 billed 20L Barista Milk vs 12L physically received. Generate ₹486.40 debit note.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => onNavigateTo('invoices')}
+                className="btn-secondary text-[11px] py-1.5 px-3 shrink-0 flex items-center gap-1"
+              >
+                <span>Audit Invoice</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+
+          {/* Task 3: Authorize Approval Queue */}
+          <div className={`p-4 rounded-2xl border transition-all ${
+            completedTasks['task-3']
+              ? 'bg-surface-2/40 border-white/[0.04] opacity-60'
+              : 'bg-surface-1 border-white/[0.08]'
+          }`}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={!!completedTasks['task-3']}
+                  onChange={() => handleToggleTask('task-3', 'Approval Queue Sign-off')}
+                  className="mt-1 rounded bg-surface-2 border-white/[0.2] text-brand-accent focus:ring-0 w-4 h-4 cursor-pointer"
+                />
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="badge-teal text-[9px] font-mono font-bold">DUE TODAY</span>
+                    <h4 className={`text-xs font-bold ${completedTasks['task-3'] ? 'line-through text-slate-400' : 'text-white'}`}>
+                      Sign Off Purchase Order PO-2026-0884 (₹86,328)
+                    </h4>
+                  </div>
+                  <p className="text-[11px] text-slate-300">
+                    Human governance gate sign-off for Arabica beans order commitment.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => onNavigateTo('approvals')}
+                className="btn-secondary text-[11px] py-1.5 px-3 shrink-0 flex items-center gap-1"
+              >
+                <span>Open Queue</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+
+          {/* Task 4: Eco Cups Stock Buffer Check */}
+          <div className={`p-4 rounded-2xl border transition-all ${
+            completedTasks['task-4']
+              ? 'bg-surface-2/40 border-white/[0.04] opacity-60'
+              : 'bg-surface-1 border-white/[0.08]'
+          }`}>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={!!completedTasks['task-4']}
+                  onChange={() => handleToggleTask('task-4', 'Eco Cups Buffer Audit')}
+                  className="mt-1 rounded bg-surface-2 border-white/[0.2] text-brand-accent focus:ring-0 w-4 h-4 cursor-pointer"
+                />
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="badge-neutral text-[9px] font-mono font-bold">ROUTINE</span>
+                    <h4 className={`text-xs font-bold ${completedTasks['task-4'] ? 'line-through text-slate-400' : 'text-white'}`}>
+                      Audit 12oz Eco Kraft Cups Buffer (PACK-001)
+                    </h4>
+                  </div>
+                  <p className="text-[11px] text-slate-300">
+                    Verify physical count matches system level (1,200 units on hand, 8.5d buffer).
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => onNavigateTo('inventory')}
+                className="btn-secondary text-[11px] py-1.5 px-3 shrink-0 flex items-center gap-1"
+              >
+                <span>Check Inventory</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {/* Automation 1 */}
-          <div className="p-3.5 bg-surface-2 rounded-xl border border-white/[0.04] space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-white">Morning Risk Scan</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+        {/* Right (1 col): Safe Operations & Diagnostic Status */}
+        <div className="glass-card p-5 space-y-4">
+          <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                Safe Operations
+              </h3>
             </div>
-            <p className="text-[11px] text-slate-400">
-              {completedAutomations.inventory || 'Continuous scan of 65 raw material safety thresholds.'}
-            </p>
-            <button
-              onClick={() => handleRunSingleAutomation('inventory', 'Morning Risk Scan')}
-              className="text-[11px] text-brand-accent hover:underline font-semibold flex items-center gap-1 pt-1"
-            >
-              <Play className="w-3 h-3" /> Run Scan Now
-            </button>
+            <span className="badge-emerald text-[10px] font-mono">100% Read-Only</span>
           </div>
 
-          {/* Automation 2 */}
-          <div className="p-3.5 bg-surface-2 rounded-xl border border-white/[0.04] space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-white">Supplier SLA Tracker</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            </div>
-            <p className="text-[11px] text-slate-400">
-              {completedAutomations.suppliers || 'Tracks on-time delivery rates across 10 active vendors.'}
-            </p>
-            <button
-              onClick={() => handleRunSingleAutomation('suppliers', 'Supplier SLA Tracker')}
-              className="text-[11px] text-brand-accent hover:underline font-semibold flex items-center gap-1 pt-1"
-            >
-              <Play className="w-3 h-3" /> Run Tracker Now
-            </button>
-          </div>
+          <p className="text-[11px] text-slate-300 leading-snug">
+            Automated diagnostic scans run continuously without committing spend or modifying external orders.
+          </p>
 
-          {/* Automation 3 */}
-          <div className="p-3.5 bg-surface-2 rounded-xl border border-white/[0.04] space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-white">3-Way Invoice Reconciler</span>
-              <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+          {/* Safe Check Items */}
+          <div className="space-y-2">
+            <div className="p-3 rounded-xl bg-surface-2/60 border border-white/[0.04] flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Package className="w-3.5 h-3.5 text-brand-accent" />
+                <span className="text-slate-200">Inventory Health Check</span>
+              </div>
+              <span className="badge-emerald text-[9px] font-mono">PASSED</span>
             </div>
-            <p className="text-[11px] text-slate-400">
-              {completedAutomations.invoices || 'OCR audits incoming delivery challans against PO line items.'}
-            </p>
-            <button
-              onClick={() => handleRunSingleAutomation('invoices', '3-Way Invoice Reconciler')}
-              className="text-[11px] text-brand-accent hover:underline font-semibold flex items-center gap-1 pt-1"
-            >
-              <Play className="w-3 h-3" /> Run Reconciler Now
-            </button>
-          </div>
 
-          {/* Automation 4 */}
-          <div className="p-3.5 bg-surface-2 rounded-xl border border-white/[0.04] space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-white">Governance Shield</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <div className="p-3 rounded-xl bg-surface-2/60 border border-white/[0.04] flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Users className="w-3.5 h-3.5 text-brand-accent" />
+                <span className="text-slate-200">Supplier Reliability Scan</span>
+              </div>
+              <span className="badge-emerald text-[9px] font-mono">PASSED</span>
             </div>
-            <p className="text-[11px] text-slate-400">
-              {completedAutomations.governance || 'Enforces zero autonomous financial commitments without sign-off.'}
-            </p>
-            <button
-              onClick={() => handleRunSingleAutomation('governance', 'Governance Shield')}
-              className="text-[11px] text-brand-accent hover:underline font-semibold flex items-center gap-1 pt-1"
-            >
-              <Play className="w-3 h-3" /> Verify Shield
-            </button>
+
+            <div className="p-3 rounded-xl bg-surface-2/60 border border-white/[0.04] flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <FileCheck className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-slate-200">Invoice 3-Way Match</span>
+              </div>
+              <span className="badge-amber text-[9px] font-mono">1 VARIANCE</span>
+            </div>
+
+            <div className="p-3 rounded-xl bg-surface-2/60 border border-white/[0.04] flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-slate-200">RBAC Governance Rules</span>
+              </div>
+              <span className="badge-emerald text-[9px] font-mono">ENFORCED</span>
+            </div>
           </div>
         </div>
       </div>

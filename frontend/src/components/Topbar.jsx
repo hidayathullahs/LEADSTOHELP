@@ -14,10 +14,12 @@ import {
   Lock,
   Play,
   Activity,
-  Sliders
+  Sliders,
+  Bell,
+  Menu,
+  ChevronRight
 } from 'lucide-react';
 import { api } from '../services/api';
-import NotificationDropdown from './NotificationDropdown';
 import UserMenu from './UserMenu';
 
 export default function Topbar({
@@ -29,7 +31,10 @@ export default function Topbar({
   activeTab,
   onNavigateTo,
   user,
-  onSignOut
+  onSignOut,
+  onOpenNotifications,
+  onOpenMobileSidebar,
+  activeSku = null
 }) {
   const [systemStatus, setSystemStatus] = useState(null);
   const [statusMenuOpen, setStatusMenuOpen] = useState(false);
@@ -78,45 +83,57 @@ export default function Topbar({
   const isGeminiLive = systemStatus?.gemini?.live_available;
   const isFirestoreLive = systemStatus?.firestore?.live_available;
 
+  // Breadcrumb mapping
+  const TAB_LABELS = {
+    overview: 'Control Tower',
+    'daily-ops': 'Daily Operations',
+    inventory: 'Inventory Risk',
+    procurement: 'Procurement Decisions',
+    suppliers: 'Supplier Network',
+    invoices: 'Invoice Vision Audit',
+    approvals: 'Approval Queue',
+    'risk-radar': 'Supply Risk Radar',
+    'agent-inspector': 'AI Activity & Decision Trace',
+    analytics: 'Impact & Analytics',
+    settings: 'Store Settings'
+  };
+
   return (
-    <header className="h-14 bg-surface-0 border-b border-white/[0.06] px-4 flex items-center justify-between gap-3 select-none z-30">
-      {/* Left: Store Selector & Perspective Pills */}
-      <div className="flex items-center gap-2.5">
+    <header className="h-14 bg-surface-0 border-b border-white/[0.06] px-3 sm:px-4 flex items-center justify-between gap-3 select-none z-30">
+      {/* Left: Mobile Toggle, Store Selector & Breadcrumb */}
+      <div className="flex items-center gap-2 min-w-0">
+        {/* Mobile Sidebar Hamburger Toggle */}
+        <button
+          onClick={onOpenMobileSidebar}
+          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-surface-2 lg:hidden transition-colors shrink-0"
+          aria-label="Open navigation menu"
+        >
+          <Menu className="w-4 h-4" />
+        </button>
+
         {/* Store Location Breadcrumb */}
-        <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-surface-1 border border-white/[0.06] text-xs">
-          <Store className="w-3.5 h-3.5 text-brand-accent shrink-0" />
-          <span className="font-semibold text-slate-200 truncate max-w-[150px] sm:max-w-[200px]">
-            Deccan Roast Hub
+        <div className="flex items-center gap-1.5 text-xs text-slate-300">
+          <div className="hidden sm:flex items-center gap-1.5 px-2 py-1 rounded-lg bg-surface-1 border border-white/[0.06] text-xs font-semibold text-slate-200">
+            <Store className="w-3.5 h-3.5 text-brand-accent shrink-0" />
+            <span className="truncate max-w-[120px] md:max-w-[150px]">Deccan Roast</span>
+            <span className="text-[10px] font-mono text-slate-500 hidden md:inline">#BLR-01</span>
+          </div>
+
+          <ChevronRight className="w-3 h-3 text-slate-600 hidden sm:inline" />
+
+          {/* Active View Label */}
+          <span className="font-bold text-white text-xs truncate max-w-[140px] sm:max-w-[180px]">
+            {TAB_LABELS[activeTab] || 'Workspace'}
           </span>
-          <span className="text-[10px] font-mono text-slate-500 hidden md:inline">#BLR-01</span>
-        </div>
 
-        {/* Track / Perspective Switcher (Track 2 & Track 3 Quick Jump) */}
-        <div className="hidden lg:flex items-center gap-1 p-0.5 rounded-lg bg-surface-1 border border-white/[0.04] text-xs">
-          <button
-            onClick={() => onNavigateTo('overview')}
-            className={`px-2.5 py-1 rounded-md transition-all font-medium flex items-center gap-1.5 ${
-              activeTab === 'overview'
-                ? 'bg-surface-2 text-white font-semibold shadow-sm border border-white/[0.06]'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title="Track 2: Strategic Decisions"
-          >
-            <span>Control Tower</span>
-          </button>
-
-          <button
-            onClick={() => onNavigateTo('daily-ops')}
-            className={`px-2.5 py-1 rounded-md transition-all font-medium flex items-center gap-1.5 ${
-              activeTab === 'daily-ops'
-                ? 'bg-surface-2 text-brand-accent font-semibold shadow-sm border border-white/[0.06]'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-            title="Track 3: Daily Operations & Productivity"
-          >
-            <Activity className="w-3 h-3 text-brand-accent" />
-            <span>Daily Operations</span>
-          </button>
+          {activeSku && (activeTab === 'procurement' || activeTab === 'inventory') && (
+            <>
+              <ChevronRight className="w-3 h-3 text-slate-600" />
+              <span className="badge-teal text-[10px] font-mono font-bold hidden sm:inline">
+                {activeSku}
+              </span>
+            </>
+          )}
         </div>
       </div>
 
@@ -130,19 +147,19 @@ export default function Topbar({
             <Search className="w-3.5 h-3.5 text-slate-500 group-hover:text-brand-accent transition-colors" />
             <span className="truncate">Search SKUs, suppliers, POs, or ask AI...</span>
           </div>
-          <span className="font-mono text-[10px] text-slate-400 bg-surface-2 px-1.5 py-0.5 rounded border border-white/[0.06] group-hover:border-white/[0.12]">
+          <kbd className="font-mono text-[10px] text-slate-400 bg-surface-2 px-1.5 py-0.5 rounded border border-white/[0.06] group-hover:border-white/[0.12]">
             ⌘K
-          </span>
+          </kbd>
         </button>
       </div>
 
-      {/* Right: 3-Min Demo Guide, System Status, Notifications, Copilot Launcher, User Menu */}
-      <div className="flex items-center gap-2">
+      {/* Right: 3-Min Tour, Health Status, Notifications, Copilot Launcher, User Menu */}
+      <div className="flex items-center gap-1.5 sm:gap-2">
         {/* 3-Minute Guided Demo Launcher */}
         <button
           onClick={onStartDemoTour}
           className="px-2.5 py-1.5 rounded-lg bg-surface-1 hover:bg-surface-2 text-slate-300 hover:text-white border border-white/[0.06] text-xs font-semibold flex items-center gap-1.5 transition-all"
-          title="Launch 3-Minute Interactive Tour"
+          title="Launch 3-Minute Interactive Evaluation Tour"
         >
           <Play className="w-3 h-3 text-brand-accent fill-brand-accent" />
           <span className="hidden sm:inline">3-Min Tour</span>
@@ -152,16 +169,17 @@ export default function Topbar({
         <div className="relative" ref={statusRef}>
           <button
             onClick={() => setStatusMenuOpen(!statusMenuOpen)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-1 hover:bg-surface-2 border border-white/[0.06] text-xs text-slate-300 transition-all font-medium"
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-surface-1 hover:bg-surface-2 border border-white/[0.06] text-xs text-slate-300 transition-all font-medium"
+            title="System Telemetry & Database State"
           >
             <span className={`w-2 h-2 rounded-full ${
               isGeminiLive && isFirestoreLive ? 'bg-emerald-400 shadow-glow-emerald' : 'bg-emerald-400'
             }`} />
-            <span className="hidden sm:inline">System Health</span>
+            <span className="hidden md:inline">System Health</span>
             <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-surface-2 text-slate-300 border border-white/[0.06]">
               {isGeminiLive && isFirestoreLive ? 'LIVE' : 'DEMO'}
             </span>
-            <ChevronDown className="w-3 h-3 text-slate-400" />
+            <ChevronDown className="w-3 h-3 text-slate-400 hidden sm:inline" />
           </button>
 
           {/* System Health Dropdown Menu */}
@@ -235,20 +253,28 @@ export default function Topbar({
           <RotateCcw className={`w-3.5 h-3.5 ${resettingDemo ? 'animate-spin text-brand-accent' : ''}`} />
         </button>
 
-        {/* Notification Bell Dropdown */}
-        <NotificationDropdown onNavigateTo={onNavigateTo} />
+        {/* Notification Center Trigger */}
+        <button
+          onClick={onOpenNotifications}
+          className="relative p-2 rounded-lg bg-surface-1 hover:bg-surface-2 border border-white/[0.06] text-slate-300 hover:text-white transition-all"
+          title="Open Notification Center"
+          aria-label="Open notifications"
+        >
+          <Bell className="w-3.5 h-3.5" />
+          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-surface-0 animate-pulse" />
+        </button>
 
         {/* Copilot Launcher Button (Track 1) */}
         <button
           onClick={onOpenAskAI}
           className="btn-primary text-xs py-1.5 px-3 flex items-center gap-1.5"
-          title="Launch Contextual Operations Copilot"
+          title="Launch Contextual Operations Copilot (⌘J)"
         >
           <Sparkles className="w-3.5 h-3.5 text-black fill-black" />
           <span className="font-bold">Copilot</span>
-          <span className="font-mono text-[10px] bg-black/15 px-1 py-0.2 rounded hidden sm:inline">
+          <kbd className="font-mono text-[10px] bg-black/15 px-1 py-0.2 rounded hidden sm:inline font-bold">
             ⌘J
-          </span>
+          </kbd>
         </button>
 
         {/* User Account & Store Profile Menu */}

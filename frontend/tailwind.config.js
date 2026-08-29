@@ -8,6 +8,35 @@ export default {
   theme: {
     extend: {
       colors: {
+        background: 'var(--background, #07090E)',
+        foreground: 'var(--foreground, #F8FAFC)',
+        card: {
+          DEFAULT: 'var(--card, #0D111A)',
+          foreground: 'var(--card-foreground, #F8FAFC)',
+        },
+        popover: {
+          DEFAULT: 'var(--popover, #131826)',
+          foreground: 'var(--popover-foreground, #F8FAFC)',
+        },
+        primary: {
+          DEFAULT: 'var(--primary, #00F0FF)',
+          foreground: 'var(--primary-foreground, #000000)',
+        },
+        secondary: {
+          DEFAULT: 'var(--secondary, #1C2234)',
+          foreground: 'var(--secondary-foreground, #F8FAFC)',
+        },
+        muted: {
+          DEFAULT: 'var(--muted, #131826)',
+          foreground: 'var(--muted-foreground, #94A3B8)',
+        },
+        destructive: {
+          DEFAULT: 'var(--destructive, #F43F5E)',
+          foreground: 'var(--destructive-foreground, #FFFFFF)',
+        },
+        border: 'var(--border, rgba(255, 255, 255, 0.08))',
+        input: 'var(--input, rgba(255, 255, 255, 0.08))',
+        ring: 'var(--ring, #00F0FF)',
         surface: {
           0: '#07090E',   // Deep obsidian canvas
           1: '#0D111A',   // Primary card surface
@@ -29,6 +58,8 @@ export default {
           accent: '#00F0FF', // Electric cyan
         },
         accent: {
+          DEFAULT: 'var(--accent, #1C2234)',
+          foreground: 'var(--accent-foreground, #F8FAFC)',
           teal: '#00F0FF',
           emerald: '#10B981',
           amber: '#F59E0B',

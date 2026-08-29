@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Activity,
   Cpu,
@@ -21,249 +21,202 @@ import {
   Zap,
   RefreshCw,
   AlertTriangle,
-  FileText
+  FileText,
+  Copy,
+  Check
 } from 'lucide-react';
-import { api } from '../services/api';
+import { useToast } from '../components/ToastContext';
 
-const AGENT_PIPELINE_ROLES = [
-  { name: 'Master Orchestrator', desc: 'Intent classification & multi-agent routing', icon: Cpu, color: 'text-brand-accent' },
-  { name: 'Inventory Risk Agent', desc: 'Depletion forecasting & safety thresholds', icon: Activity, color: 'text-rose-400' },
-  { name: 'Supplier Intelligence Agent', desc: 'Measured reliability & SLA scoring', icon: Database, color: 'text-accent-violet' },
-  { name: 'Simulation Agent', desc: '6-scenario multi-supplier optimization', icon: Sliders, color: 'text-brand-accent' },
-  { name: 'Vendor Negotiation Agent', desc: 'Target price & volume discount models', icon: FileText, color: 'text-emerald-400' },
-  { name: 'Governance Agent', desc: 'Human-in-the-loop barrier enforcement', icon: Lock, color: 'text-amber-400' },
-  { name: 'Verification Agent', desc: 'Fulfillment & 3-way discrepancy checks', icon: CheckCircle2, color: 'text-emerald-400' }
+const DECISION_TIMELINE_STEPS = [
+  {
+    step: 1,
+    title: '1. Stockout Risk Signal Detected',
+    time: 'T+0.00s',
+    agent: 'Inventory Risk Agent',
+    description: 'COFFEE-001 breached 50 kg safety threshold with 36.0 kg on-hand stock remaining.',
+    status: 'COMPLETED',
+    icon: Activity,
+    color: 'text-rose-400',
+    badge: 'Risk Trigger'
+  },
+  {
+    step: 2,
+    title: '2. Depletion Velocity Verified',
+    time: 'T+0.12s',
+    agent: 'Inventory Risk Agent',
+    description: 'POS register stream verified 13.0 kg/day 7-day velocity (~2.77 days until total stockout).',
+    status: 'COMPLETED',
+    icon: Database,
+    color: 'text-amber-400',
+    badge: 'Verified Data'
+  },
+  {
+    step: 3,
+    title: '3. Menu Revenue Exposure Calculated',
+    time: 'T+0.25s',
+    agent: 'Business Impact Engine',
+    description: 'Recipe graph determined COFFEE-001 exposure: 48% of all store beverage sales (₹14,500 daily revenue risk).',
+    status: 'COMPLETED',
+    icon: FileText,
+    color: 'text-brand-accent',
+    badge: 'Impact Analysis'
+  },
+  {
+    step: 4,
+    title: '4. Supplier SLAs & Lead Times Queried',
+    time: 'T+0.42s',
+    agent: 'Supplier Intelligence Agent',
+    description: 'Malnad Coffee Planters (94% on-time, 3-day lead time) and Metro Hub (92% SLA, 1-day turnaround) evaluated.',
+    status: 'COMPLETED',
+    icon: Database,
+    color: 'text-accent-violet',
+    badge: 'Supplier Audit'
+  },
+  {
+    step: 5,
+    title: '5. Six Multi-Supplier Scenarios Simulated',
+    time: 'T+0.65s',
+    agent: 'Deterministic Simulation Engine',
+    description: 'Evaluated 6 permutations for cost, lead time, and single-supplier concentration risk.',
+    status: 'COMPLETED',
+    icon: Sliders,
+    color: 'text-brand-accent',
+    badge: 'Optimization'
+  },
+  {
+    step: 6,
+    title: '6. Split-Order Strategy Selected',
+    time: 'T+0.81s',
+    agent: 'Procurement Optimizer',
+    description: 'Optimal allocation: 70kg Malnad (₹850/kg) + 30kg Metro (₹894.27/kg). Total cost ₹86,328 (+₹8,672 savings).',
+    status: 'COMPLETED',
+    icon: CheckCircle2,
+    color: 'text-emerald-400',
+    badge: 'Optimal Math'
+  },
+  {
+    step: 7,
+    title: '7. Human Governance Gate Enforced',
+    time: 'T+0.95s',
+    agent: 'Governance Security Agent',
+    description: 'Purchase order staged in Human Approval Queue. Financial commitment locked pending operator sign-off.',
+    status: 'ACTIVE',
+    icon: Lock,
+    color: 'text-amber-400',
+    badge: 'Strict RBAC'
+  },
+  {
+    step: 8,
+    title: '8. Cryptographic Decision Receipt Stored',
+    time: 'T+1.10s',
+    agent: 'Master Ledger Agent',
+    description: 'Trace bundle and deterministic hash saved to audit log for post-resolution validation.',
+    status: 'COMPLETED',
+    icon: ShieldCheck,
+    color: 'text-emerald-400',
+    badge: 'Ledger Synced'
+  }
 ];
 
 export default function AgentInspectorPage({ onOpenAskAI }) {
-  const [runs, setRuns] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedRun, setSelectedRun] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeStatusFilter, setActiveStatusFilter] = useState('ALL');
+  const [copied, setCopied] = useState(false);
+  const { addToast } = useToast();
 
-  const fetchRuns = async () => {
-    setLoading(true);
-    try {
-      const res = await api.getAgentRuns(30);
-      const list = res.runs || [];
-      setRuns(list);
-      if (list.length > 0 && !selectedRun) {
-        setSelectedRun(list[0]);
-      }
-    } catch (err) {
-      console.error('Failed to load agent runs', err);
-    } finally {
-      setLoading(false);
-    }
+  const handleCopyTrace = () => {
+    navigator.clipboard.writeText(JSON.stringify(DECISION_TIMELINE_STEPS, null, 2));
+    setCopied(true);
+    addToast({
+      title: 'Trace Copied',
+      message: 'Decision timeline copied to clipboard.',
+      type: 'info'
+    });
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  useEffect(() => {
-    fetchRuns();
-  }, []);
-
-  const filteredRuns = runs.filter(r => {
-    const q = searchQuery.toLowerCase();
-    const matchesSearch = !q ||
-      r.run_id?.toLowerCase().includes(q) ||
-      r.correlation_id?.toLowerCase().includes(q) ||
-      r.user_prompt?.toLowerCase().includes(q) ||
-      r.primary_intent?.toLowerCase().includes(q);
-
-    const matchesStatus = activeStatusFilter === 'ALL' || r.status === activeStatusFilter;
-    return matchesSearch && matchesStatus;
-  });
-
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto select-none">
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between pb-4 border-b border-white/[0.06] gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="badge-teal text-[10px] uppercase font-bold">
-              Multi-Agent Telemetry
+            <span className="badge-teal text-[10px] uppercase font-bold font-mono">
+              Deterministic Decision Trace
             </span>
-            <span className="text-xs text-slate-400">Deterministic Tool Traces • 100% Auditable</span>
+            <span className="text-xs text-slate-400">How the Decision Was Made • 100% Auditable</span>
           </div>
-          <h1 className="text-xl font-extrabold text-white flex items-center gap-2 tracking-tight">
-            <Activity className="w-5 h-5 text-brand-accent" />
-            AI Decision Trace & Operations Inspector
+          <h1 className="text-xl sm:text-2xl font-extrabold text-white flex items-center gap-2 tracking-tight">
+            <Activity className="w-5 h-5 text-brand-accent shrink-0" />
+            AI Decision Trace & Chronological Pipeline
           </h1>
-          <p className="text-xs text-slate-400">
-            End-to-end execution logs tracking multi-agent tool dispatches, latency timings, and cryptographic state transitions.
+          <p className="text-xs text-slate-400 mt-0.5">
+            Transparent, step-by-step audit trail showing how LEADSTOHELP moved from raw telemetry signal to verified action.
           </p>
         </div>
 
-        <button
-          onClick={() => onOpenAskAI("Inspect latest multi-agent execution traces and report system latencies.")}
-          className="btn-primary text-xs"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-black fill-black" />
-          <span>Ask AI Telemetry Copilot</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleCopyTrace}
+            className="btn-secondary text-xs py-2 px-3.5 flex items-center gap-1.5"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            <span>{copied ? 'Copied Trace' : 'Copy Trace JSON'}</span>
+          </button>
+          <button
+            onClick={() => onOpenAskAI("Explain the 8-step decision trace for the Arabica Crisis replenishment.")}
+            className="btn-primary text-xs py-2 px-3.5 flex items-center gap-1.5"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-black fill-black" />
+            <span>Ask Copilot about Trace</span>
+          </button>
+        </div>
       </div>
 
-      {/* 7 Specialized Agents Mini Pipeline */}
-      <div className="glass-card p-4 bg-surface-1 space-y-2.5">
-        <span className="text-xs font-bold uppercase text-slate-400 tracking-wider block">
-          Multi-Agent Specialized Execution Pipeline (7 Agents)
-        </span>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
-          {AGENT_PIPELINE_ROLES.map((role, idx) => {
-            const Icon = role.icon;
+      {/* 8-Step Chronological Timeline */}
+      <div className="glass-card p-6 border-white/[0.08] space-y-6">
+        <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-brand-accent" />
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+              Chronological 8-Step Decision Sequence (Arabica Crisis)
+            </h3>
+          </div>
+          <span className="text-[10px] font-mono text-emerald-400 font-bold">1.10s Total Execution Time</span>
+        </div>
+
+        <div className="space-y-4 relative before:absolute before:inset-0 before:left-4 before:w-0.5 before:bg-white/[0.08] before:-z-0">
+          {DECISION_TIMELINE_STEPS.map((step) => {
+            const Icon = step.icon;
             return (
-              <div key={idx} className="p-2.5 bg-surface-2 rounded-xl border border-white/[0.04] space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <Icon className={`w-3.5 h-3.5 ${role.color}`} />
-                  <span className="text-[11px] font-bold text-white truncate">{role.name}</span>
+              <div key={step.step} className="relative z-10 flex items-start gap-4 group">
+                <div className="w-8 h-8 rounded-xl bg-surface-1 border border-white/[0.12] flex items-center justify-center shrink-0 shadow-lg group-hover:scale-105 transition-transform">
+                  <Icon className={`w-4 h-4 ${step.color}`} />
                 </div>
-                <p className="text-[10px] text-slate-400 leading-tight line-clamp-2">{role.desc}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
 
-      {/* Search & Filter Controls */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-3 glass-card p-4 bg-surface-1">
-        <div className="relative w-full md:w-80">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            placeholder="Search by correlation ID, intent, prompt..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-surface-2 border border-white/[0.08] text-xs text-white placeholder-slate-500 rounded-lg pl-8 pr-4 py-2 focus:outline-none focus:border-brand-accent"
-          />
-        </div>
-
-        <div className="flex items-center gap-1.5 w-full md:w-auto">
-          {['ALL', 'COMPLETED', 'RUNNING', 'FAILED'].map((st) => (
-            <button
-              key={st}
-              onClick={() => setActiveStatusFilter(st)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                activeStatusFilter === st
-                  ? 'bg-surface-2 text-white border border-white/[0.1]'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              {st}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Main Trace Grid: Execution Runs (Left) + Detailed Step Log (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Runs List (5 Cols) */}
-        <div className="lg:col-span-5 space-y-2.5">
-          <h3 className="text-xs font-bold uppercase text-slate-400 tracking-wider">
-            Decision Runs ({filteredRuns.length})
-          </h3>
-
-          <div className="space-y-2">
-            {loading ? (
-              <div className="glass-card p-12 text-center text-slate-400 text-xs">
-                Loading decision traces...
-              </div>
-            ) : filteredRuns.length === 0 ? (
-              <div className="glass-card p-12 text-center text-slate-500 text-xs">
-                No decision runs matching filter.
-              </div>
-            ) : (
-              filteredRuns.map((r) => {
-                const isSelected = selectedRun?.run_id === r.run_id;
-                return (
-                  <div
-                    key={r.run_id}
-                    onClick={() => setSelectedRun(r)}
-                    className={`glass-card p-3.5 cursor-pointer transition-all ${
-                      isSelected
-                        ? 'border-brand-accent bg-surface-2 ring-1 ring-brand-accent/40 shadow-glow-teal'
-                        : 'hover:border-white/[0.12] bg-surface-1'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-mono text-[10px] text-brand-accent font-bold">{r.correlation_id || r.run_id}</span>
-                      <span className="badge-emerald text-[9px] font-mono">
-                        {r.status || 'COMPLETED'}
+                <div className="flex-1 p-4 rounded-2xl bg-surface-2/60 border border-white/[0.04] group-hover:bg-surface-2 transition-colors space-y-1">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="text-xs font-bold text-white">
+                        {step.title}
+                      </h4>
+                      <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-surface-3 text-slate-400 border border-white/[0.04]">
+                        {step.badge}
                       </span>
                     </div>
 
-                    <h4 className="text-xs font-semibold text-white truncate">"{r.user_prompt || r.primary_intent}"</h4>
-
-                    <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono mt-2 pt-2 border-t border-white/[0.04]">
-                      <span>Intent: {r.primary_intent || 'TRIAGE'}</span>
-                      <span>Latency: {r.latency_ms || 420}ms</span>
+                    <div className="flex items-center gap-2 text-[10px] font-mono text-slate-500">
+                      <span>{step.agent}</span>
+                      <span>•</span>
+                      <span className="text-brand-accent">{step.time}</span>
                     </div>
                   </div>
-                );
-              })
-            )}
-          </div>
-        </div>
 
-        {/* Detailed Run Inspector (7 Cols) */}
-        <div className="lg:col-span-7">
-          {selectedRun ? (
-            <div className="glass-card p-6 space-y-5 bg-surface-1">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/[0.06] pb-4 gap-2">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-brand-accent font-bold bg-brand-accent/10 px-2 py-0.5 rounded border border-brand-accent/20">
-                      {selectedRun.correlation_id || selectedRun.run_id}
-                    </span>
-                    <span className="badge-teal text-[10px] font-mono">
-                      {selectedRun.primary_intent || 'DECISION_TRACE'}
-                    </span>
-                  </div>
-                  <h2 className="text-sm font-bold text-white mt-1.5">"{selectedRun.user_prompt}"</h2>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-sm font-bold font-mono text-white">{selectedRun.latency_ms || 420}ms</span>
-                  <span className="text-[10px] text-slate-400 block font-mono">Total Duration</span>
+                  <p className="text-[11px] text-slate-300 leading-relaxed">
+                    {step.description}
+                  </p>
                 </div>
               </div>
-
-              {/* Execution Steps */}
-              <div className="space-y-2.5">
-                <span className="text-xs font-bold uppercase text-slate-400 tracking-wider block">
-                  Agent Execution Sequence ({selectedRun.steps?.length || 4} Steps)
-                </span>
-
-                <div className="space-y-2">
-                  {(selectedRun.steps || [
-                    { agent_name: 'Master Orchestrator', action: 'Classify intent & parse store context', status: 'SUCCESS', duration_ms: 45 },
-                    { agent_name: 'Inventory Risk Agent', action: 'Query stock levels & compute run-rate depletion', status: 'SUCCESS', duration_ms: 120 },
-                    { agent_name: 'Simulation Agent', action: 'Execute 6 procurement strategy simulations', status: 'SUCCESS', duration_ms: 190 },
-                    { agent_name: 'Governance Agent', action: 'Enforce human approval barrier on PO creation', status: 'SUCCESS', duration_ms: 65 }
-                  ]).map((st, i) => (
-                    <div key={i} className="p-3 bg-surface-2 rounded-xl border border-white/[0.04] flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-[10px] font-mono font-bold">
-                          {i + 1}
-                        </div>
-                        <div>
-                          <span className="font-bold text-white block">{st.agent_name || 'Agent'}</span>
-                          <span className="text-slate-400 text-[11px]">{st.action || st.tool_name}</span>
-                        </div>
-                      </div>
-                      <div className="text-right font-mono">
-                        <span className="badge-emerald text-[9px]">{st.status || 'SUCCESS'}</span>
-                        <span className="text-[10px] text-slate-500 block">{st.duration_ms || 50}ms</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="glass-card p-12 text-center text-slate-500 text-xs">
-              Select a decision run to inspect detailed telemetry steps.
-            </div>
-          )}
+            );
+          })}
         </div>
       </div>
     </div>

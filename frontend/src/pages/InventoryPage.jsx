@@ -14,27 +14,24 @@ import {
   CheckCircle2,
   X,
   ShieldCheck,
-  ChevronRight
+  ChevronRight,
+  Eye,
+  Plus
 } from 'lucide-react';
 import { api } from '../services/api';
 
 const CATEGORIES = ['All', 'Coffee', 'Dairy', 'Bakery Ingredients', 'Syrups', 'Tea', 'Packaging', 'Cleaning', 'Spices'];
 
-export default function InventoryPage({ onOpenAskAIWithSku, onNavigateToProcurement }) {
+export default function InventoryPage({
+  onOpenAskAIWithSku,
+  onNavigateToProcurement,
+  onOpenInventoryDetail
+}) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [riskFilter, setRiskFilter] = useState('All');
-  
-  // Selected SKU details modal
-  const [activeItemDetails, setActiveItemDetails] = useState(null);
-  const [detailsLoading, setDetailsLoading] = useState(false);
-
-  // Manual stock adjust modal
-  const [adjustingSku, setAdjustingSku] = useState(null);
-  const [adjustStockVal, setAdjustStockVal] = useState('');
-  const [adjustReason, setAdjustReason] = useState('Weekly Cycle Count');
 
   const fetchInventory = async () => {
     setLoading(true);
@@ -61,104 +58,83 @@ export default function InventoryPage({ onOpenAskAIWithSku, onNavigateToProcurem
     fetchInventory();
   };
 
-  const handleViewDetails = async (sku) => {
-    setDetailsLoading(true);
-    try {
-      const res = await api.getInventoryItem(sku);
-      setActiveItemDetails(res);
-    } catch (err) {
-      console.error('Failed to load item details', err);
-    } finally {
-      setDetailsLoading(false);
-    }
-  };
-
-  const handleSaveStockAdjust = async (e) => {
-    e.preventDefault();
-    if (!adjustingSku || adjustStockVal === '') return;
-    try {
-      await api.adjustStock(adjustingSku, parseFloat(adjustStockVal), adjustReason);
-      setAdjustingSku(null);
-      fetchInventory();
-    } catch (err) {
-      alert(`Error adjusting stock: ${err.message}`);
-    }
-  };
-
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto select-none">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between pb-4 border-b border-white/[0.06] gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="badge-teal text-[10px] uppercase font-bold">
+            <span className="badge-teal text-[10px] uppercase font-bold font-mono">
               Real-time Ledger
             </span>
-            <span className="text-xs text-slate-400">65 Monitored Raw Material SKUs</span>
+            <span className="text-xs text-slate-400">65 Monitored Raw Material SKUs • Deccan Roast #BLR-01</span>
           </div>
-          <h1 className="text-xl font-extrabold text-white flex items-center gap-2 tracking-tight">
-            <Package className="w-5 h-5 text-brand-accent" />
-            Inventory Intelligence & Run-Rate Monitor
+          <h1 className="text-xl sm:text-2xl font-extrabold text-white flex items-center gap-2 tracking-tight">
+            <Package className="w-5 h-5 text-brand-accent shrink-0" />
+            Inventory Risk Ledger
           </h1>
-          <p className="text-xs text-slate-400">
-            Real-time deterministic safety stock, reorder thresholds (ROP), and run-rate predictive forecasting.
+          <p className="text-xs text-slate-400 mt-0.5">
+            Continuous depletion velocity tracking, safety stock runway, and automated replenishment triggers.
           </p>
         </div>
 
-        <button
-          onClick={() => onOpenAskAIWithSku(null)}
-          className="btn-primary text-xs"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-black fill-black" />
-          <span>Ask AI Inventory Agent</span>
-        </button>
+        {/* Top Summary Badges */}
+        <div className="flex items-center gap-2 text-xs font-mono">
+          <div className="px-3 py-1.5 rounded-xl bg-surface-1 border border-rose-500/20 text-rose-300 font-bold">
+            1 Critical Stockout
+          </div>
+          <div className="px-3 py-1.5 rounded-xl bg-surface-1 border border-white/[0.06] text-slate-300">
+            65 Monitored Items
+          </div>
+        </div>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="glass-card p-4 space-y-3 bg-surface-1">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-3">
-          {/* Search Input */}
-          <form onSubmit={handleSearchSubmit} className="relative w-full md:w-80">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+      <div className="glass-card p-4 space-y-3">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          {/* Search Bar */}
+          <form onSubmit={handleSearchSubmit} className="flex-1 relative">
+            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
+              placeholder="Search by SKU, item name, or supplier (e.g. 'Arabica', 'DAIRY')..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by SKU or product name..."
-              className="w-full bg-surface-2 border border-white/[0.08] text-xs text-slate-200 placeholder-slate-500 rounded-lg pl-8 pr-4 py-2 focus:outline-none focus:border-brand-accent"
+              className="w-full bg-surface-2 border border-white/[0.08] text-xs text-white placeholder-slate-500 rounded-xl pl-9 pr-4 py-2 focus:outline-none focus:border-brand-accent transition-colors"
             />
           </form>
 
-          {/* Risk Level Filter */}
-          <div className="flex items-center gap-2 w-full md:w-auto">
-            <span className="text-xs text-slate-400 font-medium">Risk Filter:</span>
-            {['All', 'HIGH', 'MEDIUM', 'LOW'].map((risk) => (
+          {/* Risk Level Pills */}
+          <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0">
+            {['All', 'CRITICAL', 'LOW', 'HEALTHY'].map((lvl) => (
               <button
-                key={risk}
-                onClick={() => setRiskFilter(risk)}
-                className={`text-xs px-2.5 py-1 rounded-lg font-semibold transition-all ${
-                  riskFilter === risk
-                    ? 'bg-brand-accent/20 text-brand-accent border border-brand-accent/40 font-bold'
-                    : 'bg-surface-2 text-slate-400 hover:text-slate-200 border border-white/[0.06]'
+                key={lvl}
+                onClick={() => setRiskFilter(lvl)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
+                  riskFilter === lvl
+                    ? 'bg-surface-3 text-white border border-white/[0.1] shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-surface-2'
                 }`}
               >
-                {risk === 'All' ? 'All Risks' : risk}
+                {lvl.toLowerCase()}
               </button>
             ))}
           </div>
         </div>
 
         {/* Category Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2 border-t border-white/[0.04]">
-          <span className="text-[10px] font-bold text-slate-500 uppercase mr-1">Category:</span>
+        <div className="flex items-center gap-1.5 overflow-x-auto pt-1 border-t border-white/[0.04] text-xs">
+          <span className="text-[10px] uppercase font-mono font-bold text-slate-500 mr-1 shrink-0">
+            Category:
+          </span>
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`text-xs px-3 py-1 rounded-lg whitespace-nowrap font-medium transition-all ${
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium whitespace-nowrap transition-all ${
                 selectedCategory === cat
-                  ? 'bg-brand-accent text-black font-bold shadow-glow-teal'
-                  : 'bg-surface-2 text-slate-400 hover:text-slate-200 border border-white/[0.06]'
+                  ? 'bg-brand-accent/20 text-brand-accent font-bold border border-brand-accent/30'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-surface-2'
               }`}
             >
               {cat}
@@ -167,181 +143,122 @@ export default function InventoryPage({ onOpenAskAIWithSku, onNavigateToProcurem
         </div>
       </div>
 
-      {/* Inventory Table */}
-      <div className="glass-card overflow-hidden bg-surface-1">
+      {/* Inventory Data Table */}
+      <div className="glass-card overflow-hidden border-white/[0.08]">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
+          <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-white/[0.06] bg-surface-2 text-slate-400 uppercase text-[10px] font-mono font-bold tracking-wider">
-                <th className="py-3 px-4">SKU / Product</th>
-                <th className="py-3 px-3">Category</th>
-                <th className="py-3 px-3 text-right">Current Stock</th>
-                <th className="py-3 px-3 text-right">Safety Stock</th>
-                <th className="py-3 px-3 text-right">Reorder Point</th>
-                <th className="py-3 px-3 text-right">Run-Rate</th>
-                <th className="py-3 px-3 text-center">Days Left</th>
-                <th className="py-3 px-3 text-center">Risk Level</th>
+              <tr className="border-b border-white/[0.08] bg-surface-2/80 text-[10px] uppercase font-mono font-bold text-slate-400">
+                <th className="py-3 px-4">SKU & Description</th>
+                <th className="py-3 px-4">Category</th>
+                <th className="py-3 px-4 text-right">Current Stock</th>
+                <th className="py-3 px-4 text-right">Reorder Point</th>
+                <th className="py-3 px-4 text-right">Run Rate</th>
+                <th className="py-3 px-4 text-center">Runway</th>
+                <th className="py-3 px-4 text-center">Status</th>
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04]">
               {loading ? (
                 <tr>
-                  <td colSpan="9" className="text-center py-12 text-slate-400">
-                    <RotateCcw className="w-6 h-6 animate-spin mx-auto mb-2 text-brand-accent" />
-                    <span>Loading real-time inventory telemetry...</span>
+                  <td colSpan={8} className="py-12 text-center text-slate-500 font-medium">
+                    Loading real-time stock balances...
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="text-center py-12 text-slate-500">
-                    No matching inventory items found for applied filters.
+                  <td colSpan={8} className="py-12 text-center text-slate-500 font-medium">
+                    No matching SKUs found in ledger.
                   </td>
                 </tr>
               ) : (
-                items.map((item) => (
-                  <tr
-                    key={item.sku}
-                    className="hover:bg-surface-2/60 transition-colors group"
-                  >
-                    <td className="py-3.5 px-4">
-                      <div className="font-mono text-[11px] font-bold text-brand-accent">{item.sku}</div>
-                      <div className="font-semibold text-white truncate max-w-xs">{item.name}</div>
-                      <div className="text-[10px] text-slate-500 font-mono">Cost: ₹{item.unit_cost}/{item.unit}</div>
-                    </td>
+                items.map((item) => {
+                  const isCrit = item.status === 'CRITICAL' || item.days_left < 3;
+                  const isLow = item.status === 'LOW' || (item.days_left >= 3 && item.days_left < 6);
 
-                    <td className="py-3.5 px-3">
-                      <span className="text-slate-300 bg-surface-2 px-2 py-0.5 rounded text-[11px] border border-white/[0.04]">
-                        {item.category}
-                      </span>
-                    </td>
-
-                    <td className="py-3.5 px-3 text-right font-mono font-bold text-white">
-                      {item.current_stock} <span className="text-slate-500 font-normal">{item.unit}</span>
-                    </td>
-
-                    <td className="py-3.5 px-3 text-right font-mono text-slate-300">
-                      {item.safety_stock} <span className="text-slate-500">{item.unit}</span>
-                    </td>
-
-                    <td className="py-3.5 px-3 text-right font-mono font-bold text-brand-accent">
-                      {item.reorder_point} <span className="text-slate-500 font-normal">{item.unit}</span>
-                    </td>
-
-                    <td className="py-3.5 px-3 text-right font-mono text-slate-300">
-                      {item.daily_usage_avg} <span className="text-slate-500">{item.unit}/day</span>
-                    </td>
-
-                    <td className="py-3.5 px-3 text-center">
-                      <div className="inline-flex flex-col items-center">
-                        <span className={`font-mono font-bold ${
-                          item.days_of_supply <= item.lead_time_days * 1.5 ? 'text-rose-400' : 'text-slate-200'
-                        }`}>
-                          {item.days_of_supply} days
-                        </span>
-                        <div className="w-16 bg-surface-3 rounded-full h-1 mt-1 overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${
-                              item.days_of_supply <= item.lead_time_days * 1.5 ? 'bg-rose-500' : 'bg-emerald-500'
-                            }`}
-                            style={{ width: `${Math.min(100, (item.days_of_supply / 15) * 100)}%` }}
-                          ></div>
+                  return (
+                    <tr
+                      key={item.sku}
+                      onClick={() => onOpenInventoryDetail && onOpenInventoryDetail(item)}
+                      className="hover:bg-surface-2/60 transition-colors cursor-pointer group"
+                    >
+                      {/* SKU & Name */}
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-white group-hover:text-brand-accent transition-colors flex items-center gap-1.5">
+                          <span>{item.name}</span>
                         </div>
-                      </div>
-                    </td>
+                        <span className="text-[10px] font-mono text-slate-400">{item.sku}</span>
+                      </td>
 
-                    <td className="py-3.5 px-3 text-center">
-                      <span
-                        className={
-                          item.stockout_risk === 'HIGH'
+                      {/* Category */}
+                      <td className="py-3 px-4 text-slate-300">
+                        {item.category || 'Raw Material'}
+                      </td>
+
+                      {/* Current Stock */}
+                      <td className="py-3 px-4 text-right font-mono font-bold text-slate-100">
+                        {item.current_stock} <span className="text-[10px] font-normal text-slate-400">{item.unit || 'kg'}</span>
+                      </td>
+
+                      {/* Reorder Point */}
+                      <td className="py-3 px-4 text-right font-mono text-slate-400">
+                        {item.reorder_point} {item.unit || 'kg'}
+                      </td>
+
+                      {/* Daily Run Rate */}
+                      <td className="py-3 px-4 text-right font-mono text-amber-300">
+                        {item.daily_run_rate || 13.0} {item.unit || 'kg'}/d
+                      </td>
+
+                      {/* Runway (Days) */}
+                      <td className="py-3 px-4 text-center font-mono font-extrabold">
+                        <span className={isCrit ? 'text-rose-400' : isLow ? 'text-amber-300' : 'text-emerald-400'}>
+                          ~{item.days_left || (item.current_stock / (item.daily_run_rate || 1)).toFixed(1)}d
+                        </span>
+                      </td>
+
+                      {/* Status Badge */}
+                      <td className="py-3 px-4 text-center">
+                        <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border ${
+                          isCrit
                             ? 'badge-rose'
-                            : item.stockout_risk === 'MEDIUM'
+                            : isLow
                             ? 'badge-amber'
                             : 'badge-emerald'
-                        }
-                      >
-                        {item.stockout_risk}
-                      </span>
-                    </td>
+                        }`}>
+                          {item.status || (isCrit ? 'CRITICAL' : isLow ? 'LOW' : 'HEALTHY')}
+                        </span>
+                      </td>
 
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => onNavigateToProcurement(item.sku)}
-                          className="btn-primary text-xs px-2.5 py-1"
-                          title="Simulate Procurement"
-                        >
-                          <ShoppingCart className="w-3 h-3 text-black" />
-                          <span>Simulate</span>
-                        </button>
-
-                        <button
-                          onClick={() => handleViewDetails(item.sku)}
-                          className="btn-secondary text-xs px-2 py-1"
-                          title="View Details"
-                        >
-                          Details
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      {/* Quick Action Buttons */}
+                      <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => onOpenAskAIWithSku(item.sku)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-brand-accent hover:bg-surface-2 transition-colors"
+                            title="Ask AI Copilot about this SKU"
+                          >
+                            <Sparkles className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => onNavigateToProcurement(item.sku)}
+                            className="btn-primary text-[10px] py-1 px-2.5 flex items-center gap-1"
+                            title="Open 6-Scenario Procurement Decision Matrix"
+                          >
+                            <ShoppingCart className="w-3 h-3 text-black" />
+                            <span>Procure</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
       </div>
-
-      {/* SKU Details Modal */}
-      {activeItemDetails && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="w-full max-w-xl max-h-[85vh] overflow-y-auto rounded-2xl bg-surface-1 border border-white/[0.1] p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
-              <div>
-                <span className="font-mono text-xs text-brand-accent font-bold">{activeItemDetails.sku}</span>
-                <h3 className="text-base font-bold text-white mt-0.5">{activeItemDetails.name}</h3>
-              </div>
-              <button
-                onClick={() => setActiveItemDetails(null)}
-                className="btn-secondary text-xs"
-              >
-                Close
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="p-3 bg-surface-2 rounded-xl border border-white/[0.04]">
-                <span className="text-slate-400 block text-[10px]">Current Stock</span>
-                <strong className="text-white text-sm font-mono font-bold">{activeItemDetails.current_stock} {activeItemDetails.unit}</strong>
-              </div>
-              <div className="p-3 bg-surface-2 rounded-xl border border-white/[0.04]">
-                <span className="text-slate-400 block text-[10px]">Daily Usage Run-Rate</span>
-                <strong className="text-white text-sm font-mono font-bold">{activeItemDetails.daily_usage_avg} {activeItemDetails.unit}/day</strong>
-              </div>
-              <div className="p-3 bg-surface-2 rounded-xl border border-white/[0.04]">
-                <span className="text-slate-400 block text-[10px]">Reorder Point (ROP)</span>
-                <strong className="text-brand-accent text-sm font-mono font-bold">{activeItemDetails.reorder_point} {activeItemDetails.unit}</strong>
-              </div>
-              <div className="p-3 bg-surface-2 rounded-xl border border-white/[0.04]">
-                <span className="text-slate-400 block text-[10px]">Safety Stock Target</span>
-                <strong className="text-emerald-400 text-sm font-mono font-bold">{activeItemDetails.safety_stock} {activeItemDetails.unit}</strong>
-              </div>
-            </div>
-
-            <div className="pt-2 flex justify-end gap-2">
-              <button
-                onClick={() => {
-                  setActiveItemDetails(null);
-                  onNavigateToProcurement(activeItemDetails.sku);
-                }}
-                className="btn-primary text-xs px-4 py-2"
-              >
-                Launch Procurement Simulation
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
