@@ -16,6 +16,7 @@ import {
   CalendarCheck2,
   Bot
 } from 'lucide-react';
+import logoImg from '../assets/logo.png';
 
 const NAV_GROUPS = [
   {
@@ -67,7 +68,7 @@ export default function Sidebar({ activeTab, setActiveTab, metrics, onOpenAskAI 
             className="flex items-center gap-2.5 text-left group"
           >
             <img
-              src="/assets/logo.png"
+              src={logoImg}
               alt="LEADSTOHELP AI Logo"
               className="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(0,240,255,0.6)] group-hover:scale-105 transition-transform"
             />

@@ -36,6 +36,8 @@ import {
   Crosshair,
   UserCheck
 } from 'lucide-react';
+import logoImg from '../assets/logo.png';
+import heroBannerImg from '../assets/home_hero_banner.png';
 
 const SCENARIOS = [
   {
@@ -135,7 +137,7 @@ export default function LandingPage({
         {/* Brand Logo with 3D Hexagonal Icon */}
         <div className="flex items-center gap-3">
           <img
-            src="/assets/logo.png"
+            src={logoImg}
             alt="LEADSTOHELP AI Logo"
             className="w-9 h-9 object-contain drop-shadow-[0_0_12px_rgba(0,240,255,0.8)]"
           />
@@ -190,7 +192,7 @@ export default function LandingPage({
         {/* High-Resolution Full-Bleed Background Visual */}
         <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
           <img
-            src="/assets/home_hero_banner.png"
+            src={heroBannerImg}
             alt="LEADSTOHELP AI Global Supply Chain Digital Twin"
             className="w-full h-full object-cover object-right lg:object-center opacity-85 filter saturate-125 contrast-110"
           />
@@ -1008,7 +1010,7 @@ export default function LandingPage({
       <section className="px-6 sm:px-12 py-20 text-center space-y-6 max-w-4xl mx-auto">
         <div className="flex justify-center">
           <img
-            src="/assets/logo.png"
+            src={logoImg}
             alt="LEADSTOHELP AI Logo"
             className="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(0,240,255,0.8)]"
           />
@@ -1044,7 +1046,7 @@ export default function LandingPage({
       {/* FOOTER */}
       <footer className="h-16 border-t border-white/[0.06] px-6 sm:px-12 flex items-center justify-between text-xs text-slate-400 font-mono">
         <div className="flex items-center gap-2">
-          <img src="/assets/logo.png" alt="LEADSTOHELP AI" className="w-5 h-5 object-contain" />
+          <img src={logoImg} alt="LEADSTOHELP AI" className="w-5 h-5 object-contain" />
           <span>LEADSTOHELP AI • Autonomous Retail Operations Platform</span>
         </div>
         <span>Store Hub: Deccan Roast #BLR-01</span>
