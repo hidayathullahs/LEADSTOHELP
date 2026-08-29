@@ -195,8 +195,8 @@ export default function LandingPage({
         </div>
       </header>
 
-      {/* 2. FULL-BLEED HERO BANNER (Directly matching user image) */}
-      <section className="relative w-full min-h-[92vh] flex flex-col justify-between px-6 sm:px-12 pt-10 pb-8 overflow-hidden bg-surface-0">
+      {/* 2. FULL-BLEED HERO BANNER (Unobscured Supply Chain Digital Twin) */}
+      <section className="relative w-full min-h-[80vh] lg:min-h-[88vh] flex flex-col justify-center px-6 sm:px-12 pt-12 pb-24 overflow-hidden bg-surface-0">
         {/* Glowing Global Supply Chain Digital Twin Hero Visual */}
         <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
           <img
@@ -206,7 +206,7 @@ export default function LandingPage({
           />
           {/* Soft gradient mask on left to ensure live typography has 100% legibility */}
           <div className="absolute inset-0 bg-gradient-to-r from-surface-0/95 via-surface-0/40 to-transparent lg:w-3/5"></div>
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-surface-0 to-transparent"></div>
+          <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-surface-0 via-surface-0/50 to-transparent"></div>
         </div>
 
         {/* Hero Top Content Area */}
@@ -263,10 +263,11 @@ export default function LandingPage({
             </button>
           </div>
         </div>
+      </section>
 
-        {/* 4 Feature Cards & Integrated Telemetry Bar (Anchored at the bottom of the hero) */}
-        <div className="space-y-4 pt-12 relative z-10 max-w-7xl mx-auto w-full">
-          {/* 4 Glowing Core Feature Cards with Luxe Frosted Glass */}
+      {/* 4 Feature Cards & Integrated Telemetry Bar (Positioned below the hero so background ships are 100% visible) */}
+      <section className="px-6 sm:px-12 -mt-12 sm:-mt-16 pb-12 max-w-7xl mx-auto w-full relative z-20 space-y-4">
+        {/* 4 Glowing Core Feature Cards with Luxe Frosted Glass */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-left">
             <div className="p-4 rounded-3xl bg-slate-950/25 hover:bg-slate-900/40 backdrop-blur-2xl border border-white/[0.12] hover:border-cyan-400/60 transition-all duration-300 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] hover:shadow-[0_8px_32px_0_rgba(0,240,255,0.2)] group relative overflow-hidden">
               <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -427,8 +428,7 @@ export default function LandingPage({
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
       {/* 3. LIVE OPERATIONS INTELLIGENCE TOPOLOGY CIRCUIT */}
       <section className="px-6 sm:px-12 py-16 max-w-6xl mx-auto space-y-6">
