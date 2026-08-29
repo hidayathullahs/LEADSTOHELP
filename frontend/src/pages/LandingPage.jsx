@@ -37,7 +37,7 @@ import {
   UserCheck
 } from 'lucide-react';
 import logoImg from '../assets/logo.png';
-import heroBannerImg from '../assets/home_hero_banner.png';
+import heroBgImg from '../assets/hero_bg.png';
 
 const SCENARIOS = [
   {
@@ -189,15 +189,15 @@ export default function LandingPage({
 
       {/* 2. FULL-BLEED HERO BANNER (Directly matching user image) */}
       <section className="relative w-full min-h-[92vh] flex flex-col justify-between px-6 sm:px-12 pt-10 pb-8 overflow-hidden bg-surface-0">
-        {/* Glowing Global Supply Chain Digital Twin Hero Visual on Right */}
-        <div className="absolute top-0 right-0 w-full lg:w-3/5 h-full pointer-events-none z-0 overflow-hidden">
+        {/* Glowing Global Supply Chain Digital Twin Hero Visual */}
+        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
           <img
-            src={heroBannerImg}
+            src={heroBgImg}
             alt="LEADSTOHELP AI Global Supply Chain Digital Twin"
-            className="w-full h-full object-cover object-right opacity-95 filter saturate-125 contrast-105 drop-shadow-2xl"
+            className="w-full h-full object-cover object-right opacity-95 filter saturate-125 contrast-105"
           />
-          {/* Subtle soft feather gradient on the left edge */}
-          <div className="absolute inset-y-0 left-0 w-36 bg-gradient-to-r from-surface-0 to-transparent hidden lg:block"></div>
+          {/* Soft gradient mask on left to ensure live typography has 100% legibility */}
+          <div className="absolute inset-0 bg-gradient-to-r from-surface-0/95 via-surface-0/40 to-transparent lg:w-3/5"></div>
           <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-surface-0 to-transparent"></div>
         </div>
 
