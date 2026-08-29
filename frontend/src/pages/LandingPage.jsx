@@ -129,21 +129,21 @@ export default function LandingPage({
   const suggestedOrder = Math.round(adjustedRate * 7); // 7-day buffer
 
   return (
-    <div className="min-h-screen w-full bg-surface-0 text-slate-100 font-sans selection:bg-brand-accent selection:text-black overflow-x-hidden bg-grid-pattern">
-      {/* 1. TOP NAVIGATION (Exact layout from user visual design) */}
-      <header className="h-18 border-b border-white/[0.08] bg-surface-0/85 backdrop-blur-xl sticky top-0 z-50 px-6 sm:px-12 flex items-center justify-between">
+    <div className="min-h-screen w-full bg-surface-0 text-slate-100 font-sans selection:bg-brand-accent selection:text-black overflow-x-hidden">
+      {/* 1. TOP NAVIGATION HEADER */}
+      <header className="h-16 border-b border-white/[0.08] bg-surface-0/80 backdrop-blur-xl sticky top-0 z-50 px-6 sm:px-12 flex items-center justify-between">
         {/* Brand Logo with 3D Hexagonal Icon */}
         <div className="flex items-center gap-3">
           <img
             src="/assets/logo.png"
-            alt="LEADSTOHELP AI"
-            className="w-10 h-10 object-contain drop-shadow-[0_0_12px_rgba(0,240,255,0.7)]"
+            alt="LEADSTOHELP AI Logo"
+            className="w-9 h-9 object-contain drop-shadow-[0_0_12px_rgba(0,240,255,0.8)]"
           />
           <div>
-            <div className="flex items-center gap-2">
-              <span className="font-black text-base tracking-wider text-white">LEADSTOHELP</span>
+            <div className="flex items-center gap-2 leading-none">
+              <span className="font-extrabold text-sm tracking-wider text-white">LEADSTOHELP</span>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 mt-0.5">
               <span className="text-[10px] font-mono font-bold tracking-widest text-cyan-400 uppercase">
                 AI CONTROL TOWER
               </span>
@@ -161,8 +161,7 @@ export default function LandingPage({
         </nav>
 
         {/* Right Action Group */}
-        <div className="flex items-center gap-3.5">
-          {/* Operational Status Capsule */}
+        <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-1 border border-white/[0.08] text-xs font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             <span className="text-slate-300 text-[11px]">System Status: <strong className="text-emerald-400">Operational</strong></span>
@@ -170,7 +169,7 @@ export default function LandingPage({
 
           <button
             onClick={onStartDemoTour}
-            className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-1 hover:bg-surface-2 border border-white/[0.08] text-xs font-semibold text-slate-200 hover:text-white transition-all shadow-md"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-1 hover:bg-surface-2 border border-white/[0.08] text-xs font-semibold text-slate-200 hover:text-white transition-all shadow-md"
           >
             <Play className="w-3.5 h-3.5 text-cyan-400 fill-cyan-400" />
             <span>3-Minute Demo</span>
@@ -178,7 +177,7 @@ export default function LandingPage({
 
           <button
             onClick={onEnterApp}
-            className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-glow-teal"
+            className="btn-primary text-xs py-2 px-4 flex items-center gap-1.5 shadow-glow-teal font-bold"
           >
             <span>Enter Control Tower</span>
             <ArrowRight className="w-3.5 h-3.5 text-black" />
@@ -186,40 +185,40 @@ export default function LandingPage({
         </div>
       </header>
 
-      {/* 2. CINEMATIC HERO BANNER SECTION (MATCHING HOME SCREEN DESIGN) */}
-      <section className="relative px-6 sm:px-12 pt-16 pb-20 max-w-7xl mx-auto space-y-12 overflow-hidden rounded-b-3xl">
-        {/* Layered High-Res Cinematic Backdrop Visual */}
-        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none rounded-3xl">
+      {/* 2. FULL-BLEED HERO BANNER (Directly matching user image) */}
+      <section className="relative w-full min-h-[92vh] flex flex-col justify-between px-6 sm:px-12 pt-12 pb-8 overflow-hidden">
+        {/* High-Resolution Full-Bleed Background Visual */}
+        <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
           <img
             src="/assets/home_hero_banner.png"
-            alt="Futuristic Supply Chain Control Center"
-            className="w-full h-full object-cover object-center opacity-45 scale-105 filter saturate-150 contrast-125"
+            alt="LEADSTOHELP AI Global Supply Chain Digital Twin"
+            className="w-full h-full object-cover object-right lg:object-center opacity-85 filter saturate-125 contrast-110"
           />
-          {/* Gradient vignettes for seamless typography contrast */}
-          <div className="absolute inset-0 bg-gradient-to-b from-surface-0/70 via-surface-0/85 to-surface-0"></div>
-          <div className="absolute inset-0 bg-radial-ambient"></div>
+          {/* Selective Left Gradient Mask to guarantee pristine headline legibility */}
+          <div className="absolute inset-0 bg-gradient-to-r from-surface-0/95 via-surface-0/70 to-transparent lg:w-3/5"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-surface-0 via-transparent to-surface-0/40"></div>
         </div>
 
-        {/* Hero Top Content Block */}
-        <div className="max-w-4xl space-y-6 text-left">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-cyan-950/70 border border-cyan-500/40 text-xs shadow-lg backdrop-blur-md">
+        {/* Hero Top Content Area */}
+        <div className="max-w-3xl space-y-6 pt-4 text-left relative z-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-cyan-950/80 border border-cyan-500/50 text-xs shadow-lg backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
             <span className="text-cyan-200 font-bold tracking-wider uppercase text-[11px]">
               ◆ AI-POWERED RETAIL OPERATIONS PLATFORM
             </span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.08] drop-shadow-lg">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.08] drop-shadow-2xl">
             From supply-chain <br />
-            signals to <span className="text-cyan-400 drop-shadow-[0_0_25px_rgba(0,240,255,0.7)]">verified</span> <br />
-            <span className="text-cyan-400 drop-shadow-[0_0_25px_rgba(0,240,255,0.7)]">business action.</span>
+            signals to <span className="text-cyan-400 drop-shadow-[0_0_30px_rgba(0,240,255,0.8)]">verified</span> <br />
+            <span className="text-cyan-400 drop-shadow-[0_0_30px_rgba(0,240,255,0.8)]">business action.</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed drop-shadow">
+          <p className="text-sm sm:text-base text-slate-200 max-w-xl leading-relaxed drop-shadow-md">
             LEADSTOHELP helps retail teams detect inventory stockouts and supplier risks early, simulate smarter procurement decisions, and turn AI recommendations into human-approved business action.
           </p>
 
-          {/* Hero CTAs */}
+          {/* Hero Action Buttons */}
           <div className="flex flex-wrap items-center gap-3.5 pt-2">
             <button
               onClick={onEnterApp}
@@ -231,7 +230,7 @@ export default function LandingPage({
 
             <button
               onClick={onStartDemoTour}
-              className="btn-secondary text-sm py-3 px-5 flex items-center gap-2 backdrop-blur-md font-semibold"
+              className="btn-secondary text-sm py-3 px-5 flex items-center gap-2 backdrop-blur-md font-semibold bg-surface-1/90"
             >
               <Play className="w-4 h-4 text-cyan-400 fill-cyan-400" />
               <span>Run 3-Minute Demo</span>
@@ -239,7 +238,7 @@ export default function LandingPage({
 
             <button
               onClick={() => onOpenAskAI("Why is Arabica coffee at risk and what should we buy?")}
-              className="btn-secondary text-sm py-3 px-5 flex items-center gap-2 text-accent-violet hover:border-accent-violet/40 backdrop-blur-md font-semibold"
+              className="btn-secondary text-sm py-3 px-5 flex items-center gap-2 text-accent-violet hover:border-accent-violet/40 backdrop-blur-md font-semibold bg-surface-1/90"
             >
               <Sparkles className="w-4 h-4 text-accent-violet" />
               <span>Ask AI Copilot</span>
@@ -247,292 +246,279 @@ export default function LandingPage({
           </div>
         </div>
 
-        {/* 4 Glowing Core Feature Cards (Exact layout from user visual design) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
-          {/* Card 1: Real-time visibility */}
-          <div className="p-5 rounded-2xl bg-surface-1/90 backdrop-blur-xl border border-cyan-500/30 hover:border-cyan-400/70 transition-all shadow-[0_0_20px_rgba(0,240,255,0.1)] group">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-3 group-hover:scale-105 transition-transform shadow-glow-teal">
-              <Crosshair className="w-5 h-5" />
-            </div>
-            <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
-              REAL-TIME VISIBILITY
-            </h3>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              Monitor every movement across your supply chain in real time.
-            </p>
-          </div>
-
-          {/* Card 2: Risk Prediction */}
-          <div className="p-5 rounded-2xl bg-surface-1/90 backdrop-blur-xl border border-emerald-500/30 hover:border-emerald-400/70 transition-all shadow-[0_0_20px_rgba(16,185,129,0.1)] group">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-3 group-hover:scale-105 transition-transform shadow-glow-emerald">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
-              RISK PREDICTION
-            </h3>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              AI models predict disruptions before they impact your business.
-            </p>
-          </div>
-
-          {/* Card 3: Smart Recommendations */}
-          <div className="p-5 rounded-2xl bg-surface-1/90 backdrop-blur-xl border border-cyan-500/30 hover:border-cyan-400/70 transition-all shadow-[0_0_20px_rgba(0,240,255,0.1)] group">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-3 group-hover:scale-105 transition-transform shadow-glow-teal">
-              <Brain className="w-5 h-5" />
-            </div>
-            <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
-              SMART RECOMMENDATIONS
-            </h3>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              Get AI-powered recommendations with explainable insights you can trust.
-            </p>
-          </div>
-
-          {/* Card 4: Human-in-the-loop */}
-          <div className="p-5 rounded-2xl bg-surface-1/90 backdrop-blur-xl border border-cyan-500/30 hover:border-cyan-400/70 transition-all shadow-[0_0_20px_rgba(0,240,255,0.1)] group">
-            <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-3 group-hover:scale-105 transition-transform shadow-glow-teal">
-              <UserCheck className="w-5 h-5" />
-            </div>
-            <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
-              HUMAN-IN-THE-LOOP
-            </h3>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              Collaborate, review, and take action with confidence.
-            </p>
-          </div>
-        </div>
-
-        {/* 5. LIVE INTEGRATED TELEMETRY & ANALYTICS BAR (Exact layout from user visual design) */}
-        <div className="p-6 rounded-3xl bg-surface-1/95 border border-cyan-500/30 shadow-[0_0_30px_rgba(0,240,255,0.15)] backdrop-blur-2xl">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 text-left font-mono">
-            {/* Metric 1 */}
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
-                <Package className="w-3.5 h-3.5 text-cyan-400" />
-                <span>ACTIVE SHIPMENTS</span>
+        {/* 4 Feature Cards & Integrated Telemetry Bar (Anchored at the bottom of the hero) */}
+        <div className="space-y-4 pt-12 relative z-10 max-w-7xl mx-auto w-full">
+          {/* 4 Glowing Core Feature Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-left">
+            <div className="p-4 rounded-2xl bg-surface-0/90 backdrop-blur-xl border border-cyan-500/40 hover:border-cyan-400 transition-all shadow-[0_0_20px_rgba(0,240,255,0.15)] group">
+              <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-2.5 shadow-glow-teal">
+                <Crosshair className="w-4 h-4" />
               </div>
-              <div className="text-2xl font-black text-white">1,250</div>
-              <div className="text-[10px] text-emerald-400 flex items-center gap-1">
-                <TrendingUp className="w-3 h-3" />
-                <span>↑ 12.5% vs last 24h</span>
-              </div>
-            </div>
-
-            {/* Metric 2 */}
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-                <span>AT-RISK ORDERS</span>
-              </div>
-              <div className="text-2xl font-black text-amber-400">87</div>
-              <div className="text-[10px] text-emerald-400 flex items-center gap-1">
-                <TrendingDown className="w-3 h-3" />
-                <span>↓ 8.2% vs last 24h</span>
-              </div>
-            </div>
-
-            {/* Metric 3 */}
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
-                <Clock className="w-3.5 h-3.5 text-rose-400" />
-                <span>PREDICTED DELAYS</span>
-              </div>
-              <div className="text-2xl font-black text-rose-400">24</div>
-              <div className="text-[10px] text-emerald-400 flex items-center gap-1">
-                <TrendingDown className="w-3 h-3" />
-                <span>↓ 15.1% vs last 24h</span>
-              </div>
-            </div>
-
-            {/* Metric 4 */}
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
-                <BarChart3 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>FILL RATE</span>
-              </div>
-              <div className="text-2xl font-black text-emerald-400">98.7%</div>
-              <div className="text-[10px] text-emerald-400 flex items-center gap-1">
-                <TrendingUp className="w-3 h-3" />
-                <span>↑ 2.3% vs last 24h</span>
-              </div>
-            </div>
-
-            {/* Metric 5: Supply Chain Health Sparkline */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-[10px]">
-                <span className="text-slate-400 font-bold uppercase">SUPPLY CHAIN HEALTH</span>
-                <span className="badge-emerald text-[9px] font-bold">EXCELLENT</span>
-              </div>
-              {/* Dynamic SVG Sparkline Graph */}
-              <div className="h-8 w-full">
-                <svg className="w-full h-full overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
-                  <path
-                    d="M 0,22 Q 15,10 30,18 T 60,8 T 85,15 T 100,5"
-                    fill="none"
-                    stroke="#00F0FF"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M 0,22 Q 15,10 30,18 T 60,8 T 85,15 T 100,5 L 100,30 L 0,30 Z"
-                    fill="url(#cyanGlowGrad)"
-                    opacity="0.2"
-                  />
-                  <defs>
-                    <linearGradient id="cyanGlowGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#00F0FF" />
-                      <stop offset="100%" stopColor="#00F0FF" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-              </div>
-              <div className="flex justify-between text-[8px] text-slate-500">
-                <span>00:00</span>
-                <span>06:00</span>
-                <span>12:00</span>
-                <span>18:00</span>
-                <span>24:00</span>
-              </div>
-            </div>
-
-            {/* Metric 6: Operation Overview Mini Card */}
-            <div className="p-2.5 rounded-xl bg-surface-2/80 border border-white/[0.06] text-[10px] space-y-1">
-              <div className="flex items-center justify-between text-cyan-400 font-bold">
-                <span>OPERATION OVERVIEW</span>
-                <Activity className="w-3 h-3" />
-              </div>
-              <div className="flex justify-between text-slate-300">
-                <span>EFFICIENCY</span>
-                <span className="font-bold text-white">98.7%</span>
-              </div>
-              <div className="flex justify-between text-slate-300">
-                <span>DELIVERIES</span>
-                <span className="font-bold text-white">24,532</span>
-              </div>
-              <div className="flex justify-between text-slate-300">
-                <span>ACTIVE SHIPS</span>
-                <span className="font-bold text-cyan-400">1,250</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 6. INTERACTIVE SUPPLY CHAIN TOPOLOGY CIRCUIT */}
-        <div className="pt-4 max-w-5xl mx-auto text-left">
-          <div className="glass-card p-6 sm:p-8 bg-surface-1/95 border-white/[0.12] rounded-3xl space-y-6 shadow-2xl backdrop-blur-xl relative">
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
-              <div className="flex items-center gap-2">
-                <Radio className="w-4 h-4 text-emerald-400 animate-pulse" />
-                <span className="text-xs font-bold uppercase tracking-wider text-white">
-                  Live Operations Intelligence Topology
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="badge-teal font-mono text-[10px]">REALTIME TELEMETRY</span>
-                <span className="font-mono text-xs text-brand-accent font-semibold hidden sm:inline">
-                  Deccan Roast Hub #BLR-01
-                </span>
-              </div>
-            </div>
-
-            {/* 5 Interactive Connected Nodes */}
-            <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 relative z-10 text-xs">
-              <div
-                onClick={() => setSelectedCircuitNode(1)}
-                className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                  selectedCircuitNode === 1
-                    ? 'bg-surface-2 border-brand-accent ring-1 ring-brand-accent/40 shadow-glow-teal'
-                    : 'bg-surface-2/70 border-white/[0.06] hover:bg-surface-2'
-                }`}
-              >
-                <Store className="w-4 h-4 text-brand-accent mb-1.5" />
-                <span className="font-mono text-[10px] text-slate-400 block uppercase font-bold">1. Store Ledger</span>
-                <strong className="text-white block text-sm">65 SKUs Monitored</strong>
-                <p className="text-[11px] text-slate-400">13kg/day coffee run-rate</p>
-              </div>
-
-              <div
-                onClick={() => setSelectedCircuitNode(2)}
-                className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                  selectedCircuitNode === 2
-                    ? 'bg-rose-500/20 border-rose-500 ring-1 ring-rose-500/40 glow-border-rose'
-                    : 'bg-rose-500/10 border-rose-500/30 hover:bg-rose-500/15'
-                }`}
-              >
-                <Package className="w-4 h-4 text-rose-400 mb-1.5" />
-                <span className="font-mono text-[10px] text-rose-300 block uppercase font-bold">2. Risk Detected</span>
-                <strong className="text-rose-300 block text-sm">COFFEE-001 (2.8d left)</strong>
-                <p className="text-[11px] text-rose-400/80">48% menu exposure</p>
-              </div>
-
-              <div
-                onClick={() => setSelectedCircuitNode(3)}
-                className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                  selectedCircuitNode === 3
-                    ? 'bg-surface-2 border-accent-violet ring-1 ring-accent-violet/40 shadow-glow-violet'
-                    : 'bg-surface-2/70 border-white/[0.06] hover:bg-surface-2'
-                }`}
-              >
-                <Sliders className="w-4 h-4 text-accent-violet mb-1.5" />
-                <span className="font-mono text-[10px] text-slate-400 block uppercase font-bold">3. What-If Twin</span>
-                <strong className="text-white block text-sm">6 Strategies Modeled</strong>
-                <p className="text-[11px] text-slate-400">Split-Order Optimal</p>
-              </div>
-
-              <div
-                onClick={() => setSelectedCircuitNode(4)}
-                className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                  selectedCircuitNode === 4
-                    ? 'bg-amber-500/20 border-amber-500 ring-1 ring-amber-500/40'
-                    : 'bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/15'
-                }`}
-              >
-                <Lock className="w-4 h-4 text-amber-400 mb-1.5" />
-                <span className="font-mono text-[10px] text-amber-300 block uppercase font-bold">4. Human Sign-Off</span>
-                <strong className="text-amber-300 block text-sm">₹86,328 PO Staged</strong>
-                <p className="text-[11px] text-amber-400/80">Zero spend bypass</p>
-              </div>
-
-              <div
-                onClick={() => setSelectedCircuitNode(5)}
-                className={`p-4 rounded-2xl border cursor-pointer transition-all ${
-                  selectedCircuitNode === 5
-                    ? 'bg-emerald-500/20 border-emerald-500 ring-1 ring-emerald-500/40 glow-border-emerald'
-                    : 'bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/15'
-                }`}
-              >
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 mb-1.5" />
-                <span className="font-mono text-[10px] text-emerald-300 block uppercase font-bold">5. Verified Impact</span>
-                <strong className="text-emerald-300 block text-sm">+₹8,672 Net Savings</strong>
-                <p className="text-[11px] text-emerald-400/80">88% → 8% Stockout Risk</p>
-              </div>
-            </div>
-
-            {/* Contextual Node Explanation Drawer */}
-            <div className="p-4 bg-surface-2/90 rounded-2xl border border-white/[0.06] text-xs space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-white text-xs">
-                  {selectedCircuitNode === 1 && "Step 1: Continuous Store Inventory Monitoring"}
-                  {selectedCircuitNode === 2 && "Step 2: Imminent Stockout Cliff Identified"}
-                  {selectedCircuitNode === 3 && "Step 3: Multi-Scenario Procurement Simulation"}
-                  {selectedCircuitNode === 4 && "Step 4: Cryptographic Human Governance Gate"}
-                  {selectedCircuitNode === 5 && "Step 5: Verified Financial ROI & Risk Mitigation"}
-                </span>
-                <span className="text-[10px] font-mono text-brand-accent">Click any step to inspect</span>
-              </div>
-              <p className="text-slate-300 text-[11px] leading-relaxed">
-                {selectedCircuitNode === 1 && "The Deccan Roast #BLR-01 store ledger continuously monitors run-rates across 65 perishable raw materials, milk supplies, cups, and specialty coffee beans."}
-                {selectedCircuitNode === 2 && "Arabica coffee beans (COFFEE-001) are depleted to 36.0 kg. With a 13.0 kg/day consumption rate, safety stock runs out in ~2.8 days before the weekend rush."}
-                {selectedCircuitNode === 3 && "The What-If Digital Twin executes 6 strategy simulations across 10 vetted suppliers, balancing rapid turnaround vs tiered bulk volume discounts."}
-                {selectedCircuitNode === 4 && "Zero autonomous spend is permitted. High-impact purchase orders are staged with cryptographic verification, requiring explicit human sign-off."}
-                {selectedCircuitNode === 5 && "The recommended Split-Order delivers +₹8,672 in direct savings, reduces stockout probability from 88% down to 8%, and protects ₹32,400/day beverage revenue."}
+              <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
+                REAL-TIME VISIBILITY
+              </h3>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                Monitor every movement across your supply chain in real time.
               </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-surface-0/90 backdrop-blur-xl border border-emerald-500/40 hover:border-emerald-400 transition-all shadow-[0_0_20px_rgba(16,185,129,0.15)] group">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-2.5 shadow-glow-emerald">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
+                RISK PREDICTION
+              </h3>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                AI models predict disruptions before they impact your business.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-surface-0/90 backdrop-blur-xl border border-cyan-500/40 hover:border-cyan-400 transition-all shadow-[0_0_20px_rgba(0,240,255,0.15)] group">
+              <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-2.5 shadow-glow-teal">
+                <Brain className="w-4 h-4" />
+              </div>
+              <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
+                SMART RECOMMENDATIONS
+              </h3>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                Get AI-powered recommendations with explainable insights you can trust.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-surface-0/90 backdrop-blur-xl border border-cyan-500/40 hover:border-cyan-400 transition-all shadow-[0_0_20px_rgba(0,240,255,0.15)] group">
+              <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-2.5 shadow-glow-teal">
+                <UserCheck className="w-4 h-4" />
+              </div>
+              <h3 className="text-xs font-extrabold text-white uppercase tracking-wider mb-1">
+                HUMAN-IN-THE-LOOP
+              </h3>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                Collaborate, review, and take action with confidence.
+              </p>
+            </div>
+          </div>
+
+          {/* Integrated Telemetry & Analytics Bar */}
+          <div className="p-5 rounded-3xl bg-surface-0/95 border border-cyan-500/30 shadow-[0_0_30px_rgba(0,240,255,0.2)] backdrop-blur-2xl">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 text-left font-mono">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                  <Package className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>ACTIVE SHIPMENTS</span>
+                </div>
+                <div className="text-xl font-black text-white">1,250</div>
+                <div className="text-[10px] text-emerald-400 flex items-center gap-1">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>↑ 12.5% vs last 24h</span>
+                </div>
+              </div>
+
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                  <span>AT-RISK ORDERS</span>
+                </div>
+                <div className="text-xl font-black text-amber-400">87</div>
+                <div className="text-[10px] text-emerald-400 flex items-center gap-1">
+                  <TrendingDown className="w-3 h-3" />
+                  <span>↓ 8.2% vs last 24h</span>
+                </div>
+              </div>
+
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                  <Clock className="w-3.5 h-3.5 text-rose-400" />
+                  <span>PREDICTED DELAYS</span>
+                </div>
+                <div className="text-xl font-black text-rose-400">24</div>
+                <div className="text-[10px] text-emerald-400 flex items-center gap-1">
+                  <TrendingDown className="w-3 h-3" />
+                  <span>↓ 15.1% vs last 24h</span>
+                </div>
+              </div>
+
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-1.5 text-slate-400 text-[10px] uppercase font-bold tracking-wider">
+                  <BarChart3 className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>FILL RATE</span>
+                </div>
+                <div className="text-xl font-black text-emerald-400">98.7%</div>
+                <div className="text-[10px] text-emerald-400 flex items-center gap-1">
+                  <TrendingUp className="w-3 h-3" />
+                  <span>↑ 2.3% vs last 24h</span>
+                </div>
+              </div>
+
+              {/* Sparkline Graph */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="text-slate-400 font-bold uppercase text-[9px]">HEALTH</span>
+                  <span className="badge-emerald text-[8px] font-bold py-0">EXCELLENT</span>
+                </div>
+                <div className="h-6 w-full">
+                  <svg className="w-full h-full overflow-visible" viewBox="0 0 100 30" preserveAspectRatio="none">
+                    <path
+                      d="M 0,22 Q 15,10 30,18 T 60,8 T 85,15 T 100,5"
+                      fill="none"
+                      stroke="#00F0FF"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M 0,22 Q 15,10 30,18 T 60,8 T 85,15 T 100,5 L 100,30 L 0,30 Z"
+                      fill="url(#cyanGlowGradHero)"
+                      opacity="0.2"
+                    />
+                    <defs>
+                      <linearGradient id="cyanGlowGradHero" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#00F0FF" />
+                        <stop offset="100%" stopColor="#00F0FF" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </div>
+                <div className="flex justify-between text-[8px] text-slate-500">
+                  <span>00:00</span>
+                  <span>12:00</span>
+                  <span>24:00</span>
+                </div>
+              </div>
+
+              {/* Overview Mini Box */}
+              <div className="p-2 rounded-xl bg-surface-1 border border-white/[0.06] text-[9px] space-y-0.5">
+                <div className="flex items-center justify-between text-cyan-400 font-bold">
+                  <span>OVERVIEW</span>
+                  <Activity className="w-2.5 h-2.5" />
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span>EFFICIENCY</span>
+                  <span className="font-bold text-white">98.7%</span>
+                </div>
+                <div className="flex justify-between text-slate-300">
+                  <span>DELIVERIES</span>
+                  <span className="font-bold text-white">24,532</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. INTERACTIVE "WHAT-IF" DIGITAL TWIN PLAYGROUND */}
+      {/* 3. LIVE OPERATIONS INTELLIGENCE TOPOLOGY CIRCUIT */}
+      <section className="px-6 sm:px-12 py-16 max-w-6xl mx-auto space-y-6">
+        <div className="glass-card p-6 sm:p-8 bg-surface-1 border-white/[0.1] rounded-3xl space-y-6 shadow-2xl backdrop-blur-xl relative">
+          <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
+            <div className="flex items-center gap-2">
+              <Radio className="w-4 h-4 text-emerald-400 animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-wider text-white">
+                Live Operations Intelligence Topology
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="badge-teal font-mono text-[10px]">REALTIME TELEMETRY</span>
+              <span className="font-mono text-xs text-brand-accent font-semibold hidden sm:inline">
+                Deccan Roast Hub #BLR-01
+              </span>
+            </div>
+          </div>
+
+          {/* 5 Interactive Connected Nodes */}
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 relative z-10 text-xs">
+            <div
+              onClick={() => setSelectedCircuitNode(1)}
+              className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                selectedCircuitNode === 1
+                  ? 'bg-surface-2 border-brand-accent ring-1 ring-brand-accent/40 shadow-glow-teal'
+                  : 'bg-surface-2/70 border-white/[0.06] hover:bg-surface-2'
+              }`}
+            >
+              <Store className="w-4 h-4 text-brand-accent mb-1.5" />
+              <span className="font-mono text-[10px] text-slate-400 block uppercase font-bold">1. Store Ledger</span>
+              <strong className="text-white block text-sm">65 SKUs Monitored</strong>
+              <p className="text-[11px] text-slate-400">13kg/day coffee run-rate</p>
+            </div>
+
+            <div
+              onClick={() => setSelectedCircuitNode(2)}
+              className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                selectedCircuitNode === 2
+                  ? 'bg-rose-500/20 border-rose-500 ring-1 ring-rose-500/40 glow-border-rose'
+                  : 'bg-rose-500/10 border-rose-500/30 hover:bg-rose-500/15'
+              }`}
+            >
+              <Package className="w-4 h-4 text-rose-400 mb-1.5" />
+              <span className="font-mono text-[10px] text-rose-300 block uppercase font-bold">2. Risk Detected</span>
+              <strong className="text-rose-300 block text-sm">COFFEE-001 (2.8d left)</strong>
+              <p className="text-[11px] text-rose-400/80">48% menu exposure</p>
+            </div>
+
+            <div
+              onClick={() => setSelectedCircuitNode(3)}
+              className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                selectedCircuitNode === 3
+                  ? 'bg-surface-2 border-accent-violet ring-1 ring-accent-violet/40 shadow-glow-violet'
+                  : 'bg-surface-2/70 border-white/[0.06] hover:bg-surface-2'
+              }`}
+            >
+              <Sliders className="w-4 h-4 text-accent-violet mb-1.5" />
+              <span className="font-mono text-[10px] text-slate-400 block uppercase font-bold">3. What-If Twin</span>
+              <strong className="text-white block text-sm">6 Strategies Modeled</strong>
+              <p className="text-[11px] text-slate-400">Split-Order Optimal</p>
+            </div>
+
+            <div
+              onClick={() => setSelectedCircuitNode(4)}
+              className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                selectedCircuitNode === 4
+                  ? 'bg-amber-500/20 border-amber-500 ring-1 ring-amber-500/40'
+                  : 'bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/15'
+              }`}
+            >
+              <Lock className="w-4 h-4 text-amber-400 mb-1.5" />
+              <span className="font-mono text-[10px] text-amber-300 block uppercase font-bold">4. Human Sign-Off</span>
+              <strong className="text-amber-300 block text-sm">₹86,328 PO Staged</strong>
+              <p className="text-[11px] text-amber-400/80">Zero spend bypass</p>
+            </div>
+
+            <div
+              onClick={() => setSelectedCircuitNode(5)}
+              className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                selectedCircuitNode === 5
+                  ? 'bg-emerald-500/20 border-emerald-500 ring-1 ring-emerald-500/40 glow-border-emerald'
+                  : 'bg-emerald-500/10 border-emerald-500/30 hover:bg-emerald-500/15'
+              }`}
+            >
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 mb-1.5" />
+              <span className="font-mono text-[10px] text-emerald-300 block uppercase font-bold">5. Verified Impact</span>
+              <strong className="text-emerald-300 block text-sm">+₹8,672 Net Savings</strong>
+              <p className="text-[11px] text-emerald-400/80">88% → 8% Stockout Risk</p>
+            </div>
+          </div>
+
+          <div className="p-4 bg-surface-2 rounded-2xl border border-white/[0.06] text-xs space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-white text-xs">
+                {selectedCircuitNode === 1 && "Step 1: Continuous Store Inventory Monitoring"}
+                {selectedCircuitNode === 2 && "Step 2: Imminent Stockout Cliff Identified"}
+                {selectedCircuitNode === 3 && "Step 3: Multi-Scenario Procurement Simulation"}
+                {selectedCircuitNode === 4 && "Step 4: Cryptographic Human Governance Gate"}
+                {selectedCircuitNode === 5 && "Step 5: Verified Financial ROI & Risk Mitigation"}
+              </span>
+              <span className="text-[10px] font-mono text-brand-accent">Click any step to inspect</span>
+            </div>
+            <p className="text-slate-300 text-[11px] leading-relaxed">
+              {selectedCircuitNode === 1 && "The Deccan Roast #BLR-01 store ledger continuously monitors run-rates across 65 perishable raw materials, milk supplies, cups, and specialty coffee beans."}
+              {selectedCircuitNode === 2 && "Arabica coffee beans (COFFEE-001) are depleted to 36.0 kg. With a 13.0 kg/day consumption rate, safety stock runs out in ~2.8 days before the weekend rush."}
+              {selectedCircuitNode === 3 && "The What-If Digital Twin executes 6 strategy simulations across 10 vetted suppliers, balancing rapid turnaround vs tiered bulk volume discounts."}
+              {selectedCircuitNode === 4 && "Zero autonomous spend is permitted. High-impact purchase orders are staged with cryptographic verification, requiring explicit human sign-off."}
+              {selectedCircuitNode === 5 && "The recommended Split-Order delivers +₹8,672 in direct savings, reduces stockout probability from 88% down to 8%, and protects ₹32,400/day beverage revenue."}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. INTERACTIVE "WHAT-IF" DIGITAL TWIN PLAYGROUND */}
       <section id="whatif-simulator" className="px-6 sm:px-12 py-16 border-t border-white/[0.08] bg-surface-1/40">
         <div className="max-w-5xl mx-auto space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -553,7 +539,7 @@ export default function LandingPage({
 
             <button
               onClick={onEnterApp}
-              className="btn-primary text-xs py-2 px-4 self-start sm:self-auto"
+              className="btn-primary text-xs py-2 px-4 self-start sm:self-auto font-bold"
             >
               Open Full Simulator →
             </button>
@@ -561,7 +547,6 @@ export default function LandingPage({
 
           <div className="glass-card p-6 sm:p-8 bg-surface-1 border-white/[0.08] rounded-3xl space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              {/* Left Slider Controls */}
               <div className="lg:col-span-5 space-y-5 text-xs">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -600,7 +585,6 @@ export default function LandingPage({
                 </div>
               </div>
 
-              {/* Right Output Dashboard */}
               <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
                 <div className="p-4 bg-surface-2 rounded-2xl border border-white/[0.06] space-y-1 text-center">
                   <Clock className="w-5 h-5 text-rose-400 mx-auto" />
@@ -628,7 +612,7 @@ export default function LandingPage({
         </div>
       </section>
 
-      {/* 4. INTERACTIVE 6-SCENARIO PROCUREMENT COMPARISON */}
+      {/* 5. INTERACTIVE 6-SCENARIO PROCUREMENT COMPARISON */}
       <section id="matrix-compare" className="px-6 sm:px-12 py-16 max-w-6xl mx-auto space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -647,7 +631,6 @@ export default function LandingPage({
           </div>
         </div>
 
-        {/* Interactive Scenario Buttons */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-xs">
           {SCENARIOS.map((sc) => {
             const isSelected = selectedScenario.id === sc.id;
@@ -672,7 +655,6 @@ export default function LandingPage({
           })}
         </div>
 
-        {/* Selected Scenario Detailed Showcase */}
         <div className="glass-card p-6 sm:p-8 bg-surface-1 border-white/[0.08] rounded-3xl space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-4">
             <div>
@@ -691,7 +673,7 @@ export default function LandingPage({
 
             <button
               onClick={onEnterApp}
-              className="btn-primary text-xs py-2 px-4 self-start sm:self-auto"
+              className="btn-primary text-xs py-2 px-4 self-start sm:self-auto font-bold"
             >
               Execute in Control Tower →
             </button>
@@ -727,7 +709,7 @@ export default function LandingPage({
         </div>
       </section>
 
-      {/* 5. MULTIMODAL INVOICE OCR VISION AUDIT SHOWCASE */}
+      {/* 6. MULTIMODAL INVOICE OCR VISION AUDIT SHOWCASE */}
       <section id="invoice-audit" className="px-6 sm:px-12 py-16 border-t border-white/[0.08] bg-surface-1/40">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -748,7 +730,7 @@ export default function LandingPage({
 
             <button
               onClick={onEnterApp}
-              className="btn-secondary text-xs py-2 px-4 self-start sm:self-auto flex items-center gap-1.5"
+              className="btn-secondary text-xs py-2 px-4 self-start sm:self-auto flex items-center gap-1.5 font-semibold"
             >
               <FileCheck className="w-3.5 h-3.5 text-brand-accent" />
               <span>Inspect Invoice Auditor →</span>
@@ -757,7 +739,6 @@ export default function LandingPage({
 
           <div className="glass-card p-6 sm:p-8 bg-surface-1 border-white/[0.08] rounded-3xl space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              {/* Left: OCR Image Scan */}
               <div className="lg:col-span-6 space-y-3">
                 <div className="relative rounded-2xl overflow-hidden border border-white/[0.1] shadow-xl group">
                   <img
@@ -779,7 +760,6 @@ export default function LandingPage({
                 </div>
               </div>
 
-              {/* Right: Discrepancy Breakdown & Action */}
               <div className="lg:col-span-6 space-y-4 text-xs">
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
@@ -819,7 +799,7 @@ export default function LandingPage({
                       setShowDebitNoteSuccess(true);
                       setTimeout(() => setShowDebitNoteSuccess(false), 3000);
                     }}
-                    className="btn-primary text-xs py-2 px-4 w-full flex items-center justify-center gap-1.5"
+                    className="btn-primary text-xs py-2 px-4 w-full flex items-center justify-center gap-1.5 font-bold"
                   >
                     {showDebitNoteSuccess ? (
                       <>
@@ -840,7 +820,7 @@ export default function LandingPage({
         </div>
       </section>
 
-      {/* 6. VISUAL "FARM-TO-CUP" REAL PHYSICAL SUPPLY CHAIN SHOWCASE */}
+      {/* 7. VISUAL "FARM-TO-CUP" REAL PHYSICAL SUPPLY CHAIN SHOWCASE */}
       <section id="farm-flow" className="px-6 sm:px-12 py-16 max-w-6xl mx-auto space-y-8">
         <div className="text-center space-y-2 max-w-xl mx-auto">
           <span className="badge-teal text-[10px] uppercase font-bold tracking-wider">
@@ -854,7 +834,6 @@ export default function LandingPage({
           </p>
         </div>
 
-        {/* 3 Real Photography Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="glass-card overflow-hidden rounded-3xl border-white/[0.08] bg-surface-1 group flex flex-col justify-between hover:border-white/[0.18] transition-all">
             <div>
@@ -933,7 +912,7 @@ export default function LandingPage({
         </div>
       </section>
 
-      {/* 7. MULTI-AGENT ARCHITECTURE & ORCHESTRATION PIPELINE */}
+      {/* 8. 7-AGENT MULTI-AGENT ARCHITECTURE */}
       <section className="px-6 sm:px-12 py-16 border-t border-white/[0.08] max-w-6xl mx-auto space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -952,7 +931,6 @@ export default function LandingPage({
           </div>
         </div>
 
-        {/* Interactive Agent Buttons */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
           {AGENT_PIPELINE.map((ag) => {
             const isSelected = selectedAgent.id === ag.id;
@@ -976,7 +954,6 @@ export default function LandingPage({
           })}
         </div>
 
-        {/* Selected Agent Details */}
         <div className="glass-card p-6 bg-surface-1 border-white/[0.08] rounded-3xl space-y-4">
           <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
             <div>
@@ -991,7 +968,7 @@ export default function LandingPage({
         </div>
       </section>
 
-      {/* 8. TRUST & HUMAN GOVERNANCE SECTION */}
+      {/* 9. TRUST & ZERO-TRUST HUMAN GOVERNANCE */}
       <section className="px-6 sm:px-12 py-16 border-t border-white/[0.08] bg-surface-1/40">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider">
@@ -1027,7 +1004,7 @@ export default function LandingPage({
         </div>
       </section>
 
-      {/* 9. FINAL HIGH-IMPACT CTA */}
+      {/* 10. FINAL CALL TO ACTION */}
       <section className="px-6 sm:px-12 py-20 text-center space-y-6 max-w-4xl mx-auto">
         <div className="flex justify-center">
           <img
