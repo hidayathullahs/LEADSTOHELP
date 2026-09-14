@@ -94,3 +94,5 @@ class VerificationAgent:
             "steps": [s.model_dump() for s in steps],
             "duration_ms": (datetime.now() - start_time).total_seconds() * 1000
         }
+
+# Architectural Note: Verification Agent provides automated verification audit trails for all executed transactions.
