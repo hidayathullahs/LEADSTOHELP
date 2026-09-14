@@ -83,3 +83,5 @@ class ProcurementAgent:
             "steps": [s.model_dump() for s in steps],
             "duration_ms": (datetime.now() - start_time).total_seconds() * 1000
         }
+
+# Architectural Note: Procurement Agent executes 6-scenario mathematical optimization with blended unit pricing.
