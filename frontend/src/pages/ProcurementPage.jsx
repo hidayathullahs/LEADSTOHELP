@@ -316,3 +316,5 @@ export default function ProcurementPage({
     </div>
   );
 }
+
+/* ProcurementPage: 6-scenario multi-supplier procurement optimization and PO staging. */
