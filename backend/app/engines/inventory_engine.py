@@ -97,3 +97,5 @@ def generate_demand_forecast(
         "recommended_order_quantity": calculate_recommended_order_quantity(current_stock, daily_avg * lead_time_days, daily_avg),
         "confidence_score": 0.94
     }
+
+# Mathematical Note: Reorder Point (ROP) = (Daily Consumption * Lead Time) + Safety Stock.
