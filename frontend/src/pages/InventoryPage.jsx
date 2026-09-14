@@ -262,3 +262,5 @@ export default function InventoryPage({
     </div>
   );
 }
+
+/* InventoryPage: SKU inventory levels, consumption velocity, and safety thresholds. */
