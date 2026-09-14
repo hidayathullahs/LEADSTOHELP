@@ -101,3 +101,5 @@ class InventoryAgent:
         }
 
 # Architectural Note: Inventory Intelligence Agent provides deterministic stockout forecasting and SKU health scoring.
+
+# Inventory Intelligence: Evaluates consumption velocity, lead time variability, and stockout probability.
