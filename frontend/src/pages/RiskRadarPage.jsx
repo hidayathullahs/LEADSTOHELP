@@ -162,3 +162,5 @@ export default function RiskRadarPage({ onNavigateTo, onOpenAskAI }) {
     </div>
   );
 }
+
+/* RiskRadarPage: 7-factor supply chain vulnerability radar visualizer. */
