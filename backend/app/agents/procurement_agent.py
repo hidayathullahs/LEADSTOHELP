@@ -85,3 +85,5 @@ class ProcurementAgent:
         }
 
 # Architectural Note: Procurement Agent executes 6-scenario mathematical optimization with blended unit pricing.
+
+# Procurement Strategy: Evaluates 6 distinct fulfillment strategies across blended unit costs and risk tiers.
