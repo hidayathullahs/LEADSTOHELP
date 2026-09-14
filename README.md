@@ -147,32 +147,38 @@ app/tests/test_api.py::test_overview_endpoint PASSED                     [  7%]
 app/tests/test_api.py::test_inventory_list_and_details PASSED            [ 10%]
 app/tests/test_api.py::test_procurement_simulator_endpoint PASSED        [ 14%]
 app/tests/test_api.py::test_human_in_the_loop_approval_lifecycle PASSED  [ 17%]
-app/tests/test_api.py::test_multimodal_invoice_audit_endpoint PASSED     [ 21%]
-app/tests/test_api.py::test_master_agent_ask_stockout_flow PASSED        [ 25%]
-app/tests/test_api.py::test_whatif_simulate_endpoint PASSED              [ 28%]
-app/tests/test_api.py::test_impact_metrics_endpoint PASSED               [ 32%]
-app/tests/test_api.py::test_sku_evidence_endpoint PASSED                 [ 35%]
-app/tests/test_demo_reset_endpoint PASSED                                [ 39%]
-app/tests/test_master_agent_structured_response_envelope PASSED           [ 42%]
-app/tests/test_agent_runs_telemetry_with_correlation PASSED               [ 46%]
-app/tests/test_engines.py::test_inventory_math PASSED                    [ 50%]
-app/tests/test_engines.py::test_scenario_simulator PASSED                [ 53%]
-app/tests/test_engines.py::test_whatif_digital_twin_engine PASSED        [ 57%]
-app/tests/test_engines.py::test_invoice_discrepancy_detection_perfect_match PASSED [ 60%]
-app/tests/test_engines.py::test_invoice_discrepancy_detection_quantity_shortage PASSED [ 64%]
-app/tests/test_engines.py::test_supply_risk_radar PASSED                 [ 67%]
-app/tests/test_engines.py::test_supplier_reliability_scoring PASSED      [ 71%]
-app/tests/test_production_security.py::test_production_rejects_unauthenticated_request PASSED [ 75%]
-app/tests/test_production_security.py::test_production_rejects_development_token PASSED [ 78%]
-app/tests/test_production_security.py::test_local_mode_permits_configured_development_behavior PASSED [ 82%]
-app/tests/test_production_security.py::test_production_firestore_failure_does_not_silently_fallback PASSED [ 85%]
-app/tests/test_production_security.py::test_gemini_fallback_is_visibly_distinguishable PASSED [ 89%]
-app/tests/test_health_and_status_endpoints_do_not_expose_secrets PASSED   [ 92%]
-app/tests/test_approval_state_cannot_be_bypassed PASSED                  [ 96%]
-app/tests/test_unauthorized_users_cannot_approve_actions PASSED          [100%]
+============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.1.1, pluggy-1.6.0
+rootdir: backend
+collected 40 items
 
-============================= 28 passed in 3.5s ==============================
+app/tests/test_api.py .............                                      [ 32%]
+app/tests/test_auth_firebase.py ......                                   [ 47%]
+app/tests/test_engines.py .......                                        [ 65%]
+app/tests/test_multiturn_gemini.py ..                                    [ 70%]
+app/tests/test_production_security.py ........                           [ 90%]
+app/tests/test_user_firestore.py ....                                    [100%]
+
+============================= 40 passed in 5.21s ==============================
 ```
+
+---
+
+## ☁️ Google Cloud Run Deployment
+
+**LEADSTOHELP AI** is configured for 1-click deployment to **Google Cloud Run** with Secret Manager and Cloud Firestore integration.
+
+### Quick Deploy:
+```bash
+# 1-Click Cloud Run Deployment Script
+chmod +x scripts/deploy_cloud_run.sh
+./scripts/deploy_cloud_run.sh
+```
+
+### Submission Hashtag:
+`#AccelerateAIwithCloudRun`
+
+For the complete deployment guide, see [**docs/12_DEPLOYMENT.md**](docs/12_DEPLOYMENT.md) and [**docs/IDEATHON_COMPLIANCE.md**](docs/IDEATHON_COMPLIANCE.md).
 
 ---
 
@@ -184,6 +190,8 @@ See [`docs/DEMO.md`](docs/DEMO.md) for the exact 3-minute competition presentati
 
 ## 📄 Documentation Sitemap
 
+- [**Ideathon Prototype Compliance Audit**](docs/IDEATHON_COMPLIANCE.md)
+- [**Google Cloud Run Deployment Guide**](docs/12_DEPLOYMENT.md)
 - [**3-Minute Presentation Script**](docs/DEMO.md)
 - [**Technical System Architecture**](docs/ARCHITECTURE.md)
 - [**Security & Governance Specification**](docs/SECURITY.md)
@@ -193,5 +201,6 @@ See [`docs/DEMO.md`](docs/DEMO.md) for the exact 3-minute competition presentati
 ---
 
 ## 📄 License & Compliance
-Built for SME Retail and Restaurant Supply Chains.  
+Built for SME Retail, Café, and Restaurant Operations.  
+Hack2Skill Gen AI Academy APAC Ideathon Prototype Submission.  
 Licensed under the Apache 2.0 License.
