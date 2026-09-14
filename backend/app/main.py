@@ -437,10 +437,11 @@ async def get_agent_run(run_id: str, user: AuthenticatedUser = Depends(verify_to
     return run
 
 # =============================================================================
-# Master Multi-Agent Conversational Endpoint
+# Master Multi-Agent Conversational Endpoint (Multi-Turn with User-Isolated Memory)
 # =============================================================================
 class AskAgentRequest(BaseModel):
     prompt: str
+    session_id: Optional[str] = None
     sku: Optional[str] = None
     context: Optional[Dict[str, Any]] = None
 
@@ -451,9 +452,48 @@ async def ask_agent(req: AskAgentRequest, user: AuthenticatedUser = Depends(veri
         user_prompt=req.prompt,
         user_id=user.uid,
         store_id=user.store_id,
-        context=req.context
+        context=req.context,
+        session_id=req.session_id
     )
     return result
+
+@app.get("/api/agent/sessions", tags=["Agent Orchestrator"])
+async def list_user_sessions(user: AuthenticatedUser = Depends(verify_token)):
+    """Retrieves all conversation sessions isolated to the authenticated user UID"""
+    from .services.user_firestore_service import get_user_firestore_service
+    user_db = get_user_firestore_service()
+    sessions = user_db.get_chat_sessions(uid=user.uid)
+    return {"count": len(sessions), "sessions": sessions}
+
+@app.get("/api/agent/sessions/{session_id}/messages", tags=["Agent Orchestrator"])
+async def get_session_messages(session_id: str, user: AuthenticatedUser = Depends(verify_token)):
+    """Retrieves multi-turn conversation history for a session isolated to the authenticated user UID"""
+    from .services.user_firestore_service import get_user_firestore_service
+    user_db = get_user_firestore_service()
+    messages = user_db.get_chat_history(uid=user.uid, session_id=session_id)
+    return {"session_id": session_id, "count": len(messages), "messages": messages}
+
+@app.get("/api/user/approvals", tags=["Approval Center"])
+async def get_user_approvals(user: AuthenticatedUser = Depends(verify_token)):
+    """Retrieves user-isolated approval history from /users/{uid}/approvals"""
+    from .services.user_firestore_service import get_user_firestore_service
+    user_db = get_user_firestore_service()
+    approvals = user_db.get_user_approvals(uid=user.uid)
+    return {"count": len(approvals), "approvals": approvals}
+
+@app.get("/api/user/preferences", tags=["User Settings"])
+async def get_user_preferences(user: AuthenticatedUser = Depends(verify_token)):
+    """Retrieves user preferences from /users/{uid}/preferences/settings"""
+    from .services.user_firestore_service import get_user_firestore_service
+    user_db = get_user_firestore_service()
+    return user_db.get_user_preferences(uid=user.uid)
+
+@app.post("/api/user/preferences", tags=["User Settings"])
+async def save_user_preferences(prefs: Dict[str, Any], user: AuthenticatedUser = Depends(verify_token)):
+    """Saves user preferences to /users/{uid}/preferences/settings"""
+    from .services.user_firestore_service import get_user_firestore_service
+    user_db = get_user_firestore_service()
+    return user_db.save_user_preferences(uid=user.uid, preferences=prefs)
 
 # =============================================================================
 # What-If Digital Twin Simulator Endpoint
@@ -601,4 +641,39 @@ async def reset_demo_scenario(user: AuthenticatedUser = Depends(verify_token)):
         "message": "Demo scenario restored to deterministic initial state.",
         "timestamp": current_utc_time()
     }
+
+# =============================================================================
+# Optional Static SPA Mount (Enables Single-Service Cloud Run Full-Stack Deployment)
+# =============================================================================
+import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+FRONTEND_DIST = os.environ.get("FRONTEND_DIST", "")
+if not FRONTEND_DIST:
+    possible_paths = [
+        os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"),
+        os.path.join(os.path.dirname(__file__), "..", "frontend_dist"),
+        "/app/frontend_dist",
+        os.path.abspath("frontend/dist")
+    ]
+    for p in possible_paths:
+        if os.path.isdir(p) and os.path.exists(os.path.join(p, "index.html")):
+            FRONTEND_DIST = p
+            break
+
+if FRONTEND_DIST and os.path.exists(os.path.join(FRONTEND_DIST, "index.html")):
+    assets_dir = os.path.join(FRONTEND_DIST, "assets")
+    if os.path.isdir(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(full_path: str):
+        if full_path.startswith("api") or full_path in ["health", "docs", "redoc", "openapi.json"]:
+            raise HTTPException(status_code=404, detail="Not Found")
+        file_path = os.path.join(FRONTEND_DIST, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(FRONTEND_DIST, "index.html"))
+
 
