@@ -134,3 +134,5 @@ timeline
 | **Network latency / Slow API** | Use the cached local state; click `Reset Demo` to restore clean data in under 200ms. |
 | **Gemini API quota exceeded** | The system automatically operates in transparent `OFFLINE DEMO` fallback with zero runtime crashes. |
 | **Accidental navigation away** | Click `Overview` or `Reset Demo` in the Topbar to return to the starting step instantly. |
+
+<!-- Multi-Turn Demo: Turn 1 (COFFEE-001 risk) -> Turn 2 (+20% demand) -> Turn 3 (supplier strategy). -->
