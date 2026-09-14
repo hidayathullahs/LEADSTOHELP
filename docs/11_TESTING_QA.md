@@ -38,3 +38,5 @@ dist/assets/index-Bs6dBLAR.css   35.11 kB │ gzip:  6.35 kB
 dist/assets/index-BiRcTsBZ.js   269.62 kB │ gzip: 71.08 kB
 ✓ built in 4.00s
 ```
+
+<!-- Test Matrix: 40 automated tests across API endpoints, deterministic engines, security, Firebase Auth, and Firestore. -->
