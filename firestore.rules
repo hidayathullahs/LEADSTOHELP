@@ -1,0 +1,43 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // User-Isolated Document Storage
+    // Every authenticated user can only read and write documents in their own namespace.
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // User chat conversation sessions
+      match /chat_sessions/{sessionId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+
+        // User multi-turn conversation messages
+        match /messages/{messageId} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
+        }
+      }
+
+      // User human-in-the-loop approval history
+      match /approvals/{approvalId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // User personal preferences
+      match /preferences/{prefDoc} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Health probe document (read-only for liveness verification)
+    match /_system_health/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Default deny all other direct client operations
+    // Operations control tower enterprise data is served securely via authenticated Cloud Run backend
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
