@@ -31,6 +31,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import SettingsPage from './pages/SettingsPage';
 
 import { api } from './services/api';
+import { subscribeToAuthState, logoutUser, isFirebaseConfigured } from './services/firebase';
 
 function MainApp() {
   // Authentication & Session State
@@ -39,15 +40,31 @@ function MainApp() {
     if (saved) {
       try { return JSON.parse(saved); } catch (e) {}
     }
-    // Default authenticated demo user
-    return {
-      name: 'Arjun Rao',
-      email: 'arjun.rao@deccanroast.in',
-      role: 'Operations Lead',
-      store: 'Deccan Roast Specialty Hub • #BLR-01',
-      authMode: 'Development JWT / Strict RBAC'
-    };
+    return null;
   });
+
+  // Real-time Firebase Authentication State Listener
+  useEffect(() => {
+    if (!isFirebaseConfigured) return;
+    const unsubscribe = subscribeToAuthState((firebaseUser) => {
+      if (firebaseUser) {
+        const userData = {
+          uid: firebaseUser.uid,
+          name: firebaseUser.displayName || firebaseUser.email.split('@')[0].replace('.', ' ').replace(/(^\w|\s\w)/g, m => m.toUpperCase()),
+          email: firebaseUser.email,
+          role: 'Operations Lead',
+          store: 'Deccan Roast Specialty Hub • #BLR-01',
+          authMode: 'Firebase Authenticated (Verified ID Token)'
+        };
+        setUser(userData);
+        localStorage.setItem('lead_user_session', JSON.stringify(userData));
+      } else {
+        setUser(null);
+        localStorage.removeItem('lead_user_session');
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const [activeTab, setActiveTab] = useState(() => {
     const params = new URLSearchParams(window.location.search);
@@ -147,7 +164,12 @@ function MainApp() {
     });
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    try {
+      await logoutUser();
+    } catch (e) {
+      console.warn('[SignOut] Error signing out of Firebase:', e);
+    }
     setUser(null);
     localStorage.removeItem('lead_user_session');
     setAuthInitialMode('login');
@@ -316,12 +338,27 @@ function MainApp() {
           )}
 
           {/* Track 3 / Daily Operations & Productivity Hub */}
-          {activeTab === 'daily-ops' && (
+          {(activeTab === 'daily-ops' || activeTab === 'daily-operations' || activeTab === 'operations') && (
             <DailyOperationsPage
               overviewData={overviewData}
-              onNavigateTo={(tab) => setActiveTab(tab)}
+              onNavigateTo={(tab) => {
+                setIsLandingMode(false);
+                setActiveTab(tab);
+              }}
               onOpenAskAI={(prompt) => handleOpenAskAI(prompt || null)}
               onOpenProcurement={handleNavigateToProcurement}
+              onOpenEvidence={(sku) => {
+                setEvidenceSku(sku || 'COFFEE-001');
+                setEvidenceDrawerOpen(true);
+              }}
+              onOpenRiskDetail={(data) => {
+                setRiskDrawerData(data);
+                setRiskDrawerOpen(true);
+              }}
+              onOpenSupplierDetail={(supplier) => {
+                setSupplierDrawerItem(supplier);
+                setSupplierDrawerOpen(true);
+              }}
             />
           )}
 
