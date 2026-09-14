@@ -42,6 +42,7 @@ import {
 } from 'lucide-react';
 import logoImg from '../assets/logo.png';
 import loginBgImg from '../assets/login_bg.png';
+import { loginWithEmail, registerWithEmail, isFirebaseConfigured } from '../services/firebase';
 
 const SHOWCASE_SLIDES = [
   {
@@ -178,7 +179,7 @@ export default function LoginPage({
     return { score: 3, label: 'Strong (Cryptographic grade)', color: 'bg-emerald-400', width: '100%', text: 'text-emerald-400' };
   };
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     if (!loginEmail || !loginEmail.includes('@')) {
@@ -191,22 +192,51 @@ export default function LoginPage({
     }
 
     setLoading(true);
-    setTimeout(() => {
-      const matchedPreset = ROLE_PRESETS.find(p => p.email.toLowerCase() === loginEmail.toLowerCase());
-      const userData = matchedPreset || {
-        name: loginEmail.split('@')[0].replace('.', ' ').replace(/(^\w|\s\w)/g, m => m.toUpperCase()),
-        email: loginEmail,
-        role: 'Operations Lead',
-        store: 'Deccan Roast Specialty Hub • #BLR-01',
-        authMode: 'Strict RBAC / Dev JWT'
-      };
 
-      onLoginSuccess(userData);
-      setLoading(false);
-    }, 450);
+    if (isFirebaseConfigured) {
+      try {
+        const user = await loginWithEmail(loginEmail, loginPassword);
+        const matchedPreset = ROLE_PRESETS.find(p => p.email.toLowerCase() === user.email.toLowerCase());
+        const userData = {
+          uid: user.uid,
+          name: user.displayName || (matchedPreset ? matchedPreset.name : user.email.split('@')[0].replace('.', ' ').replace(/(^\w|\s\w)/g, m => m.toUpperCase())),
+          email: user.email,
+          role: matchedPreset ? matchedPreset.role : 'Operations Lead',
+          store: matchedPreset ? matchedPreset.store : 'Deccan Roast Specialty Hub • #BLR-01',
+          authMode: 'Firebase Authenticated (Verified ID Token)'
+        };
+        onLoginSuccess(userData);
+      } catch (err) {
+        console.error('[Firebase Login Error]', err);
+        let message = err.message || 'Authentication failed. Please check your credentials.';
+        if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+          message = 'Invalid email or password. For demo operator accounts, register below or verify password.';
+        } else if (err.code === 'auth/too-many-requests') {
+          message = 'Too many attempts. Please wait a moment and try again.';
+        }
+        setErrorMsg(message);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      // Local development fallback when Firebase API keys are not yet configured in .env
+      setTimeout(() => {
+        const matchedPreset = ROLE_PRESETS.find(p => p.email.toLowerCase() === loginEmail.toLowerCase());
+        const userData = matchedPreset || {
+          uid: 'user_arjun_rao_01',
+          name: loginEmail.split('@')[0].replace('.', ' ').replace(/(^\w|\s\w)/g, m => m.toUpperCase()),
+          email: loginEmail,
+          role: 'Operations Lead',
+          store: 'Deccan Roast Specialty Hub • #BLR-01',
+          authMode: 'Local Dev Mode'
+        };
+        onLoginSuccess(userData);
+        setLoading(false);
+      }, 450);
+    }
   };
 
-  const handleSignupSubmit = (e) => {
+  const handleSignupSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
     if (!signupName.trim()) {
@@ -227,17 +257,48 @@ export default function LoginPage({
     }
 
     setLoading(true);
-    setTimeout(() => {
-      const userData = {
-        name: signupName,
-        email: signupEmail,
-        role: signupRole,
-        store: signupStore,
-        authMode: 'Newly Registered Operator / RBAC'
-      };
-      onLoginSuccess(userData);
-      setLoading(false);
-    }, 500);
+
+    if (isFirebaseConfigured) {
+      try {
+        const user = await registerWithEmail(signupEmail, signupPassword, signupName.trim());
+        const userData = {
+          uid: user.uid,
+          name: signupName.trim(),
+          email: user.email,
+          role: signupRole,
+          store: signupStore,
+          authMode: 'Firebase Authenticated (Newly Registered)'
+        };
+        setSuccessMsg('Account created successfully with Firebase Auth!');
+        setTimeout(() => {
+          onLoginSuccess(userData);
+        }, 500);
+      } catch (err) {
+        console.error('[Firebase Signup Error]', err);
+        let message = err.message || 'Registration failed.';
+        if (err.code === 'auth/email-already-in-use') {
+          message = 'This email is already registered. Please sign in instead.';
+        } else if (err.code === 'auth/weak-password') {
+          message = 'Password is too weak. Please use at least 6 characters.';
+        }
+        setErrorMsg(message);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setTimeout(() => {
+        const userData = {
+          uid: 'user_new_operator',
+          name: signupName,
+          email: signupEmail,
+          role: signupRole,
+          store: signupStore,
+          authMode: 'Local Dev Mode'
+        };
+        onLoginSuccess(userData);
+        setLoading(false);
+      }, 500);
+    }
   };
 
   const handleEnterDemo = () => {
