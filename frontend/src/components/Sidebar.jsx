@@ -486,3 +486,5 @@ export default function Sidebar({
     </>
   );
 }
+
+/* Sidebar: Collapsible module navigation across all 9 operational views. */
