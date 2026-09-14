@@ -21,8 +21,12 @@ class Settings(BaseSettings):
     FIRESTORE_MODE: str = "local"  # "cloud", "local", or "dual"
     GCS_BUCKET_INVOICES: str = "leadstohelp-invoices-dev"
 
-    # Security & Auth
+    # Security & Firebase Auth
+    FIREBASE_PROJECT_ID: str = "hidayathullah-de22c"
+    FIREBASE_CLIENT_EMAIL: str = ""
+    FIREBASE_PRIVATE_KEY: str = ""
     FIREBASE_AUTH_EMULATOR_HOST: str = ""
+    ENABLE_DEV_AUTH_BYPASS: bool = True
     JWT_SECRET_KEY: str = "dev_jwt_secret_leadstohelp_change_in_production"
     CORS_ORIGINS: str = "http://localhost:5173,http://localhost:3000,http://localhost:8080,*"
 
