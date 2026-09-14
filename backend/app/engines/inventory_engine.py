@@ -99,3 +99,5 @@ def generate_demand_forecast(
     }
 
 # Mathematical Note: Reorder Point (ROP) = (Daily Consumption * Lead Time) + Safety Stock.
+
+# Formula: Safety Stock = Z * sqrt(LeadTime * VarianceDemand + (AvgDemand)^2 * VarianceLeadTime).
