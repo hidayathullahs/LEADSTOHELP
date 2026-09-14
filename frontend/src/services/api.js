@@ -1,14 +1,27 @@
-/**
- * LEADSTOHELP AI - Frontend API Client
- * Connects to FastAPI Backend with local fallback capabilities.
- */
+import { getCurrentUserToken, isFirebaseConfigured } from './firebase';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
-const DEV_TOKEN = 'Bearer dev_jwt_secret_leadstohelp_change_in_production';
+
+async function getAuthHeader() {
+  try {
+    const token = await getCurrentUserToken();
+    if (token) {
+      return `Bearer ${token}`;
+    }
+  } catch (e) {
+    console.warn('[API] Could not retrieve Firebase ID token:', e);
+  }
+  // Local development fallback only when Firebase client is not configured
+  if (!isFirebaseConfigured && import.meta.env.DEV) {
+    return 'Bearer dev_jwt_secret_leadstohelp_change_in_production';
+  }
+  return '';
+}
 
 async function request(endpoint, options = {}) {
+  const authHeader = await getAuthHeader();
   const headers = {
-    'Authorization': DEV_TOKEN,
+    ...(authHeader ? { 'Authorization': authHeader } : {}),
     ...(options.headers || {})
   };
 
@@ -100,11 +113,13 @@ export const api = {
   getAgentRuns: (limit = 20) => request(`/api/agent-runs?limit=${limit}`),
   getAgentRun: (id) => request(`/api/agent-runs/${id}`),
 
-  // Master AI Agent
-  askAgent: (prompt, sku, context) => request('/api/agent/ask', {
+  // Master AI Agent (Multi-Turn Conversational)
+  askAgent: (prompt, sku, context, sessionId) => request('/api/agent/ask', {
     method: 'POST',
-    body: JSON.stringify({ prompt, sku, context })
+    body: JSON.stringify({ prompt, sku, context, session_id: sessionId })
   }),
+  getUserSessions: () => request('/api/agent/sessions'),
+  getSessionMessages: (sessionId) => request(`/api/agent/sessions/${sessionId}/messages`),
 
   // What-If Digital Twin Simulator
   whatifSimulate: (params) => request('/api/whatif/simulate', {
