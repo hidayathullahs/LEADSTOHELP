@@ -50,9 +50,32 @@ export default function ContextualAskAIDrawer({
     }
   ]);
 
+  const [sessionId, setSessionId] = useState(() => {
+    return 'ses_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+  });
+
   const [inputPrompt, setInputPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+
+  const handleNewSession = () => {
+    const newId = 'ses_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+    setSessionId(newId);
+    setMessages([
+      {
+        role: 'assistant',
+        summary: "New Multi-Turn Session Initialized.",
+        content: "I am ready for your operational questions grounded in live store telemetry.",
+        evidence: [
+          { label: 'Session Ref', value: newId.substring(0, 16) },
+          { label: 'Monitored Store', value: 'Deccan Roast Hub (#BLR-01)' }
+        ],
+        recommended_strategy: "Ask about Arabica stockout risk, 6-scenario simulations, or vendor health.",
+        risk_level: "LOW",
+        governance_state: "GOVERNED"
+      }
+    ]);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -85,7 +108,15 @@ export default function ContextualAskAIDrawer({
     setIsLoading(true);
 
     try {
-      const response = await api.askAgent(promptText, selectedSku || 'COFFEE-001', pageContext);
+      const response = await api.askAgent(
+        promptText,
+        selectedSku || 'COFFEE-001',
+        { page_context: pageContext, sku: selectedSku },
+        sessionId
+      );
+      if (response.session_id) {
+        setSessionId(response.session_id);
+      }
       setMessages(prev => [
         ...prev,
         {
@@ -172,13 +203,24 @@ export default function ContextualAskAIDrawer({
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-surface-2 transition-colors"
-            aria-label="Close copilot"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleNewSession}
+              title="Start New Multi-Turn Session"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-surface-2 transition-colors flex items-center gap-1 text-[11px]"
+              aria-label="Start new chat session"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">New Session</span>
+            </button>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-surface-2 transition-colors"
+              aria-label="Close copilot"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Conversation Body */}
