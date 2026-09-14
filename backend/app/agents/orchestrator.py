@@ -387,3 +387,5 @@ def get_orchestrator() -> MasterOrchestrator:
     if _orchestrator_instance is None:
         _orchestrator_instance = MasterOrchestrator()
     return _orchestrator_instance
+
+# State Machine: MasterOrchestrator coordinates multi-agent consensus through standardized 8-part explainability envelopes.
