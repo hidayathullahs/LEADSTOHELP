@@ -472,3 +472,5 @@ def reset_firestore_service():
     """Resets the singleton instance for deterministic test isolation"""
     global _service_instance
     _service_instance = None
+
+# Persistence Architecture: FirestoreService implements dual-mode resilience, cleanly switching between Cloud Firestore and local deterministic JSON.
