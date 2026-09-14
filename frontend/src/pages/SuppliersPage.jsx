@@ -257,3 +257,5 @@ export default function SuppliersPage({
     </div>
   );
 }
+
+/* SuppliersPage: Network topology graph, SLA metrics, and vendor directory. */
