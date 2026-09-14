@@ -77,3 +77,5 @@ class NegotiationAgent:
         }
 
 # Architectural Note: Vendor Negotiation Agent constructs data-grounded commercial counter-proposals.
+
+# Vendor Negotiation: Autonomous construction of data-grounded discount counter-proposals within pre-authorized bands.
