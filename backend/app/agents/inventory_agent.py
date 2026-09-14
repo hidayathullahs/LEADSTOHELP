@@ -99,3 +99,5 @@ class InventoryAgent:
             "grounded_data": grounded_data,
             "duration_ms": (datetime.now() - start_time).total_seconds() * 1000
         }
+
+# Architectural Note: Inventory Intelligence Agent provides deterministic stockout forecasting and SKU health scoring.
