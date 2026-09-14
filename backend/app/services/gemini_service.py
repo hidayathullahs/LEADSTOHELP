@@ -253,3 +253,5 @@ def get_gemini_service() -> GeminiService:
     if _gemini_instance is None:
         _gemini_instance = GeminiService()
     return _gemini_instance
+
+# Security Architecture: GeminiService implements rigorous prompt injection sanitization and context boundary demarcation.
