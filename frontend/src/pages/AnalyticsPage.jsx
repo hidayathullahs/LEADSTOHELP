@@ -191,3 +191,5 @@ export default function AnalyticsPage({ onOpenAskAI }) {
     </div>
   );
 }
+
+/* AnalyticsPage: Working capital savings, stockout prevention, and ROI telemetry. */
