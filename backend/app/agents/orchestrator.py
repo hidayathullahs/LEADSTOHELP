@@ -15,6 +15,7 @@ from .negotiation_agent import NegotiationAgent
 from .verification_agent import VerificationAgent
 from ..tools import approval_tools
 from ..services.firestore_service import get_firestore_service
+from ..services.user_firestore_service import get_user_firestore_service
 from ..services.gemini_service import get_gemini_service
 from ..models.common import current_utc_time, RiskLevel
 
@@ -27,6 +28,7 @@ class MasterOrchestrator:
         self.negotiation_agent = NegotiationAgent()
         self.verification_agent = VerificationAgent()
         self.db = get_firestore_service()
+        self.user_db = get_user_firestore_service()
         self.gemini = get_gemini_service()
 
     async def process_user_request(
@@ -34,7 +36,8 @@ class MasterOrchestrator:
         user_prompt: str,
         user_id: str = "user_arjun_rao_01",
         store_id: str = "store_deccan_roast_01",
-        context: Optional[Dict[str, Any]] = None
+        context: Optional[Dict[str, Any]] = None,
+        session_id: Optional[str] = None
     ) -> Dict[str, Any]:
         start_time = datetime.now()
         timestamp_str = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -46,6 +49,19 @@ class MasterOrchestrator:
         ctx = context or {}
         selected_sku = ctx.get("selected_sku") or ctx.get("sku") or "COFFEE-001"
         page_context = ctx.get("page_context", "general")
+        effective_session_id = session_id or f"SES-{datetime.now().strftime('%Y%m%d')}-{rand_suffix}"
+
+        # Retrieve user-isolated multi-turn conversation history
+        conversation_history = self.user_db.get_chat_history(uid=user_id, session_id=effective_session_id, limit=20)
+
+        # Record incoming user turn in user-isolated Firestore
+        self.user_db.save_chat_message(
+            uid=user_id,
+            session_id=effective_session_id,
+            role="user",
+            content=user_prompt,
+            metadata={"correlation_id": correlation_id, "page_context": page_context}
+        )
 
         all_steps: List[Dict[str, Any]] = []
         agents_involved: List[str] = ["Master Orchestrator"]
@@ -166,15 +182,24 @@ class MasterOrchestrator:
             governance_state = "PENDING_HUMAN_APPROVAL"
             action_buttons = ["REVIEW_EVIDENCE", "RUN_WHATIF", "OPEN_PROCUREMENT", "VIEW_APPROVAL", "VIEW_TRACE"]
 
-            final_response = (
-                f"🚨 **Autonomous Stockout Analysis & Response Strategy**\n\n"
-                f"1. **Summary:** {summary}\n\n"
-                f"2. **Simulation:** Evaluated 6 strategies. **Scenario B (Split Order)** achieves the optimal risk-adjusted unit rate.\n"
-                f"   • **Fast Delivery (Metro Wholesale):** 40 kg in 2 days @ ₹902.50/kg\n"
-                f"   • **Direct Source (Malnad Planters):** 60 kg in 4 days @ ₹837.20/kg\n\n"
-                f"3. **Financials:** Total cost is **₹{proposal.get('total_target_cost', 86328.0):,.2f}** with **₹{proposal.get('expected_savings', 8672.0):,.2f} in savings** vs. baseline.\n\n"
-                f"🛡️ **Governance Status:** Action is staged and blocked under **Approval ID: {generated_approval_id}** awaiting manager authorization."
-            )
+            if len(conversation_history) > 1 and any(w in prompt_lower for w in ["what if", "demand", "20%", "surge", "safer", "which", "strategy", "increase"]):
+                system_instruction = "You are the Operations Orchestrator for Deccan Roast Specialty Coffee. Answer follow-up operational questions while maintaining prior scenario context."
+                final_response = await self.gemini.generate_multiturn_reasoning(
+                    system_instruction=system_instruction,
+                    user_prompt=user_prompt,
+                    conversation_history=conversation_history,
+                    context_data={"sku": target_sku, "days_left": days_left, "proposal": proposal}
+                )
+            else:
+                final_response = (
+                    f"🚨 **Autonomous Stockout Analysis & Response Strategy**\n\n"
+                    f"1. **Summary:** {summary}\n\n"
+                    f"2. **Simulation:** Evaluated 6 strategies. **Scenario B (Split Order)** achieves the optimal risk-adjusted unit rate.\n"
+                    f"   • **Fast Delivery (Metro Wholesale):** 40 kg in 2 days @ ₹902.50/kg\n"
+                    f"   • **Direct Source (Malnad Planters):** 60 kg in 4 days @ ₹837.20/kg\n\n"
+                    f"3. **Financials:** Total cost is **₹{proposal.get('total_target_cost', 86328.0):,.2f}** with **₹{proposal.get('expected_savings', 8672.0):,.2f} in savings** vs. baseline.\n\n"
+                    f"🛡️ **Governance Status:** Action is staged and blocked under **Approval ID: {generated_approval_id}** awaiting manager authorization."
+                )
 
         # =========================================================================
         # WORKFLOW B: Invoice Audit & Discrepancies
@@ -231,7 +256,12 @@ class MasterOrchestrator:
             action_buttons = ["REVIEW_EVIDENCE", "VIEW_TRACE"]
 
             system_instruction = "You are the Operations Orchestrator for Deccan Roast. Summarize vendor network health and reliability metrics."
-            final_response = await self.gemini.generate_reasoning(system_instruction, user_prompt, {"suppliers": suppliers})
+            final_response = await self.gemini.generate_multiturn_reasoning(
+                system_instruction=system_instruction,
+                user_prompt=user_prompt,
+                conversation_history=conversation_history,
+                context_data={"suppliers": suppliers}
+            )
 
         # =========================================================================
         # DEFAULT: General Operational Inquiry
@@ -239,7 +269,12 @@ class MasterOrchestrator:
         else:
             system_instruction = "You are the Operations Orchestrator for Deccan Roast. Assist the store manager with supply chain questions."
             store_info = self.db.get_store_info()
-            final_response = await self.gemini.generate_reasoning(system_instruction, user_prompt, {"store_info": store_info})
+            final_response = await self.gemini.generate_multiturn_reasoning(
+                system_instruction=system_instruction,
+                user_prompt=user_prompt,
+                conversation_history=conversation_history,
+                context_data={"store_info": store_info}
+            )
             
             summary = "Operating under normal parameters. Inventory buffers and vendor SLAs are continuously monitored."
             recommended_strategy = "Proceed with scheduled daily operations."
@@ -252,6 +287,7 @@ class MasterOrchestrator:
         agent_run_data = {
             "run_id": run_id,
             "correlation_id": correlation_id,
+            "session_id": effective_session_id,
             "store_id": store_id,
             "user_id": user_id,
             "user_prompt": user_prompt,
@@ -277,6 +313,38 @@ class MasterOrchestrator:
         }
         self.db.save_agent_run(agent_run_data)
 
+        # Persist model turn to user-isolated Firestore
+        self.user_db.save_chat_message(
+            uid=user_id,
+            session_id=effective_session_id,
+            role="model",
+            content=final_response,
+            metadata={
+                "correlation_id": correlation_id,
+                "primary_intent": primary_intent,
+                "approval_id": generated_approval_id,
+                "proposal_id": generated_proposal_id
+            }
+        )
+
+        # Stage user-isolated approval record if human sign-off is required
+        if generated_approval_id:
+            self.user_db.record_user_approval(
+                uid=user_id,
+                approval_data={
+                    "approval_id": generated_approval_id,
+                    "session_id": effective_session_id,
+                    "proposal_id": generated_proposal_id,
+                    "sku": selected_sku,
+                    "title": f"Procurement Proposal: {selected_sku} (Split Order)",
+                    "cost_inr": 86328.0,
+                    "potential_savings_inr": 8672.0,
+                    "status": "PENDING",
+                    "action_type": "PURCHASE_ORDER",
+                    "correlation_id": correlation_id
+                }
+            )
+
         # Log timeline event with exact correlation_id
         self.db.add_timeline_event({
             "event_id": f"EVT-{correlation_id}",
@@ -292,6 +360,7 @@ class MasterOrchestrator:
         return {
             "run_id": run_id,
             "correlation_id": correlation_id,
+            "session_id": effective_session_id,
             "status": "COMPLETED",
             "primary_intent": primary_intent,
             "agents_involved": agents_involved,
