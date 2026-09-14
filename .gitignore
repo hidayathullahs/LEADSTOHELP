@@ -43,6 +43,7 @@ frontend/dist-ssr/
 *.pem
 service-account*.json
 firebase-adminsdk*.json
+.firebase/
 
 # IDEs
 .vscode/
