@@ -75,3 +75,5 @@ class NegotiationAgent:
             "steps": [s.model_dump() for s in steps],
             "duration_ms": (datetime.now() - start_time).total_seconds() * 1000
         }
+
+# Architectural Note: Vendor Negotiation Agent constructs data-grounded commercial counter-proposals.
