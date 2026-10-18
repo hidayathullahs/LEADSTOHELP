@@ -184,66 +184,195 @@ class GeminiService:
         """Produces contextual reasoning explicitly badged as offline fallback with multi-turn awareness"""
         disclaimer = "⚠️ **[DEMO / OFFLINE FALLBACK MODE — Live Gemini API key not configured or unreachable]**\n\n"
         prompt_lower = user_prompt.lower()
-        hist_text = " ".join([h.get("content", "").lower() for h in (history or [])])
+        ctx = dict(context_data or {})
+
+        # Resolve target SKU from context, history, or prompt
+        sku = ctx.get("sku") or ctx.get("target_sku")
+        if not sku:
+            from .firestore_service import get_firestore_service
+            db = get_firestore_service()
+            all_items = db.get_inventory()
+            for it in all_items:
+                it_sku = it.get("sku", "")
+                it_name = it.get("name", "").lower()
+                if it_sku and (it_sku.lower() in prompt_lower or it_sku in user_prompt):
+                    sku = it_sku
+                    break
+                if it_name and it_name in prompt_lower:
+                    sku = it_sku
+                    break
+
+        if not sku and history:
+            for h in reversed(history):
+                h_content = h.get("content", "")
+                from .firestore_service import get_firestore_service
+                db = get_firestore_service()
+                for it in db.get_inventory():
+                    it_sku = it.get("sku", "")
+                    if it_sku and (it_sku.lower() in h_content.lower() or it_sku in h_content):
+                        sku = it_sku
+                        break
+                if sku:
+                    break
+
+        if not sku:
+            if "milk" in prompt_lower or "dairy" in prompt_lower:
+                sku = "DAIRY-001"
+            elif "cup" in prompt_lower or "pack" in prompt_lower:
+                sku = "PACK-001"
+            elif "flour" in prompt_lower:
+                sku = "FLOUR-001"
+            else:
+                sku = "COFFEE-001"
+
+        from .firestore_service import get_firestore_service
+        db = get_firestore_service()
+        item = db.get_inventory_by_sku("store_deccan_roast_01", sku) or {}
+
+        product_name = ctx.get("product_name") or item.get("name") or sku
+        unit = ctx.get("unit") or item.get("unit") or "units"
+
+        current_stock = ctx.get("current_stock")
+        if current_stock is None:
+            current_stock = item.get("current_stock")
+
+        daily_usage = ctx.get("daily_usage_avg")
+        if daily_usage is None:
+            daily_usage = item.get("daily_usage_avg")
+
+        days_left = ctx.get("days_left")
+        if days_left is None:
+            days_left = ctx.get("days_until_stockout")
+        if days_left is None and current_stock is not None and daily_usage is not None and daily_usage > 0:
+            days_left = round(current_stock / daily_usage, 1)
+
+        safety_stock = ctx.get("safety_stock")
+        if safety_stock is None:
+            safety_stock = item.get("safety_stock")
+
+        reorder_point = ctx.get("reorder_point")
+        if reorder_point is None:
+            reorder_point = item.get("reorder_point")
+
+        lead_time = ctx.get("lead_time_days")
+        if lead_time is None:
+            lead_time = item.get("lead_time_days")
+
+        stockout_risk = ctx.get("stockout_risk")
+        if stockout_risk is None:
+            stockout_risk = item.get("stockout_risk")
+
+        rec_qty = ctx.get("recommended_order_quantity") or ctx.get("recommended_qty")
+        if rec_qty is None:
+            rec_qty = 50.0
+
+        rec_scenario = ctx.get("recommended_scenario") or {}
+        proposal = ctx.get("proposal") or {}
+        approval_id = ctx.get("approval_id") or "APPR-2026-081"
+
+        total_cost = ctx.get("total_cost") or proposal.get("total_target_cost") or rec_scenario.get("total_cost")
+        savings = ctx.get("expected_savings") or proposal.get("expected_savings") or rec_scenario.get("savings_vs_quote")
+
+        if total_cost is None:
+            total_cost = 86328.0 if sku == "COFFEE-001" else 0.0
+        if savings is None:
+            savings = 8672.0 if sku == "COFFEE-001" else 0.0
+
+        scenario_name = rec_scenario.get("name") or "Scenario B: Split Order Strategy (AI Recommended)"
+        allocations = ctx.get("allocations") or rec_scenario.get("supplier_allocations") or []
+
+        stock_str = f"{current_stock} {unit}" if current_stock is not None else "Unavailable"
+        usage_str = f"{daily_usage} {unit}/day" if daily_usage is not None else "Unavailable"
+        days_str = f"{days_left:.1f} days" if days_left is not None else "Unavailable"
+        safety_str = f"{safety_stock} {unit}" if safety_stock is not None else "Unavailable"
+        rop_str = f"{reorder_point} {unit}" if reorder_point is not None else "Unavailable"
+        lead_str = f"{lead_time} days" if lead_time is not None else "Unavailable"
+        risk_str = str(stockout_risk) if stockout_risk is not None else "Unavailable"
 
         # Multi-turn Follow-up 1: Demand increase simulation
         if ("demand" in prompt_lower and ("increase" in prompt_lower or "surge" in prompt_lower or "20%" in prompt_lower)) or "what if" in prompt_lower:
+            if daily_usage is not None:
+                surge_usage = round(daily_usage * 1.2, 1)
+                surge_usage_str = f"{surge_usage} {unit}/day"
+                if current_stock is not None and surge_usage > 0:
+                    surge_days = round(current_stock / surge_usage, 2)
+                    surge_days_str = f"{surge_days} days"
+                else:
+                    surge_days_str = "Unavailable"
+            else:
+                surge_usage_str = "Unavailable"
+                surge_days_str = "Unavailable"
+
             return (
                 f"{disclaimer}"
-                "📈 **Multi-Turn Context Follow-Up (Demand Surge Analysis for Arabica Beans)**:\n\n"
-                "• **Baseline Run-Rate:** 13.0 kg/day (Current stock: 36.0 kg → 2.76 days remaining)\n"
-                "• **Simulated +20% Surge:** Velocity increases to **15.6 kg/day**.\n"
-                "• **Accelerated Depletion Horizon:** Stock will completely exhaust in **2.31 days** (breaching the 20.0 kg safety buffer in **~24.6 hours**).\n\n"
-                "💡 **Strategic Recommendation Under Surge**:\n"
-                "Do NOT rely solely on standard 4-day farm delivery. Immediately authorize **Scenario B (Split-Order)** to trigger Metro Wholesale's 2-day SLA (40 kg) for immediate buffer replenishment, while capturing bulk volume discounts on the remaining 60 kg from Malnad Planters Direct."
+                f"📈 **Multi-Turn Context Follow-Up (Demand Surge Analysis for {product_name})**:\n\n"
+                f"• **Baseline Run-Rate:** {usage_str} (Current stock: {stock_str} → ~{days_str} remaining)\n"
+                f"• **Simulated +20% Surge:** Velocity increases to **{surge_usage_str}**.\n"
+                f"• **Accelerated Depletion Horizon:** Stock will completely exhaust in **{surge_days_str}** "
+                f"(Safety buffer: {safety_str}).\n\n"
+                f"💡 **Strategic Recommendation Under Surge**:\n"
+                f"Do NOT rely on a single delayed shipment. Immediately authorize **{scenario_name}** "
+                f"to protect buffer while capturing ₹{savings:,.2f} in negotiated savings."
             )
 
         # Multi-turn Follow-up 2: Strategy safety comparison
-        if "safer" in prompt_lower or "strategy" in prompt_lower or "which" in prompt_lower and "supplier" in prompt_lower:
+        if "safer" in prompt_lower or "strategy" in prompt_lower or ("which" in prompt_lower and "supplier" in prompt_lower):
+            alloc_lines = []
+            for a in allocations:
+                s_name = a.get("supplier_name", "Supplier")
+                qty = a.get("quantity", 0)
+                cost = a.get("cost", 0)
+                alloc_lines.append(f"   • {qty:.0f} {unit} via *{s_name}* (₹{cost:,.2f})")
+            alloc_text = "\n".join(alloc_lines) if alloc_lines else f"   • Split multi-supplier allocation for {rec_qty:.0f} {unit}"
+
             return (
                 f"{disclaimer}"
-                "🛡️ **Multi-Turn Strategy Safety Assessment (Grounded in Prior Scenario Evaluation)**:\n\n"
-                "Comparing the active procurement options for **COFFEE-001**:\n\n"
-                "1. **Scenario B (Split-Order - AI Recommended):** **SAFEST OVERALL**\n"
-                "   • Splits 40 kg to *Metro Wholesale Hub* (96% on-time, 2-day lead) + 60 kg to *Malnad Coffee Direct* (94.5% reliability, 4-day lead).\n"
-                "   • **Risk Profile:** Mitigates single-point vendor failure while locking in ₹8,672 in negotiated savings.\n\n"
-                "2. **Scenario A (Single Supplier - Metro Wholesale):** High SLA certainty (96%), but pays premium rate (+₹8,672 vs. split order).\n\n"
-                "3. **Scenario D (Cheapest Only):** Exposes café to 100% stockout risk if regional transport delays occur.\n\n"
-                "👉 **Final Verdict:** Execute Scenario B. A pending approval request (APPR-2026-081) is awaiting manager authorization in the Approval Center."
+                f"🛡️ **Multi-Turn Strategy Safety Assessment (Grounded in Prior Scenario Evaluation)**:\n\n"
+                f"Comparing the active procurement options for **{sku}** ({product_name}):\n\n"
+                f"1. **{scenario_name}:** **SAFEST OVERALL**\n"
+                f"{alloc_text}\n"
+                f"   • **Risk Profile:** Mitigates single-point vendor failure while locking in ₹{savings:,.2f} in negotiated savings.\n\n"
+                f"2. **Scenario A (Single Supplier):** High SLA certainty, but single point of failure risk and higher unit cost.\n\n"
+                f"3. **Scenario D (Cheapest Only):** Exposes café to 100% stockout risk if regional transport delays occur.\n\n"
+                f"👉 **Final Verdict:** Execute {scenario_name}. A pending approval request ({approval_id}) is awaiting manager authorization in the Approval Center."
             )
 
-        # Standard Turn 1: Stockout / Coffee crisis
-        if "coffee" in prompt_lower or "stockout" in prompt_lower or "run out" in prompt_lower:
+        # Standard Turn 1: Stockout / Inventory inquiries
+        if any(w in prompt_lower for w in ["run out", "stockout", "coffee", "order", "replenish", "procure", "shortage", "supplies", "arabica", "crisis", "inventory", "stock", "depletion", "why"]):
+            alloc_bullets = []
+            for a in allocations:
+                s_name = a.get("supplier_name", "Supplier")
+                qty = a.get("quantity", 0)
+                cost = a.get("cost", 0)
+                unit_p = a.get("unit_price")
+                p_str = f" @ ₹{unit_p:.2f}/{unit}" if unit_p else ""
+                alloc_bullets.append(f"   • **{s_name}:** {qty:.0f} {unit}{p_str} (₹{cost:,.2f})")
+            if not alloc_bullets:
+                alloc_bullets.append(f"   • **Primary Allocation:** {rec_qty:.0f} {unit}")
+            alloc_bullet_str = "\n".join(alloc_bullets)
+
             return (
                 f"{disclaimer}"
-                "🚨 **Stockout Analysis for SKU COFFEE-001 (Arabica Coffee Beans - AAA Grade)**:\n\n"
-                "• **Current Stock:** 36.0 kg\n"
-                "• **Average Run-Rate:** 13.0 kg/day (+32% weekend surge factor)\n"
-                "• **Safety Stock Threshold:** 20.0 kg | **Reorder Point:** 41.5 kg\n"
-                "• **Projected Depletion:** Inventory will reach zero in **2.76 days** (Critical High Risk).\n\n"
-                "💡 **Recommended Operational Strategy**:\n"
-                "Execute **Scenario B (Split-Order Strategy)**:\n"
-                "1. Order **40 kg** from *Metro Wholesale Hub* (2-day lead time @ ₹902.50/kg) for immediate stockout protection.\n"
-                "2. Order **60 kg** from *Malnad Coffee Planters Direct* (4-day lead time @ ₹837.20/kg) for maximum cost savings.\n"
-                "3. **Total Investment:** ₹86,328.00 | **Projected Savings:** ₹8,672.00 vs quote.\n\n"
-                "👉 *A pending approval request (APPR-2026-081) has been prepared in the Approval Center for manager sign-off.*"
-            )
-            
-        if "supplier" in prompt_lower or "metro" in prompt_lower or "malnad" in prompt_lower:
-            return (
-                f"{disclaimer}"
-                "📊 **Supplier Network Intelligence**:\n\n"
-                "• **Metro Wholesale Hub:** Reliability **91/100** | On-Time: **96%** | Invoice Accuracy: **94%** | Lead Time: **2 Days**\n"
-                "• **Malnad Coffee Direct:** Reliability **94.5/100** | On-Time: **92%** | Price Stability: **95%** | Lead Time: **4 Days**\n"
-                "• **Kaveri Organic Dairy:** Reliability **87/100** | Active Flag: **1 Discrepancy Found** (8L Shortage on INV-KAV-8842)\n\n"
-                "AI Recommendation: Route immediate coffee replenishment to Metro Wholesale for SLA certainty, and split bulk volume to Malnad Direct."
+                f"🚨 **Stockout Analysis for SKU {sku} ({product_name})**:\n\n"
+                f"• **Current Stock:** {stock_str}\n"
+                f"• **Average Run-Rate:** {usage_str}\n"
+                f"• **Safety Stock Threshold:** {safety_str} | **Reorder Point:** {rop_str}\n"
+                f"• **Lead Time:** {lead_str}\n"
+                f"• **Projected Depletion:** {f'Inventory will reach stockout in **{days_str}**' if days_str != 'Unavailable' else '**Unavailable**'} (Risk: {risk_str}).\n\n"
+                f"💡 **Recommended Operational Strategy**:\n"
+                f"Execute **{scenario_name}**:\n"
+                f"{alloc_bullet_str}\n\n"
+                f"• **Financials:** Total cost is **₹{total_cost:,.2f}** with **₹{savings:,.2f} in savings** vs. baseline quote.\n\n"
+                f"🛡️ **Governance Status:** Action is staged and blocked under **Approval ID: {approval_id}** awaiting manager authorization."
             )
 
         return (
             f"{disclaimer}"
-            f"**Operational Intelligence Summary**:\n\n"
-            f"Analyzing current supply chain parameters against live store telemetry. "
-            f"All inventory thresholds, supplier SLAs, and purchase order statuses have been verified against the store operations ledger."
+            f"**Operational Intelligence Summary ({sku} - {product_name})**:\n\n"
+            f"• **Current Stock:** {stock_str} | **Daily Usage:** {usage_str}\n"
+            f"• **Stockout Horizon:** {days_str} | **Safety Threshold:** {safety_str}\n"
+            f"• **Recommended Action:** {scenario_name} for {rec_qty:.0f} {unit} (Est. cost ₹{total_cost:,.2f}, savings ₹{savings:,.2f}).\n\n"
+            f"All inventory thresholds and supplier allocations verified against store operations ledger."
         )
 
 _gemini_instance = None

@@ -448,12 +448,16 @@ class AskAgentRequest(BaseModel):
 @app.post("/api/agent/ask", tags=["Agent Orchestrator"])
 async def ask_agent(req: AskAgentRequest, user: AuthenticatedUser = Depends(verify_token)):
     orchestrator = get_orchestrator()
+    ctx = dict(req.context or {})
+    if req.sku and "selected_sku" not in ctx and "sku" not in ctx:
+        ctx["selected_sku"] = req.sku
     result = await orchestrator.process_user_request(
         user_prompt=req.prompt,
         user_id=user.uid,
         store_id=user.store_id,
-        context=req.context,
-        session_id=req.session_id
+        context=ctx,
+        session_id=req.session_id,
+        sku=req.sku
     )
     return result
 

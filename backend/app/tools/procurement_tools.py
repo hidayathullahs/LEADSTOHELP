@@ -34,7 +34,8 @@ def simulate_procurement(sku: str, quantity: Optional[float] = None) -> Dict[str
         target_quantity=quantity,
         suppliers=suppliers,
         current_stock=item.get("current_stock", 0.0),
-        daily_usage=item.get("daily_usage_avg", 5.0)
+        daily_usage=item.get("daily_usage_avg", 5.0),
+        base_cost=item.get("unit_cost")
     )
     
     recommended_scenario = next((s for s in scenarios if s.get("is_recommended")), scenarios[0])

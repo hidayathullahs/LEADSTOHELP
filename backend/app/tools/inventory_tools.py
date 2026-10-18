@@ -57,14 +57,21 @@ def forecast_demand(sku: str, horizon_days: int = 7) -> Dict[str, Any]:
         return {"error": f"SKU {sku} not found."}
     
     sales = db.get_sales_history("store_deccan_roast_01", sku, days=90)
+    current_stock = item.get("current_stock")
+    lead_time_days = item.get("lead_time_days")
+    if lead_time_days is None:
+        lead_time_days = 2
+
     forecast = generate_demand_forecast(
         sales_history=sales,
-        current_stock=item.get("current_stock", 0.0),
-        lead_time_days=item.get("lead_time_days", 2),
-        horizon_days=horizon_days
+        current_stock=current_stock,
+        lead_time_days=lead_time_days,
+        horizon_days=horizon_days,
+        daily_usage_avg=item.get("daily_usage_avg")
     )
     forecast["sku"] = sku
     forecast["product_name"] = item.get("name")
+    forecast["unit"] = item.get("unit", "units")
     return forecast
 
 def calculate_reorder_quantity(sku: str) -> Dict[str, Any]:
@@ -75,10 +82,10 @@ def calculate_reorder_quantity(sku: str) -> Dict[str, Any]:
         return {"error": f"SKU {sku} not found."}
         
     recommended_qty = calculate_recommended_order_quantity(
-        current_stock=item.get("current_stock", 0.0),
-        reorder_point=item.get("reorder_point", 10.0),
-        daily_avg=item.get("daily_usage_avg", 5.0),
-        min_order_qty=item.get("min_order_qty", 10.0)
+        current_stock=item.get("current_stock"),
+        reorder_point=item.get("reorder_point"),
+        daily_avg=item.get("daily_usage_avg"),
+        min_order_qty=item.get("min_order_qty", 10.0) or 10.0
     )
     return {
         "sku": sku,

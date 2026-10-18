@@ -24,7 +24,8 @@ def simulate_procurement_scenarios(
     target_quantity: float,
     suppliers: List[Dict[str, Any]],
     current_stock: float,
-    daily_usage: float
+    daily_usage: float,
+    base_cost: Optional[float] = None
 ) -> List[Dict[str, Any]]:
     """
     Evaluates all feasible suppliers and generates 3 distinct procurement scenarios.
@@ -48,14 +49,16 @@ def simulate_procurement_scenarios(
 
     if not matching_suppliers:
         # Fallback default supplier if catalog entry missing
+        default_price = base_cost if (base_cost is not None and base_cost > 0) else 100.0
+        discounted = round(default_price * 0.95, 2)
         matching_suppliers.append({
             "supplier_id": "sup_01",
             "supplier_name": "Metro Wholesale Hub",
             "reliability_score": 91.0,
             "on_time_rate": 96.0,
             "lead_time_days": 2,
-            "base_unit_price": 950.0,
-            "unit_price": 902.5,
+            "base_unit_price": default_price,
+            "unit_price": discounted,
             "catalog_item": {}
         })
 
@@ -117,14 +120,18 @@ def simulate_procurement_scenarios(
     blended_unit_price = round(total_split_cost / target_quantity, 2)
     savings_b = max(0.0, baseline_quote_cost - total_split_cost)
 
-    scenarios.append({
-        "scenario_id": "SCENARIO-B",
-        "name": "Scenario B: Split Order Strategy (AI Recommended)",
-        "strategy": f"Split {target_quantity:.0f} units: {qty_fast:.0f} units Fast Delivery + {qty_cheap:.0f} units Direct Source",
-        "total_cost": round(total_split_cost, 2),
-        "unit_price": blended_unit_price,
-        "lead_time_days": fastest_supplier["lead_time_days"],
-        "supplier_allocations": [
+    if fastest_supplier["supplier_id"] == cheapest_supplier["supplier_id"]:
+        allocations_b = [
+            {
+                "supplier_id": fastest_supplier["supplier_id"],
+                "supplier_name": fastest_supplier["supplier_name"],
+                "quantity": target_quantity,
+                "cost": round(total_split_cost, 2)
+            }
+        ]
+        strategy_b = f"Full order ({target_quantity:.0f} units) via {fastest_supplier['supplier_name']}"
+    else:
+        allocations_b = [
             {
                 "supplier_id": fastest_supplier["supplier_id"],
                 "supplier_name": fastest_supplier["supplier_name"],
@@ -137,7 +144,17 @@ def simulate_procurement_scenarios(
                 "quantity": qty_cheap,
                 "cost": round(cost_cheap_part, 2)
             }
-        ],
+        ]
+        strategy_b = f"Split {target_quantity:.0f} units: {qty_fast:.0f} units Fast Delivery + {qty_cheap:.0f} units Direct Source"
+
+    scenarios.append({
+        "scenario_id": "SCENARIO-B",
+        "name": "Scenario B: Split Order Strategy (AI Recommended)",
+        "strategy": strategy_b,
+        "total_cost": round(total_split_cost, 2),
+        "unit_price": blended_unit_price,
+        "lead_time_days": fastest_supplier["lead_time_days"],
+        "supplier_allocations": allocations_b,
         "risk_level": "LOW",
         "stockout_risk": "LOW",
         "savings_vs_quote": round(savings_b, 2),

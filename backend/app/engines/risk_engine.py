@@ -30,8 +30,12 @@ def evaluate_supply_risk_radar(
     # 1. Stockout Risk
     critical_stockout_skus = []
     for item in inventory:
-        dos = item.get("days_of_supply", 99.0)
-        lt = item.get("lead_time_days", 2)
+        dos = item.get("days_of_supply")
+        if dos is None:
+            dos = 99.0
+        lt = item.get("lead_time_days")
+        if lt is None:
+            lt = 2
         if dos <= lt * 1.5:
             critical_stockout_skus.append(item.get("sku"))
             
@@ -129,8 +133,7 @@ def evaluate_supply_risk_radar(
         "action_available": "Lock in 30-day fixed volume pricing via Vendor Negotiation Agent."
     })
 
-    # 7. Excess Inventory Risk
-    excess_skus = [i["sku"] for i in inventory if i.get("days_of_supply", 0) > 60]
+    excess_skus = [i["sku"] for i in inventory if (i.get("days_of_supply") is not None and i["days_of_supply"] > 60)]
     excess_score = min(100.0, round(len(excess_skus) * 8.0, 1))
     dimensions.append({
         "dimension_name": "Excess Inventory",
